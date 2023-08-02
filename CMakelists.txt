@@ -24,7 +24,7 @@ include(cmake/copyresources.cmake)
 
 aux_source_directory(src SRC)
 add_executable(pacman ${SRC})
-target_precompile_headers(pacman PUBLIC "toy2d/pch.hpp")
+target_precompile_headers(pacman PUBLIC "include/pch.hpp")
 target_include_directories(pacman PRIVATE include)
 target_link_libraries(pacman PRIVATE SDL2 SDL2_ttf)
 target_compile_features(pacman PRIVATE cxx_std_17)

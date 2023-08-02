@@ -1,5 +1,6 @@
 #pragma once
 #include "pch.hpp"
+#include "texture.hpp"
 #include "window.hpp"
 
 inline auto RendererDestroy = [](SDL_Renderer* renderer) {
@@ -11,7 +12,7 @@ class Renderer final {
     std::unique_ptr<SDL_Renderer, decltype(RendererDestroy)> renderer_;
 
    public:
-    friend class Context;
+    friend class Texture;
     Renderer(const Window&);
 
     void SetColor(const SDL_Color& color);
@@ -20,5 +21,5 @@ class Renderer final {
     void DrawRect(const SDL_Rect& rect);
     void FillRect(const SDL_Rect& rect);
     void DrawLine(const SDL_Point& p1, const SDL_Point& p2);
-    void DrawTexture(SDL_Texture* texture, const SDL_Rect& rect, int x, int y);
+    void DrawTexture(Texture& texture, const SDL_Rect& rect, int x, int y);
 };

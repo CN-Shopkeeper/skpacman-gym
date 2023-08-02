@@ -24,8 +24,8 @@ void Renderer::DrawLine(const SDL_Point& p1, const SDL_Point& p2) {
     SDL_RenderDrawLine(renderer_.get(), p1.x, p1.y, p2.x, p2.y);
 }
 
-void Renderer::DrawTexture(SDL_Texture* texture, const SDL_Rect& rect, int x,
+void Renderer::DrawTexture(Texture& texture, const SDL_Rect& rect, int x,
                            int y) {
     SDL_Rect dst = {x, y, rect.w, rect.h};
-    SDL_RenderCopy(renderer_.get(), texture, &rect, &dst);
+    SDL_RenderCopy(renderer_.get(), texture.texture_.get(), &rect, &dst);
 }
