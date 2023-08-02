@@ -1,0 +1,32 @@
+cmake_minimum_required(VERSION 3.10)
+
+project(
+    Pacman
+    VERSION 0.1.0
+    LANGUAGES CXX
+)
+
+include(cmake/utility.cmake)
+
+if(WIN32)
+    include(cmake/fetch_sdl.cmake)
+    option(FETCH_SDL "fetch SDL2 SDL2_image SDL2_ttf from web" FALSE)
+
+    if(FETCH_SDL)
+        FetchSDL()
+    endif()
+endif()
+
+include(cmake/FindSDL2.cmake)
+include(cmake/FindSDL2_ttf.cmake)
+include(cmake/copydll.cmake)
+include(cmake/copyresources.cmake)
+
+aux_source_directory(src SRC)
+add_executable(pacman ${SRC})
+target_include_directories(pacman PRIVATE include)
+target_link_libraries(pacman PRIVATE SDL2 SDL2_ttf)
+target_compile_features(pacman PRIVATE cxx_std_17)
+
+CopyDLL(pacman)
+CopyResources(pacman)
