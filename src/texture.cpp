@@ -37,8 +37,45 @@ Texture& TextureManager::Load(const std::string& name,
 
 Texture* TextureManager::Find(const std::string& name) {
     if (auto it = textures_.find(name); it != textures_.end()) {
-        // if (it->second.)
+        if (it->second.IsTilesheet()) {
+            SDL_Log("[TextureManager][WARN]: texture %s is a tilesheet",
+                    name.c_str());
+        }
         return &it->second;
     }
     return nullptr;
 }
+
+Tilesheet& TextureManager::LoadTilesheet(const std::string& name,
+                                         const std::string& filename,
+                                         const SDL_Color& keyColor, int col,
+                                         int row) {
+    auto& texture = textures_
+                        .emplace(name, Texture(renderer_, filename, keyColor,
+                                               tilesheets_.size()))
+                        .first->second;
+    tilesheets_.emplace_back(texture, col, row);
+    return tilesheets_.back();
+}
+Tilesheet* TextureManager::FindTilesheet(const std::string& name) {
+    if (auto it = textures_.find(name); it != textures_.end()) {
+        auto& texture = it->second;
+        if (!texture.IsTilesheet()) {
+            SDL_Log("[TextureManager][WARN]: texture %s is a pure texture",
+                    name.c_str());
+        }
+        return &tilesheets_[texture.GetTilesheetIdx()];
+    }
+    return nullptr;
+}
+
+Image::Image(Texture& texture)
+    : texture_(texture), rect_({0, 0}, texture.GetSize()) {}
+
+Image::Image(Texture& texture, Rect rect) : texture_(texture), rect_(rect) {}
+
+Tilesheet::Tilesheet(Texture& texture, int col, int row)
+    : texture_(texture),
+      row_(row),
+      col_(col),
+      tileSize_(texture.GetSize().w / col, texture.GetSize().h / row) {}

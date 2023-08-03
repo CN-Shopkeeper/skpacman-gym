@@ -122,29 +122,30 @@ class Matrix final {
     int h_;
 };
 
-// struct Rect final {
-//     union {
-//         SDL_FRect sdlrect;
-//         struct {
-//             Vector2 position;
-//             Size size;
-//         };
-//         struct {
-//             float x, y, w, h;
-//         };
-//     };
+class Rect final {
+   public:
+    union {
+        SDL_FRect sdlrect;
+        struct {
+            Vector2 position;
+            Size size;
+        } _;
+        struct {
+            float x, y, w, h;
+        };
+    };
 
-//     Rect(const Vector2& pos, const Vector2& size) {
-//         this->position = pos;
-//         this->size = size;
-//     }
+    Rect(const Vector2& pos, const Vector2& size) {
+        this->_.position = pos;
+        this->_.size = size;
+    }
 
-//     bool IsIntersect(const Rect& rect) const {
-//         return !(position.x + size.x <= rect.position.x ||
-//                  position.x >= rect.position.x + rect.size.x ||
-//                  position.y + size.y <= rect.position.y ||
-//                  position.y >= rect.position.y + rect.size.y);
-//     }
+    bool IsIntersect(const Rect& rect) const {
+        return !(_.position.x + _.size.x <= rect._.position.x ||
+                 _.position.x >= rect._.position.x + rect._.size.x ||
+                 _.position.y + _.size.y <= rect._.position.y ||
+                 _.position.y >= rect._.position.y + rect._.size.y);
+    }
 
-//     Vector2 Center() const { return position + size / 2.0; }
-// };
+    Vector2 Center() const { return _.position + _.size / 2.0; }
+};

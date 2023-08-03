@@ -29,3 +29,29 @@ void Renderer::DrawTexture(Texture& texture, const SDL_Rect& rect, int x,
     SDL_Rect dst = {x, y, rect.w, rect.h};
     SDL_RenderCopy(renderer_.get(), texture.texture_.get(), &rect, &dst);
 }
+
+void Renderer::DrawImage(const Image& image, const Vector2& position,
+                         const std::optional<Vector2>& size) {
+    SDL_FRect dst = {position.x, position.y, size ? size->w : image.rect_.w,
+                     size ? size->h : image.rect_.h};
+    SDL_Rect src = {
+        static_cast<int>(image.rect_.x), static_cast<int>(image.rect_.y),
+        static_cast<int>(image.rect_.w), static_cast<int>(image.rect_.h)};
+    SDL_RenderCopyF(renderer_.get(), image.texture_.texture_.get(), &src, &dst);
+}
+
+void Renderer::DrawImage(const Image& image, const Vector2& position,
+                         const Vector2 scale, float rotation ) {
+    SDL_FRect dst = {position.x, position.y, std::abs(scale.x) * image.rect_.w,
+                     std::abs(scale.y) * image.rect_.h};
+    SDL_Rect src = {
+        static_cast<int>(image.rect_.x), static_cast<int>(image.rect_.y),
+        static_cast<int>(image.rect_.w), static_cast<int>(image.rect_.h)};
+
+    uint32_t flip = SDL_RendererFlip::SDL_FLIP_NONE;
+    flip |= scale.x < 0 ? SDL_RendererFlip::SDL_FLIP_HORIZONTAL : 0;
+    flip |= scale.y < 0 ? SDL_RendererFlip::SDL_FLIP_VERTICAL : 0;
+    SDL_RenderCopyExF(renderer_.get(), image.texture_.texture_.get(), &src,
+                      &dst, rotation, nullptr,
+                      static_cast<SDL_RendererFlip>(flip));
+}
