@@ -1,10 +1,11 @@
 #pragma once
 #include "pch.hpp"
 #include "renderer.hpp"
+#include "singlton.hpp"
 #include "texture.hpp"
 #include "window.hpp"
 
-class Context final {
+class Context final : public Singlton<Context> {
    public:
     Context(const std::string& title, const Size& windowSize);
     auto& GetRenderer() { return *renderer_; }
