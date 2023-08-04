@@ -23,8 +23,7 @@ void Draw() {
     if (!tilesheet) {
         SDL_Log("[FatalError]: can't find tilesheet");
     }
-    renderer.DrawImage(tilesheet->Get(1, 0), {100, 200},
-                       std::optional<Vector2>{Vector2{36, 36}});
+    gameCtx.gameMap->Draw();
 }
 
 void ShutDown() {

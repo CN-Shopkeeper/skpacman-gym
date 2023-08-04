@@ -1,5 +1,4 @@
 #pragma once
-#include "pch.hpp"
 
 struct Vector2 final {
     union {
