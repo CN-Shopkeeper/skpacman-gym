@@ -24,6 +24,9 @@ void Draw() {
         SDL_Log("[FatalError]: can't find tilesheet");
     }
     gameCtx.gameMap->Draw();
+    for (auto& monster : gameCtx.monsters) {
+        monster.Draw();
+    }
 }
 
 void ShutDown() {
@@ -31,7 +34,10 @@ void ShutDown() {
     Context::Quit();
 }
 
-void Update() {}
+void Update() {
+    auto& gameCtx = GameContext::GetInstance();
+    gameCtx.Update();
+}
 
 void Run() {
     auto& gameCtx = GameContext::GetInstance();
@@ -46,6 +52,7 @@ void Run() {
     auto& renderer = Context::GetInstance().GetRenderer();
     renderer.SetColor(SDL_Color{0, 0, 0, 255});
     renderer.Clear();
+    Update();
     Draw();
     renderer.Present();
     SDL_Delay(30);

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "map.hpp"
+#include "monster.hpp"
 #include "pch.hpp"
 
 class GameContext final : public Singlton<GameContext> {
@@ -15,6 +16,9 @@ class GameContext final : public Singlton<GameContext> {
     void HandleEvent() {}
 
     std::unique_ptr<Map> gameMap;
+    std::vector<Monster> monsters;
+
+    void Update();
 
    private:
     bool shouldClose_ = false;
