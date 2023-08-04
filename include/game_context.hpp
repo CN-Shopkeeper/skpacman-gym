@@ -1,5 +1,6 @@
 #pragma once
 
+#include "controller.hpp"
 #include "map.hpp"
 #include "monster.hpp"
 #include "pch.hpp"
@@ -13,14 +14,17 @@ class GameContext final : public Singlton<GameContext> {
 
     GameContext();
 
-    void HandleEvent() {}
+    void HandleEvent() { controller->HandleEvent(event_); }
 
     std::unique_ptr<Map> gameMap;
     std::vector<Monster> monsters;
+    std::unique_ptr<Controller> controller;
 
     void Update();
 
    private:
     bool shouldClose_ = false;
     SDL_Event event_;
+
+    void dealCollideWithMap(Monster& Monster);
 };
