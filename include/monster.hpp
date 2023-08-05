@@ -5,11 +5,11 @@
 #include "pch.hpp"
 #include "texture.hpp"
 
-class Monster final {
+class Monster {
    public:
-    enum class Direction { Right = 0, Left, Up, Down };
+    enum class Direction { Right = 0, Down, Left, Up };
 
-    Direction dir = Direction::Right;
+    Direction movingDir = Direction::Right;
 
     Image image;
     float speed = 5.0f;
@@ -26,9 +26,23 @@ class Monster final {
     auto& GetVelocity() const { return offset_; }
 
     void Draw();
-    void Update();
+    virtual void Update();
 
-   private:
+   protected:
     Vector2 offset_;
     Vector2 position_;
+};
+
+class Pacman : public Monster {
+   public:
+    Pacman(const Image& image, const Vector2& position)
+        : Monster(image, position) {
+        intentionDir = movingDir;
+    }
+    Direction intentionDir;
+
+    void Update() override;
+
+   private:
+    bool isTurnBack() const;
 };

@@ -7,11 +7,11 @@ GameContext::GameContext() {
 
     auto& ctx = Context::GetInstance();
     auto tilesheet = ctx.GetTextureManager().FindTilesheet(TilesheetName);
-    monsters.emplace_back(
-        tilesheet->Get(static_cast<int>(ImageTileType::Pacman), 0),
-        Vector2{48, 32});
 
-    controller.reset(new Controller(monsters[0]));
+    monsters.emplace_back(
+        new Pacman{tilesheet->Get(static_cast<int>(ImageTileType::Pacman), 0),
+                   Vector2{48, 32}});
+    controller.reset(new Controller(*dynamic_cast<Pacman*>(monsters[0].get())));
 }
 
 void GameContext::dealCollideWithMap(Monster& monster) {
@@ -47,10 +47,10 @@ void GameContext::dealCollideWithMap(Monster& monster) {
 
 void GameContext::Update() {
     for (auto& monster : monsters) {
-        monster.Update();
+        monster->Update();
     }
 
     for (auto& monster : monsters) {
-        dealCollideWithMap(monster);
+        dealCollideWithMap(*monster);
     }
 }

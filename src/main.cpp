@@ -25,7 +25,7 @@ void Draw() {
     }
     gameCtx.gameMap->Draw();
     for (auto& monster : gameCtx.monsters) {
-        monster.Draw();
+        monster->Draw();
     }
 }
 

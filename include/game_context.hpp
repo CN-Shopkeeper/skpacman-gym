@@ -17,7 +17,7 @@ class GameContext final : public Singlton<GameContext> {
     void HandleEvent() { controller->HandleEvent(event_); }
 
     std::unique_ptr<Map> gameMap;
-    std::vector<Monster> monsters;
+    std::vector<std::unique_ptr<Monster>> monsters;
     std::unique_ptr<Controller> controller;
 
     void Update();
