@@ -10,7 +10,7 @@ GameContext::GameContext() {
 
     monsters.emplace_back(
         new Pacman{tilesheet->Get(static_cast<int>(ImageTileType::Pacman), 0),
-                   Vector2{48, 32}});
+                   Vector2{PacmanInitX, PacmanInitY}});
     controller.reset(new Controller(*dynamic_cast<Pacman*>(monsters[0].get())));
 }
 
@@ -64,6 +64,6 @@ void GameContext::newGame() {
     monsters.clear();
     monsters.emplace_back(
         new Pacman{tilesheet->Get(static_cast<int>(ImageTileType::Pacman), 0),
-                   Vector2{48, 32}});
+                   Vector2{PacmanInitX, PacmanInitY}});
     controller.reset(new Controller(*dynamic_cast<Pacman*>(monsters[0].get())));
 }

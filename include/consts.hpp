@@ -43,3 +43,6 @@ constexpr size_t TileSize = 32;
 
 constexpr size_t WindowHeight = TileSize * MapHeight;
 constexpr size_t WindowWidth = TileSize * MapWidth;
+
+constexpr size_t PacmanInitX = WindowWidth / 2 - TileSize;
+constexpr size_t PacmanInitY = (7 * 3 + 1) * TileSize;
