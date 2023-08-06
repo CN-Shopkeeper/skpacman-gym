@@ -3,7 +3,7 @@
 #include "context.hpp"
 
 GameContext::GameContext() {
-    gameMap.reset(new Map(MapDesc, {MapWidth, MapHeight}));
+    gameMap.reset(new Map(Map::GenerateMap(), {MapWidth, MapHeight}));
 
     auto& ctx = Context::GetInstance();
     auto tilesheet = ctx.GetTextureManager().FindTilesheet(TilesheetName);

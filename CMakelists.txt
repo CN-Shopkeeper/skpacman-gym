@@ -6,6 +6,9 @@ project(
     LANGUAGES CXX
 )
 
+# 开启控制台输出
+set(CMAKE_EXE_LINKER_FLAGS "-Wl,-subsystem,console")
+
 include(cmake/utility.cmake)
 
 if(WIN32)

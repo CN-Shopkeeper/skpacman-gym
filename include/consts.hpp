@@ -34,5 +34,12 @@ constexpr std::string_view MapDesc =
     "WWBBBBBBBW"
     "WWWWWWWWWW";
 
-constexpr int MapWidth = 10;
-constexpr int MapHeight = 13;
+constexpr size_t tetrisHeight = 9, tetrisWidth = 5;
+
+constexpr int MapWidth = tetrisWidth * 3 * 2;
+constexpr int MapHeight = tetrisHeight * 3 + 2;
+
+constexpr size_t TileSize = 32;
+
+constexpr size_t WindowHeight = TileSize * MapHeight;
+constexpr size_t WindowWidth = TileSize * MapWidth;

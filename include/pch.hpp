@@ -1,7 +1,11 @@
 #pragma once
 
+#include <algorithm>
+#include <array>
+#include <iostream>
 #include <memory>
 #include <optional>
+#include <queue>
 #include <random>
 #include <stack>
 #include <string>

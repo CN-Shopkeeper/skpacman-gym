@@ -12,11 +12,28 @@ struct Tile final {
         GhostDoor = static_cast<int>(ImageTileType::GhostDoor)
     };
     Type type = Type::Empty;
+    bool IsAccessible() const {
+        return type != Type::Wall && type != Type::GhostDoor;
+    }
+};
+
+class Tetris final {
+   public:
+    template <const size_t height, const size_t width>
+    static std::array<int, height * width> GenerateTetris();
+
+   private:
+    template <const size_t height, const size_t width>
+    static void bfs(std::array<int, height * width>& terris, int x, int y,
+                    int cnt, int num);
+
+    static int getTreisCount();
 };
 
 class Map final {
    public:
     Map(std::string_view desc, const Size& size);
+    static std::string GenerateMap();
 
     const Tile& GetTile(int x, int y) const { return tiles_->Get(x, y); }
     int Width() const { return tiles_->Width(); }

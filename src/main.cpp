@@ -5,7 +5,7 @@
 #include "game_context.hpp"
 
 void StartUp() {
-    Context::Init("Pacman", Vector2{720, 600});
+    Context::Init("Pacman", Vector2{WindowWidth, WindowHeight});
     auto& ctx = Context::GetInstance();
     auto& textureManager = ctx.GetTextureManager();
     textureManager.LoadTilesheet(TilesheetName, "./resources/tilesheet.bmp",
