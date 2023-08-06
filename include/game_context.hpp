@@ -14,7 +14,15 @@ class GameContext final : public Singlton<GameContext> {
 
     GameContext();
 
-    void HandleEvent() { controller->HandleEvent(event_); }
+    void HandleEvent() {
+        if (SDL_KEYDOWN == event_.type) {
+            auto key = event_.key.keysym.scancode;
+            if (SDL_SCANCODE_R == key) {
+                newGame();
+            }
+        }
+        controller->HandleEvent(event_);
+    }
 
     std::unique_ptr<Map> gameMap;
     std::vector<std::unique_ptr<Monster>> monsters;
@@ -26,5 +34,6 @@ class GameContext final : public Singlton<GameContext> {
     bool shouldClose_ = false;
     SDL_Event event_;
 
+    void newGame();
     void dealCollideWithMap(Monster& Monster);
 };
