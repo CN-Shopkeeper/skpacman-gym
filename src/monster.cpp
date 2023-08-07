@@ -18,7 +18,7 @@ void Monster::Draw() {
     renderer.DrawImage(image, position_, scale * Scale, rotation);
 }
 
-void Monster::Update() {
+void Monster::doUpdate() {
     if (movingDir == Direction::Left) {
         Move({-speed, 0});
     }
@@ -35,12 +35,12 @@ void Monster::Update() {
 
 // 可以在转向时对位置进行一定的容差
 // 转向时，将转向前的方向对齐到网格上（阈值为速度的-20%~100%）
-void Pacman::Update() {
+void Monster::Update() {
     if (intentionDir == movingDir) {
-        Monster::Update();
+        Monster::doUpdate();
     } else if (isTurnBack()) {
         movingDir = intentionDir;
-        Monster::Update();
+        Monster::doUpdate();
     } else {
         Rect monsterRect(GetPosition(), {TileSize, TileSize});
         auto monsterCenter = monsterRect.Center();
@@ -79,7 +79,7 @@ void Pacman::Update() {
         }
 
         if (!should) {
-            Monster::Update();
+            Monster::doUpdate();
         } else {
             Move(diff);
             movingDir = intentionDir;
@@ -87,8 +87,48 @@ void Pacman::Update() {
     }
 }
 
-bool Pacman::isTurnBack() const {
+bool Monster::isTurnBack() const {
     return (4 + static_cast<int>(intentionDir) - static_cast<int>(movingDir)) %
                4 ==
            2;
 }
+
+void Ghost::Update() {
+    auto& gameCtx = GameContext::GetInstance();
+    auto& pacman = gameCtx.controller->pacman;
+
+    // if (aiMap_.find(name_) == aiMap_.end()) {
+    //     movingDir = aiBlinky_(pacman, *this);
+    // }
+    intentionDir = aiBlinky_(pacman, *this);
+    // std::cout << static_cast<int>(movingDir) << std::endl;
+    // movingDir = aiMap_[name_](pacman, *this);
+    Monster::Update();
+}
+
+void Ghost::InitAiMap() { aiMap_.emplace("Blinky", aiBlinky_); }
+
+std::function<Monster::Direction(Pacman&, Ghost&)> Ghost::aiBlinky_ =
+    [](Pacman& pacman, Ghost& ghost) {
+        auto& gameCtx = GameContext::GetInstance();
+        auto path = gameCtx.gameMap->ShortestPathBetweenTiles(
+            pacman.GetMapCorrdinate(), ghost.GetMapCorrdinate());
+        if (path.size() < 2) {
+            return Monster::Direction::Up;
+        }
+        int offsetX = path[0].x - path[1].x;
+        int offsetY = path[0].y - path[1].y;
+        if (offsetX == -1) {
+            return Monster::Direction::Right;
+        }
+        if (offsetX == 1) {
+            return Monster::Direction::Left;
+        }
+        if (offsetY == -1) {
+            return Monster::Direction::Down;
+        }
+        if (offsetY == 1) {
+            return Monster::Direction::Up;
+        }
+        return Monster::Direction::Up;
+    };

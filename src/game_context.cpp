@@ -8,9 +8,14 @@ GameContext::GameContext() {
     auto& ctx = Context::GetInstance();
     auto tilesheet = ctx.GetTextureManager().FindTilesheet(TilesheetName);
 
+    Ghost::InitAiMap();
+
     monsters.emplace_back(
         new Pacman{tilesheet->Get(static_cast<int>(ImageTileType::Pacman), 0),
                    Vector2{PacmanInitX, PacmanInitY}});
+    monsters.emplace_back(
+        new Ghost{tilesheet->Get(static_cast<int>(ImageTileType::Ghost), 0),
+                  Vector2{GhostInitX, GhostInitY}, "Blinky"});
     controller.reset(new Controller(*dynamic_cast<Pacman*>(monsters[0].get())));
 }
 

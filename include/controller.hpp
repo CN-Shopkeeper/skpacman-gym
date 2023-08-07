@@ -4,7 +4,8 @@
 
 class Controller final {
    public:
-    Controller(Pacman& pacman) : pacman_(pacman) {}
+    Controller(Pacman& pacman) : pacman(pacman) {}
+    Pacman& pacman;
 
     void HandleEvent(const SDL_Event& event);
 
@@ -13,6 +14,4 @@ class Controller final {
     void moveDown();
     void moveRight();
     void moveLeft();
-
-    Pacman& pacman_;
 };

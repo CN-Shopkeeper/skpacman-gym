@@ -1,14 +1,14 @@
 #include "controller.hpp"
 
-void Controller::moveUp() { pacman_.intentionDir = Monster::Direction::Up; }
+void Controller::moveUp() { pacman.intentionDir = Monster::Direction::Up; }
 
-void Controller::moveDown() { pacman_.intentionDir = Monster::Direction::Down; }
+void Controller::moveDown() { pacman.intentionDir = Monster::Direction::Down; }
 
 void Controller::moveRight() {
-    pacman_.intentionDir = Monster::Direction::Right;
+    pacman.intentionDir = Monster::Direction::Right;
 }
 
-void Controller::moveLeft() { pacman_.intentionDir = Monster::Direction::Left; }
+void Controller::moveLeft() { pacman.intentionDir = Monster::Direction::Left; }
 
 void Controller::HandleEvent(const SDL_Event& event) {
     if (SDL_KEYDOWN == event.type) {

@@ -46,3 +46,6 @@ constexpr size_t WindowWidth = TileSize * MapWidth;
 
 constexpr size_t PacmanInitX = WindowWidth / 2 - TileSize;
 constexpr size_t PacmanInitY = (7 * 3 + 1) * TileSize;
+
+constexpr size_t GhostInitX = WindowWidth / 2 - TileSize * 2;
+constexpr size_t GhostInitY = (4 * 3 + 1) * TileSize;
