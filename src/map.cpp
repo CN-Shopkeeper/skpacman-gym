@@ -127,6 +127,64 @@ std::string Map::GenerateMap() {
     return mapStr;
 }
 
+std::vector<MapCoordinate> Map::ShortestPathBetweenTiles(MapCoordinate source,
+                                                         MapCoordinate target) {
+    auto& sTile = GetTile(source.x, source.y);
+    auto& tTile = GetTile(target.x, target.y);
+    std::vector<MapCoordinate> result;
+    if (!sTile.IsAccessible() || !tTile.IsAccessible()) {
+        // 起点或终点不可到达，直接返回空向量
+        return result;
+    }
+    std::vector<BFSNode> vec;
+    std::array<bool, MapWidth * MapHeight> visited{false};
+    vec.push_back({source.x, source.y, 0, -1});
+    visited[source.x + source.y * MapWidth] = true;
+    int index = 0;
+    int size = vec.size();
+    while (index != size) {
+        auto now = vec[index];
+        int x = now.x;
+        int y = now.y;
+        if (x == target.x && y == target.y) {
+            auto& traceBack = now;
+            while (traceBack.pre != -1) {
+                result.push_back({traceBack.x, traceBack.y});
+                traceBack = vec[traceBack.pre];
+            }
+            result.push_back({traceBack.x, traceBack.y});
+            return result;
+        }
+        // ! 不进行边界检查，因为目前四周边缘都是墙体
+        if (!visited[(x - 1) + y * MapWidth] &&
+            GetTile(x - 1, y).IsAccessible()) {
+            vec.push_back({x - 1, y, now.step + 1, index});
+            visited[x - 1 + y * MapWidth] = true;
+        }
+        if (!visited[x + 1 + y * MapWidth] &&
+            GetTile(x + 1, y).IsAccessible()) {
+            vec.push_back({x + 1, y, now.step + 1, index});
+            visited[x + 1 + y * MapWidth] = true;
+        }
+        if (!visited[x + (y - 1) * MapWidth] &&
+            GetTile(x, y - 1).IsAccessible()) {
+            vec.push_back({x, y - 1, now.step + 1, index});
+            visited[x + (y - 1) * MapWidth] = true;
+        }
+        if (!visited[x + (y + 1) * MapWidth] &&
+            GetTile(x, y + 1).IsAccessible()) {
+            vec.push_back({x, y + 1, now.step + 1, index});
+            visited[x + (y + 1) * MapWidth] = true;
+        }
+
+        index++;
+        size = vec.size();
+    }
+
+    // 不可到达
+    return result;
+}
+
 template <const size_t height, const size_t width>
 std::array<int, height * width> Tetris::GenerateTetris() {
     std::array<int, height * width> tetris{0};

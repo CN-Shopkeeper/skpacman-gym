@@ -13,7 +13,8 @@ struct Tile final {
     };
     Type type = Type::Empty;
     bool IsAccessible() const {
-        return type != Type::Wall && type != Type::GhostDoor;
+        return type != Type::Wall;
+        // return type != Type::Wall && type != Type::GhostDoor;
     }
 };
 
@@ -30,7 +31,20 @@ class Tetris final {
     static int getTreisCount();
 };
 
+struct MapCoordinate {
+    int x;
+    int y;
+};
+
 class Map final {
+   private:
+    struct BFSNode {
+        int x;
+        int y;
+        int step;
+        int pre;
+    };
+
    public:
     Map(std::string_view desc, const Size& size);
     static std::string GenerateMap();
@@ -40,6 +54,10 @@ class Map final {
     int Height() const { return tiles_->Height(); }
 
     void Draw();
+
+    // 返回从终点到起点的路径
+    std::vector<MapCoordinate> ShortestPathBetweenTiles(MapCoordinate source,
+                                                        MapCoordinate target);
 
    private:
     std::unique_ptr<Matrix<Tile>> tiles_;
