@@ -36,15 +36,14 @@ struct MapCoordinate {
     int y;
 };
 
-class Map final {
-   private:
-    struct BFSNode {
-        int x;
-        int y;
-        int step;
-        int pre;
-    };
+struct BFSNode {
+    int x;
+    int y;
+    int step;
+    int pre;
+};
 
+class Map final {
    public:
     Map(std::string_view desc, const Size& size);
     static std::string GenerateMap();

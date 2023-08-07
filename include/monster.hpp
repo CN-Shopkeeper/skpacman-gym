@@ -19,6 +19,8 @@ class Monster {
     Monster(const Image& image, const Vector2& position)
         : image(image), position_(position) {}
 
+    static MapCoordinate DirectionToCoordinate(Direction& direction);
+
     void Move(const Vector2& offset) {
         offset_ = offset;
         position_ += offset;
@@ -78,5 +80,8 @@ class Ghost : public Monster {
     std::string name_;
     inline static std::unordered_map<std::string, AIType> aiMap_ =
         std::unordered_map<std::string, AIType>();
+    static AIType aiPinky_;
     static AIType aiBlinky_;
 };
+
+Monster::Direction GetDirectionFromPath(const std::vector<MapCoordinate>& path);

@@ -2,6 +2,20 @@
 
 #include "game_context.hpp"
 
+MapCoordinate Monster::DirectionToCoordinate(Direction& direction) {
+    switch (direction) {
+        case Direction::Up:
+            return {0, -1};
+        case Direction::Down:
+            return {0, 1};
+        case Direction::Left:
+            return {-1, 0};
+        default:
+        case Direction::Right:
+            return {1, 0};
+    }
+}
+
 void Monster::Draw() {
     Vector2 scale;
     float rotation = 0;
@@ -97,38 +111,87 @@ void Ghost::Update() {
     auto& gameCtx = GameContext::GetInstance();
     auto& pacman = gameCtx.controller->pacman;
 
-    // if (aiMap_.find(name_) == aiMap_.end()) {
-    //     movingDir = aiBlinky_(pacman, *this);
-    // }
-    intentionDir = aiBlinky_(pacman, *this);
+    if (aiMap_.find(name_) == aiMap_.end()) {
+        intentionDir = aiBlinky_(pacman, *this);
+    } else {
+        intentionDir = aiMap_[name_](pacman, *this);
+    }
+    // intentionDir = aiBlinky_(pacman, *this);
     // std::cout << static_cast<int>(movingDir) << std::endl;
     // movingDir = aiMap_[name_](pacman, *this);
     Monster::Update();
 }
 
-void Ghost::InitAiMap() { aiMap_.emplace("Blinky", aiBlinky_); }
+void Ghost::InitAiMap() {
+    aiMap_.emplace("Blinky", aiBlinky_);
+    aiMap_.emplace("Pinky", aiPinky_);
+}
+
+Monster::Direction GetDirectionFromPath(
+    const std::vector<MapCoordinate>& path) {
+    if (path.size() < 2) {
+        return Monster::Direction::Up;
+    }
+    int offsetX = path[0].x - path[1].x;
+    int offsetY = path[0].y - path[1].y;
+    if (offsetX == -1) {
+        return Monster::Direction::Right;
+    }
+    if (offsetX == 1) {
+        return Monster::Direction::Left;
+    }
+    if (offsetY == -1) {
+        return Monster::Direction::Down;
+    }
+    if (offsetY == 1) {
+        return Monster::Direction::Up;
+    }
+    return Monster::Direction::Up;
+}
 
 std::function<Monster::Direction(Pacman&, Ghost&)> Ghost::aiBlinky_ =
     [](Pacman& pacman, Ghost& ghost) {
         auto& gameCtx = GameContext::GetInstance();
         auto path = gameCtx.gameMap->ShortestPathBetweenTiles(
             pacman.GetMapCorrdinate(), ghost.GetMapCorrdinate());
-        if (path.size() < 2) {
-            return Monster::Direction::Up;
+        return GetDirectionFromPath(path);
+    };
+
+std::function<Monster::Direction(Pacman&, Ghost&)> Ghost::aiPinky_ =
+    [](Pacman& pacman, Ghost& ghost) {
+        auto& gameCtx = GameContext::GetInstance();
+        auto sourceCor = pacman.GetMapCorrdinate();
+        // 2 pac front of pacman
+        auto pacMoveCor = DirectionToCoordinate(pacman.movingDir);
+        auto intentionCor = DirectionToCoordinate(pacman.intentionDir);
+        int pacCount = 2;
+        std::queue<BFSNode> queue;
+        queue.push({sourceCor.x, sourceCor.y, 0, 0});
+        while (!queue.empty()) {
+            auto& now = queue.front();
+            queue.pop();
+            // 防止只能走到0或1步
+            sourceCor = {now.x, now.y};
+            if (now.step == pacCount) {
+                // 走到第pacCount步，直接结束
+                break;
+            }
+            if (gameCtx.gameMap
+                    ->GetTile(now.x + pacMoveCor.x, now.y + pacMoveCor.y)
+                    .IsAccessible()) {
+                queue.push({now.x + pacMoveCor.x, now.y + pacMoveCor.y,
+                            now.step + 1, 0});
+            }
+            if (gameCtx.gameMap
+                    ->GetTile(now.x + intentionCor.x, now.y + intentionCor.y)
+                    .IsAccessible()) {
+                queue.push({now.x + intentionCor.x, now.y + intentionCor.y,
+                            now.step + 1, 0});
+            }
         }
-        int offsetX = path[0].x - path[1].x;
-        int offsetY = path[0].y - path[1].y;
-        if (offsetX == -1) {
-            return Monster::Direction::Right;
-        }
-        if (offsetX == 1) {
-            return Monster::Direction::Left;
-        }
-        if (offsetY == -1) {
-            return Monster::Direction::Down;
-        }
-        if (offsetY == 1) {
-            return Monster::Direction::Up;
-        }
-        return Monster::Direction::Up;
+
+        auto path = gameCtx.gameMap->ShortestPathBetweenTiles(
+            sourceCor, ghost.GetMapCorrdinate());
+
+        return GetDirectionFromPath(path);
     };
