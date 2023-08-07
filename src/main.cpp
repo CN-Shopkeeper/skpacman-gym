@@ -63,9 +63,14 @@ int main(int argc, char** argv) {
     // TTF_Init();
     StartUp();
 
+#ifdef __EMSCRIPTEN__
+#include "emscripten.h"
+    emscripten_set_main_loop(Run, 0, 1);
+#else
     while (!GameContext::GetInstance().ShouldClose()) {
         Run();
     }
+#endif
 
     ShutDown();
     SDL_Quit();

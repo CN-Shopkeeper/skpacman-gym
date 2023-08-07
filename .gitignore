@@ -12,4 +12,6 @@ _deps
 
 build/*
 
+wasm-build/*
+
 .vscode/*
