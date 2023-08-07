@@ -27,6 +27,12 @@ class Monster {
     auto& GetPosition() const { return position_; }
     auto& GetVelocity() const { return offset_; }
 
+    void Reset(const Vector2& position) {
+        position_ = position;
+        movingDir = Direction::Right;
+        intentionDir = Direction::Right;
+    }
+
     Rect GetRect() const { return Rect(position_, {TileSize, TileSize}); }
 
     MapCoordinate GetMapCorrdinate() const {
@@ -59,7 +65,9 @@ class Pacman : public Monster {
 class Ghost : public Monster {
    public:
     Ghost(const Image& image, const Vector2& position, std::string name)
-        : Monster(image, position), name_(name) {}
+        : Monster(image, position), name_(name) {
+        speed = 4;
+    }
 
     static void InitAiMap();
     void Update() override;
