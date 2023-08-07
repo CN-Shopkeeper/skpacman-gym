@@ -42,12 +42,13 @@ void Pacman::Update() {
         movingDir = intentionDir;
         Monster::Update();
     } else {
-        // todo: remove this magic number
-        Rect monsterRect(GetPosition(), {32, 32});
+        Rect monsterRect(GetPosition(), {TileSize, TileSize});
         auto monsterCenter = monsterRect.Center();
-        int indexX = static_cast<int>(monsterCenter.x / 32);
-        int indexY = static_cast<int>(monsterCenter.y / 32);
-        Rect tile = Rect{Vector2{indexX * 32.f, indexY * 32.f}, {32, 32}};
+        int indexX = static_cast<int>(monsterCenter.x / TileSize);
+        int indexY = static_cast<int>(monsterCenter.y / TileSize);
+        Rect tile =
+            Rect{Vector2{indexX * TileSize * 1.f, indexY * TileSize * 1.f},
+                 {TileSize, TileSize}};
         auto tileCenter = tile.Center();
         auto diff = tileCenter - monsterCenter;
         bool should = false;

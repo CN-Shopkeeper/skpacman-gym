@@ -3,7 +3,7 @@
 #include "pch.hpp"
 
 constexpr SDL_Color KeyColor = {118, 66, 138, 255};
-constexpr float Scale = 2;
+constexpr float Scale = 1.5;
 inline std::string TilesheetName = "tilesheet";
 constexpr int TilesheetCol = 7;
 constexpr int TilesheetRow = 1;
@@ -39,7 +39,7 @@ constexpr size_t tetrisHeight = 9, tetrisWidth = 5;
 constexpr int MapWidth = tetrisWidth * 3 * 2;
 constexpr int MapHeight = tetrisHeight * 3 + 2;
 
-constexpr size_t TileSize = 32;
+constexpr size_t TileSize = 24;
 
 constexpr size_t WindowHeight = TileSize * MapHeight;
 constexpr size_t WindowWidth = TileSize * MapWidth;

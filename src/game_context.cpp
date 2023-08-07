@@ -15,18 +15,18 @@ GameContext::GameContext() {
 }
 
 void GameContext::dealCollideWithMap(Monster& monster) {
-    // todo: remove this magic number
-    Rect monsterRect(monster.GetPosition(), {32, 32});
+    Rect monsterRect(monster.GetPosition(), {TileSize, TileSize});
     auto monsterCenter = monsterRect.Center();
-    int cx = monsterCenter.x / 32;
-    int cy = monsterCenter.y / 32;
+    int cx = monsterCenter.x / TileSize;
+    int cy = monsterCenter.y / TileSize;
     for (int dx = -1; dx <= 1; dx++) {
         for (int dy = -1; dy <= 1; dy++) {
             auto x = dx + cx, y = dy + cy;
             if (x < 0 || x > MapWidth || y < 0 || y > MapHeight) {
                 continue;
             }
-            Rect tileRect(Vector2(x * 32, y * 32), {32, 32});
+            Rect tileRect(Vector2(x * TileSize, y * TileSize),
+                          {TileSize, TileSize});
             if (gameMap->GetTile(x, y).type == Tile::Type::Wall &&
                 tileRect.IsIntersect(monsterRect)) {
                 monsterCenter = monsterRect.Center();
@@ -39,7 +39,7 @@ void GameContext::dealCollideWithMap(Monster& monster) {
                 auto seperate =
                     (-monster.GetVelocity()).Normalize() * intersectDepth;
                 monster.Move(seperate);
-                monsterRect = Rect(monster.GetPosition(), {32, 32});
+                monsterRect = Rect(monster.GetPosition(), {TileSize, TileSize});
             }
         }
     }
