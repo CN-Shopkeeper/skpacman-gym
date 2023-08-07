@@ -55,7 +55,7 @@ void Pacman::Update() {
         auto& gameCtx = GameContext::GetInstance();
 
         // constM 用于计算阈值范围
-        int constM = 1.5 - static_cast<int>(movingDir) > 0 ? -0.4 : 0.4;
+        double constM = 1.5 - static_cast<int>(movingDir) > 0 ? -0.4 : 0.4;
         int constI = 1.5 - static_cast<int>(intentionDir) > 0 ? 1 : -1;
         if (movingDir == Direction::Left || movingDir == Direction::Right) {
             if (diff.x >= speed * (constM - 0.6) &&
