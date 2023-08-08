@@ -46,6 +46,7 @@ class Monster {
 
     void Draw();
     virtual void Update();
+    virtual void Debug() = 0;
 
    protected:
     Vector2 offset_;
@@ -59,25 +60,30 @@ class Pacman : public Monster {
     Pacman(const Image& image, const Vector2& position)
         : Monster(image, position) {}
 
-    // void Update() override;
+    void Debug() override{};
 
    private:
 };
 
 class Ghost : public Monster {
    public:
-    Ghost(const Image& image, const Vector2& position, std::string name)
-        : Monster(image, position), name_(name) {
+    Ghost(const Image& image, const Vector2& position, std::string name,
+          SDL_Color color)
+        : Monster(image, position), name_(name), color_(color) {
         speed = 4;
     }
+    std::vector<MapCoordinate> path;
 
     static void InitAiMap();
     void Update() override;
+    void Debug() override;
 
-    using AIType = std::function<Direction(Pacman&, Ghost&)>;
+    using AIType =
+        std::function<Direction(Pacman&, Ghost&, std::vector<MapCoordinate>&)>;
 
    private:
     std::string name_;
+    SDL_Color color_;
     inline static std::unordered_map<std::string, AIType> aiMap_ =
         std::unordered_map<std::string, AIType>();
     static AIType aiPinky_;

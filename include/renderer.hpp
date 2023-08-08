@@ -1,4 +1,5 @@
 #pragma once
+#include "map.hpp"
 #include "pch.hpp"
 #include "texture.hpp"
 #include "window.hpp"
@@ -26,4 +27,6 @@ class Renderer final {
                    const std::optional<Vector2>& size);
     void DrawImage(const Image& image, const Vector2& position,
                    const Vector2 scale, float rotation = 0);
+    void DrawPath(const std::unique_ptr<SDL_Point[]>& path,
+                  const SDL_Color& color, int count);
 };

@@ -30,6 +30,10 @@ void Monster::Draw() {
 
     auto& renderer = Context::GetInstance().GetRenderer();
     renderer.DrawImage(image, position_, scale * Scale, rotation);
+
+    if (GameContext::GetInstance().debugMode) {
+        Debug();
+    }
 }
 
 void Monster::doUpdate() {
@@ -112,14 +116,23 @@ void Ghost::Update() {
     auto& pacman = gameCtx.controller->pacman;
 
     if (aiMap_.find(name_) == aiMap_.end()) {
-        intentionDir = aiBlinky_(pacman, *this);
+        intentionDir = aiBlinky_(pacman, *this, path);
     } else {
-        intentionDir = aiMap_[name_](pacman, *this);
+        intentionDir = aiMap_[name_](pacman, *this, path);
     }
     // intentionDir = aiBlinky_(pacman, *this);
     // std::cout << static_cast<int>(movingDir) << std::endl;
     // movingDir = aiMap_[name_](pacman, *this);
     Monster::Update();
+}
+
+void Ghost::Debug() {
+    std::unique_ptr<SDL_Point[]> path_(new SDL_Point[path.size()]);
+    for (int i = 0; i < path.size(); i++) {
+        path_[i] = {static_cast<int>(path[i].x * TileSize + TileSize / 2),
+                    static_cast<int>(path[i].y * TileSize + TileSize / 2)};
+    }
+    Context::GetInstance().GetRenderer().DrawPath(path_, color_, path.size());
 }
 
 void Ghost::InitAiMap() {
@@ -149,16 +162,18 @@ Monster::Direction GetDirectionFromPath(
     return Monster::Direction::Up;
 }
 
-std::function<Monster::Direction(Pacman&, Ghost&)> Ghost::aiBlinky_ =
-    [](Pacman& pacman, Ghost& ghost) {
-        auto& gameCtx = GameContext::GetInstance();
-        auto path = gameCtx.gameMap->ShortestPathBetweenTiles(
-            pacman.GetMapCorrdinate(), ghost.GetMapCorrdinate());
-        return GetDirectionFromPath(path);
-    };
+std::function<Monster::Direction(Pacman&, Ghost&, std::vector<MapCoordinate>&)>
+    Ghost::aiBlinky_ =
+        [](Pacman& pacman, Ghost& ghost, std::vector<MapCoordinate>& path) {
+            auto& gameCtx = GameContext::GetInstance();
+            path = gameCtx.gameMap->ShortestPathBetweenTiles(
+                pacman.GetMapCorrdinate(), ghost.GetMapCorrdinate());
+            return GetDirectionFromPath(path);
+        };
 
-std::function<Monster::Direction(Pacman&, Ghost&)> Ghost::aiPinky_ =
-    [](Pacman& pacman, Ghost& ghost) {
+std::function<Monster::Direction(Pacman&, Ghost&, std::vector<MapCoordinate>&)>
+    Ghost::aiPinky_ = [](Pacman& pacman, Ghost& ghost,
+                         std::vector<MapCoordinate>& path) {
         auto& gameCtx = GameContext::GetInstance();
         auto sourceCor = pacman.GetMapCorrdinate();
         // 2 pac front of pacman
@@ -190,7 +205,7 @@ std::function<Monster::Direction(Pacman&, Ghost&)> Ghost::aiPinky_ =
             }
         }
 
-        auto path = gameCtx.gameMap->ShortestPathBetweenTiles(
+        path = gameCtx.gameMap->ShortestPathBetweenTiles(
             sourceCor, ghost.GetMapCorrdinate());
 
         return GetDirectionFromPath(path);

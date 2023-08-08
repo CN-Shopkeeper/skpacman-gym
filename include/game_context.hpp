@@ -7,6 +7,7 @@
 
 class GameContext final : public Singlton<GameContext> {
    public:
+    bool debugMode = true;
     bool ShouldClose() const { return shouldClose_; }
     void Exit() { shouldClose_ = true; }
 
@@ -19,6 +20,9 @@ class GameContext final : public Singlton<GameContext> {
             auto key = event_.key.keysym.scancode;
             if (SDL_SCANCODE_R == key) {
                 newGame();
+            }
+            if (SDL_SCANCODE_G == key) {
+                debugMode = !debugMode;
             }
         }
         controller->HandleEvent(event_);

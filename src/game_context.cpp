@@ -15,10 +15,10 @@ GameContext::GameContext() {
                    Vector2{PacmanInitX, PacmanInitY}});
     monsters.emplace_back(
         new Ghost{tilesheet->Get(static_cast<int>(ImageTileType::Ghost), 0),
-                  Vector2{GhostInitX, GhostInitY}, "Blinky"});
-    monsters.emplace_back(
-        new Ghost{tilesheet->Get(static_cast<int>(ImageTileType::Ghost), 0),
-                  Vector2{GhostInitX + TileSize, GhostInitY}, "Pinky"});
+                  Vector2{GhostInitX, GhostInitY}, "Blinky", BlinkyColor});
+    monsters.emplace_back(new Ghost{
+        tilesheet->Get(static_cast<int>(ImageTileType::Ghost), 0),
+        Vector2{GhostInitX + TileSize, GhostInitY}, "Pinky", PinkyColor});
     controller.reset(new Controller(*dynamic_cast<Pacman*>(monsters[0].get())));
 }
 
@@ -68,4 +68,5 @@ void GameContext::newGame() {
 
     monsters[0]->Reset(Vector2{PacmanInitX, PacmanInitY});
     monsters[1]->Reset(Vector2{GhostInitX, GhostInitY});
+    monsters[2]->Reset(Vector2{GhostInitX + TileSize, GhostInitY});
 }

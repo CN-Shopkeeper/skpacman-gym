@@ -41,7 +41,7 @@ void Renderer::DrawImage(const Image& image, const Vector2& position,
 }
 
 void Renderer::DrawImage(const Image& image, const Vector2& position,
-                         const Vector2 scale, float rotation ) {
+                         const Vector2 scale, float rotation) {
     SDL_FRect dst = {position.x, position.y, std::abs(scale.x) * image.rect_.w,
                      std::abs(scale.y) * image.rect_.h};
     SDL_Rect src = {
@@ -54,4 +54,10 @@ void Renderer::DrawImage(const Image& image, const Vector2& position,
     SDL_RenderCopyExF(renderer_.get(), image.texture_.texture_.get(), &src,
                       &dst, rotation, nullptr,
                       static_cast<SDL_RendererFlip>(flip));
+}
+
+void Renderer::DrawPath(const std::unique_ptr<SDL_Point[]>& path,
+                        const SDL_Color& color, int count) {
+    SDL_SetRenderDrawColor(renderer_.get(), color.r, color.g, color.b, color.a);
+    SDL_RenderDrawLines(renderer_.get(), path.get(), count);
 }
