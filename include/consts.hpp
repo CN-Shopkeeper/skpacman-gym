@@ -36,15 +36,24 @@ constexpr std::string_view MapDesc =
     "WWBBBBBBBW"
     "WWWWWWWWWW";
 
+constexpr std::string_view Tips =
+    "操作提示\n"
+    "WASD 行走\n"
+    "R 重开游戏\n"
+    "G 开发者模式\n";
+
+// 界面相关
+
 constexpr size_t tetrisHeight = 9, tetrisWidth = 5;
 
 constexpr int MapWidth = tetrisWidth * 3 * 2;
 constexpr int MapHeight = tetrisHeight * 3 + 2;
 
 constexpr size_t TileSize = 24;
+constexpr size_t TipsWidth = 128;
 
 constexpr size_t WindowHeight = TileSize * MapHeight;
-constexpr size_t WindowWidth = TileSize * MapWidth;
+constexpr size_t WindowWidth = TileSize * MapWidth + TipsWidth;
 
 constexpr size_t PacmanInitX = WindowWidth / 2 - TileSize;
 constexpr size_t PacmanInitY = (7 * 3 + 1) * TileSize;

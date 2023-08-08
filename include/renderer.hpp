@@ -14,6 +14,7 @@ class Renderer final {
 
    public:
     friend class Texture;
+    friend class Context;
     Renderer(const Window&);
 
     void SetColor(const SDL_Color& color);
@@ -29,4 +30,5 @@ class Renderer final {
                    const Vector2 scale, float rotation = 0);
     void DrawPath(const std::unique_ptr<SDL_Point[]>& path,
                   const SDL_Color& color, int count);
+    void DrawTextTexture(TextTexture& textTexture, int x, int y);
 };

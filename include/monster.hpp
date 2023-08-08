@@ -19,6 +19,8 @@ class Monster {
     Monster(const Image& image, const Vector2& position)
         : image(image), position_(position) {}
 
+    virtual ~Monster() = default;
+
     static MapCoordinate DirectionToCoordinate(Direction& direction);
 
     void Move(const Vector2& offset) {

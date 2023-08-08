@@ -61,3 +61,9 @@ void Renderer::DrawPath(const std::unique_ptr<SDL_Point[]>& path,
     SDL_SetRenderDrawColor(renderer_.get(), color.r, color.g, color.b, color.a);
     SDL_RenderDrawLines(renderer_.get(), path.get(), count);
 }
+
+void Renderer::DrawTextTexture(TextTexture& textTexture, int x, int y) {
+    auto& rect = textTexture.rect;
+    SDL_Rect dst = {x, y, rect.w, rect.h};
+    SDL_RenderCopy(renderer_.get(), textTexture.texture.get(), &rect, &dst);
+}

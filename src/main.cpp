@@ -27,6 +27,7 @@ void Draw() {
     for (auto& monster : gameCtx.monsters) {
         monster->Draw();
     }
+    ctx.GetRenderer().DrawTextTexture(*ctx.tips.get(), TileSize * MapWidth, 0);
 }
 
 void ShutDown() {
@@ -60,7 +61,7 @@ void Run() {
 
 int main(int argc, char** argv) {
     SDL_Init(SDL_INIT_EVERYTHING);
-    // TTF_Init();
+    TTF_Init();
     StartUp();
 
 #ifdef __EMSCRIPTEN__
@@ -73,6 +74,7 @@ int main(int argc, char** argv) {
 #endif
 
     ShutDown();
+    TTF_Quit();
     SDL_Quit();
     return 0;
 }
