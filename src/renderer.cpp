@@ -51,6 +51,9 @@ void Renderer::DrawImage(const Image& image, const Vector2& position,
     uint32_t flip = SDL_RendererFlip::SDL_FLIP_NONE;
     flip |= scale.x < 0 ? SDL_RendererFlip::SDL_FLIP_HORIZONTAL : 0;
     flip |= scale.y < 0 ? SDL_RendererFlip::SDL_FLIP_VERTICAL : 0;
+    auto texture = image.texture_.texture_.get();
+    SDL_SetTextureColorMod(texture, image.color.r, image.color.g,
+                           image.color.b);
     SDL_RenderCopyExF(renderer_.get(), image.texture_.texture_.get(), &src,
                       &dst, rotation, nullptr,
                       static_cast<SDL_RendererFlip>(flip));

@@ -16,8 +16,8 @@ class TextTexture final {
     TextTexture() : texture(nullptr, DestroyTexture) {}
     TextTexture(SDL_Renderer* renderer, const char* text, TTF_Font* font)
         : texture(nullptr, DestroyTexture) {
-        auto textSurface =
-            TTF_RenderUTF8_Blended_Wrapped(font, text, {255, 255, 255, 255},128);
+        auto textSurface = TTF_RenderUTF8_Blended_Wrapped(
+            font, text, {255, 255, 255, 255}, 128);
         rect = {0, 0, textSurface->w, textSurface->h};
         texture.reset(SDL_CreateTextureFromSurface(renderer, textSurface));
         SDL_FreeSurface(textSurface);
@@ -27,6 +27,7 @@ class TextTexture final {
 class Texture final {
    public:
     friend class Renderer;
+    friend class Image;
     Texture(Renderer* renderer, const std::string& filename,
             const SDL_Color& keyColor, std::optional<size_t> tilesheetIdx);
 
@@ -47,9 +48,12 @@ class Texture final {
 class Image final {
    public:
     friend class Renderer;
+    SDL_Color color = {255, 255, 255, 255};
 
     Image(Texture& texture);
     Image(Texture& texture, Rect rect);
+
+    void SetColorMod(const SDL_Color& _color) { color = _color; }
 
    private:
     Texture& texture_;

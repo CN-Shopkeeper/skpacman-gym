@@ -70,9 +70,12 @@ Tilesheet* TextureManager::FindTilesheet(const std::string& name) {
 }
 
 Image::Image(Texture& texture)
-    : texture_(texture), rect_({0, 0}, texture.GetSize()) {}
+    : texture_(texture), rect_({0, 0}, texture.GetSize()) {
+}
 
-Image::Image(Texture& texture, Rect rect) : texture_(texture), rect_(rect) {}
+Image::Image(Texture& texture, Rect rect)
+    : texture_(texture), rect_(rect) {
+}
 
 Tilesheet::Tilesheet(Texture& texture, int col, int row)
     : texture_(texture),

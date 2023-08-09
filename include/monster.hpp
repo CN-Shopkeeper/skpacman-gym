@@ -79,14 +79,15 @@ class Pacman : public Monster {
 
 class Ghost : public Monster {
    public:
-    Ghost(const Image& image, const Vector2& position, std::string name,
+    Ghost(const Image& _image, const Vector2& position, std::string name,
           SDL_Color color, MapCoordinate scatterPoint)
-        : Monster(image, position),
+        : Monster(_image, position),
           name_(name),
           color_(color),
           scatterPoint_(scatterPoint) {
         speed = 4;
         checkPoint_ = {-1, -1};
+        image.SetColorMod(color);
     }
     std::vector<MapCoordinate> path;
 
