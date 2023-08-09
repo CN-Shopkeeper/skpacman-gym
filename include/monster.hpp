@@ -85,7 +85,7 @@ class Ghost : public Monster {
           name_(name),
           color_(color),
           scatterPoint_(scatterPoint) {
-        speed = 4;
+        speed = 3;
         checkPoint_ = {-1, -1};
         image.SetColorMod(color);
     }
