@@ -103,6 +103,7 @@ class Ghost : public Monster {
         std::unordered_map<std::string, AIType>();
     static AIType aiPinky_;
     static AIType aiBlinky_;
+    static AIType aiInky_;
 };
 
 Monster::Direction GetDirectionFromPath(const std::vector<MapCoordinate>& path);

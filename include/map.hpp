@@ -31,14 +31,27 @@ class Tetris final {
     static int getTreisCount();
 };
 
-struct MapCoordinate {
+class MapCoordinate {
+   public:
     int x;
     int y;
 
-    MapCoordinate operator+(const MapCoordinate& other) {
+    MapCoordinate operator+(const MapCoordinate& other) const {
         return {x + other.x, y + other.y};
     }
+
+    MapCoordinate operator-(const MapCoordinate& other) const {
+        return {x - other.x, y - other.y};
+    }
+
+    MapCoordinate operator*(const int value) const {
+        return {x * value, y * value};
+    }
 };
+
+inline MapCoordinate operator*(int value, const MapCoordinate& v) {
+    return v * value;
+}
 
 struct BFSNode {
     int x;
@@ -53,6 +66,9 @@ class Map final {
     static std::string GenerateMap();
 
     const Tile& GetTile(int x, int y) const { return tiles_->Get(x, y); }
+    const Tile& GetTile(MapCoordinate cor) const {
+        return tiles_->Get(cor.x, cor.y);
+    }
     int Width() const { return tiles_->Width(); }
     int Height() const { return tiles_->Height(); }
 
@@ -61,6 +77,16 @@ class Map final {
     // 返回从终点到起点的路径
     std::vector<MapCoordinate> ShortestPathBetweenTiles(MapCoordinate source,
                                                         MapCoordinate target);
+
+    // 找寻最近可到达的tile
+    MapCoordinate NearestAccessibleTile(MapCoordinate target);
+
+    // 坐标是否在地图内
+    bool IsInside(int x, int y) const {
+        return x >= 0 && x < Width() && y >= 0 && y < Height();
+    }
+
+    bool IsInside(MapCoordinate cor) const { return IsInside(cor.x, cor.y); }
 
    private:
     std::unique_ptr<Matrix<Tile>> tiles_;

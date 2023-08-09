@@ -155,6 +155,7 @@ void Ghost::Debug() {
 void Ghost::InitAiMap() {
     aiMap_.emplace("Blinky", aiBlinky_);
     aiMap_.emplace("Pinky", aiPinky_);
+    aiMap_.emplace("Inky", aiInky_);
 }
 
 Monster::Direction GetDirectionFromPath(
@@ -179,51 +180,88 @@ Monster::Direction GetDirectionFromPath(
     return Monster::Direction::Up;
 }
 
-std::function<Monster::Direction(Pacman&, Ghost&, std::vector<MapCoordinate>&)>
-    Ghost::aiBlinky_ =
-        [](Pacman& pacman, Ghost& ghost, std::vector<MapCoordinate>& path) {
-            auto& gameCtx = GameContext::GetInstance();
-            path = gameCtx.gameMap->ShortestPathBetweenTiles(
-                pacman.GetMapCorrdinate(), ghost.GetMapCorrdinate());
-            return GetDirectionFromPath(path);
-        };
+Ghost::AIType Ghost::aiBlinky_ = [](Pacman& pacman, Ghost& ghost,
+                                    std::vector<MapCoordinate>& path) {
+    auto& gameCtx = GameContext::GetInstance();
+    path = gameCtx.gameMap->ShortestPathBetweenTiles(pacman.GetMapCorrdinate(),
+                                                     ghost.GetMapCorrdinate());
+    return GetDirectionFromPath(path);
+};
 
-std::function<Monster::Direction(Pacman&, Ghost&, std::vector<MapCoordinate>&)>
-    Ghost::aiPinky_ = [](Pacman& pacman, Ghost& ghost,
-                         std::vector<MapCoordinate>& path) {
-        auto& gameCtx = GameContext::GetInstance();
-        auto sourceCor = pacman.GetMapCorrdinate();
-        // 2 pac front of pacman
-        auto pacMoveCor = DirectionToCoordinate(pacman.movingDir);
-        auto intentionCor = DirectionToCoordinate(pacman.intentionDir);
-        int pacCount = 2;
-        std::queue<BFSNode> queue;
-        queue.push({sourceCor.x, sourceCor.y, 0, 0});
-        while (!queue.empty()) {
-            auto& now = queue.front();
-            queue.pop();
-            // 防止只能走到0或1步
-            sourceCor = {now.x, now.y};
-            if (now.step == pacCount) {
-                // 走到第pacCount步，直接结束
-                break;
-            }
-            if (gameCtx.gameMap
-                    ->GetTile(now.x + pacMoveCor.x, now.y + pacMoveCor.y)
-                    .IsAccessible()) {
-                queue.push({now.x + pacMoveCor.x, now.y + pacMoveCor.y,
-                            now.step + 1, 0});
-            }
-            if (gameCtx.gameMap
-                    ->GetTile(now.x + intentionCor.x, now.y + intentionCor.y)
-                    .IsAccessible()) {
-                queue.push({now.x + intentionCor.x, now.y + intentionCor.y,
-                            now.step + 1, 0});
-            }
+Ghost::AIType Ghost::aiPinky_ = [](Pacman& pacman, Ghost& ghost,
+                                   std::vector<MapCoordinate>& path) {
+    auto& gameCtx = GameContext::GetInstance();
+    auto sourceCor = pacman.GetMapCorrdinate();
+    // 2 pac front of pacman
+    auto pacMoveCor = DirectionToCoordinate(pacman.movingDir);
+    auto intentionCor = DirectionToCoordinate(pacman.intentionDir);
+    int pacCount = 2;
+    std::queue<BFSNode> queue;
+    queue.push({sourceCor.x, sourceCor.y, 0, 0});
+    while (!queue.empty()) {
+        auto& now = queue.front();
+        queue.pop();
+        // 防止只能走到0或1步
+        sourceCor = {now.x, now.y};
+        if (now.step == pacCount) {
+            // 走到第pacCount步，直接结束
+            break;
         }
+        if (gameCtx.gameMap->GetTile(now.x + pacMoveCor.x, now.y + pacMoveCor.y)
+                .IsAccessible()) {
+            queue.push(
+                {now.x + pacMoveCor.x, now.y + pacMoveCor.y, now.step + 1, 0});
+        }
+        if (gameCtx.gameMap
+                ->GetTile(now.x + intentionCor.x, now.y + intentionCor.y)
+                .IsAccessible()) {
+            queue.push({now.x + intentionCor.x, now.y + intentionCor.y,
+                        now.step + 1, 0});
+        }
+    }
 
-        path = gameCtx.gameMap->ShortestPathBetweenTiles(
-            sourceCor, ghost.GetMapCorrdinate());
+    path = gameCtx.gameMap->ShortestPathBetweenTiles(sourceCor,
+                                                     ghost.GetMapCorrdinate());
 
-        return GetDirectionFromPath(path);
-    };
+    return GetDirectionFromPath(path);
+};
+
+Ghost::AIType Ghost::aiInky_ = [](Pacman& pacman, Ghost& ghost,
+                                  std::vector<MapCoordinate>& path) {
+    auto& gameCtx = GameContext::GetInstance();
+    auto pinkyTargetCor = pacman.GetMapCorrdinate();
+    // 2 pac front of pacman
+    auto pacMoveCor = DirectionToCoordinate(pacman.movingDir);
+    auto intentionCor = DirectionToCoordinate(pacman.intentionDir);
+    int pacCount = 2;
+    std::queue<BFSNode> queue;
+    queue.push({pinkyTargetCor.x, pinkyTargetCor.y, 0, 0});
+    while (!queue.empty()) {
+        auto& now = queue.front();
+        queue.pop();
+        // 防止只能走到0或1步
+        pinkyTargetCor = {now.x, now.y};
+        if (now.step == pacCount) {
+            // 走到第pacCount步，直接结束
+            break;
+        }
+        if (gameCtx.gameMap->GetTile(now.x + pacMoveCor.x, now.y + pacMoveCor.y)
+                .IsAccessible()) {
+            queue.push(
+                {now.x + pacMoveCor.x, now.y + pacMoveCor.y, now.step + 1, 0});
+        }
+        if (gameCtx.gameMap
+                ->GetTile(now.x + intentionCor.x, now.y + intentionCor.y)
+                .IsAccessible()) {
+            queue.push({now.x + intentionCor.x, now.y + intentionCor.y,
+                        now.step + 1, 0});
+        }
+    }
+
+    auto inkyCor = ghost.GetMapCorrdinate();
+    auto sourceCor = pinkyTargetCor * 2 - inkyCor;
+    sourceCor = gameCtx.gameMap->NearestAccessibleTile(sourceCor);
+    path = gameCtx.gameMap->ShortestPathBetweenTiles(sourceCor, inkyCor);
+
+    return GetDirectionFromPath(path);
+};

@@ -3,8 +3,10 @@
 #include "pch.hpp"
 
 constexpr SDL_Color KeyColor = {118, 66, 138, 255};
-constexpr SDL_Color BlinkyColor = {0, 0, 255, 255};
-constexpr SDL_Color PinkyColor = {255, 0, 0, 255};
+constexpr SDL_Color BlinkyColor = {255, 0, 0, 255};
+constexpr SDL_Color PinkyColor = {255, 192, 203, 255};
+constexpr SDL_Color InkyColor = {0, 255, 255, 255};
+
 constexpr float Scale = 1.5;
 inline std::string TilesheetName = "tilesheet";
 constexpr int TilesheetCol = 7;

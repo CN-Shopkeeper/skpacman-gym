@@ -185,6 +185,46 @@ std::vector<MapCoordinate> Map::ShortestPathBetweenTiles(MapCoordinate source,
     return result;
 }
 
+MapCoordinate Map::NearestAccessibleTile(MapCoordinate target) {
+    // ? 使用clamp还是使用与墙的交点
+    target.x = std::clamp(target.x, 0, MapWidth - 1);
+    target.y = std::clamp(target.y, 0, MapHeight - 1);
+    std::queue<BFSNode> queue;
+    std::array<bool, MapWidth * MapHeight> visited{false};
+    queue.push({target.x, target.y, 0, 0});
+    visited[target.x + target.y * MapWidth] = true;
+    while (!queue.empty()) {
+        auto& now = queue.front();
+        queue.pop();
+        if (GetTile(now.x, now.y).IsAccessible()) {
+            // 找到了第一个可以到达的点
+            return {now.x, now.y};
+        }
+        if (!visited[now.x - 1 + now.y * MapWidth] &&
+            IsInside(now.x - 1, now.y)) {
+            queue.push({now.x - 1, now.y, now.step + 1, now.pre});
+            visited[now.x - 1 + now.y * MapWidth] = true;
+        }
+        if (!visited[now.x + 1 + now.y * MapWidth] &&
+            IsInside(now.x + 1, now.y)) {
+            queue.push({now.x + 1, now.y, now.step + 1, now.pre});
+            visited[now.x + 1 + now.y * MapWidth] = true;
+        }
+        if (!visited[now.x + (now.y - 1) * MapWidth] &&
+            IsInside(now.x, now.y - 1)) {
+            queue.push({now.x, now.y - 1, now.step + 1, now.pre});
+            visited[now.x + (now.y - 1) * MapWidth] = true;
+        }
+        if (!visited[now.x + (now.y + 1) * MapWidth] &&
+            IsInside(now.x, now.y + 1)) {
+            queue.push({now.x, now.y + 1, now.step + 1, now.pre});
+            visited[now.x + (now.y + 1) * MapWidth] = true;
+        }
+    }
+    // 找寻不到，应该不会出现这种情况
+    return target;
+}
+
 template <const size_t height, const size_t width>
 std::array<int, height * width> Tetris::GenerateTetris() {
     std::array<int, height * width> tetris{0};
