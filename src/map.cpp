@@ -156,10 +156,16 @@ std::vector<MapCoordinate> Map::ShortestPathBetweenTiles(MapCoordinate source,
             return result;
         }
         // ! 不进行边界检查，因为目前四周边缘都是墙体
-        if (!visited[(x - 1) + y * MapWidth] &&
-            GetTile(x - 1, y).IsAccessible()) {
-            vec.push_back({x - 1, y, now.step + 1, index});
-            visited[x - 1 + y * MapWidth] = true;
+        /*
+         *  If two or more potential choices are an equal distance from the
+         * target, the decision between them is made in the order of up > left >
+         * down.
+         * 调整四个方向入队顺序（反向的），down > right > up
+         */
+        if (!visited[x + (y + 1) * MapWidth] &&
+            GetTile(x, y + 1).IsAccessible()) {
+            vec.push_back({x, y + 1, now.step + 1, index});
+            visited[x + (y + 1) * MapWidth] = true;
         }
         if (!visited[x + 1 + y * MapWidth] &&
             GetTile(x + 1, y).IsAccessible()) {
@@ -171,10 +177,10 @@ std::vector<MapCoordinate> Map::ShortestPathBetweenTiles(MapCoordinate source,
             vec.push_back({x, y - 1, now.step + 1, index});
             visited[x + (y - 1) * MapWidth] = true;
         }
-        if (!visited[x + (y + 1) * MapWidth] &&
-            GetTile(x, y + 1).IsAccessible()) {
-            vec.push_back({x, y + 1, now.step + 1, index});
-            visited[x + (y + 1) * MapWidth] = true;
+        if (!visited[(x - 1) + y * MapWidth] &&
+            GetTile(x - 1, y).IsAccessible()) {
+            vec.push_back({x - 1, y, now.step + 1, index});
+            visited[x - 1 + y * MapWidth] = true;
         }
 
         index++;
