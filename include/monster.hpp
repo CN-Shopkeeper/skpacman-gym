@@ -80,8 +80,11 @@ class Pacman : public Monster {
 class Ghost : public Monster {
    public:
     Ghost(const Image& image, const Vector2& position, std::string name,
-          SDL_Color color)
-        : Monster(image, position), name_(name), color_(color) {
+          SDL_Color color, MapCoordinate scatterPoint)
+        : Monster(image, position),
+          name_(name),
+          color_(color),
+          scatterPoint_(scatterPoint) {
         speed = 4;
         checkPoint_ = {-1, -1};
     }
@@ -99,11 +102,14 @@ class Ghost : public Monster {
     SDL_Color color_;
     // 上次转向判定点，按照wiki说明只有在路口时才能转向判定。
     MapCoordinate checkPoint_;
+    // Scatter模式下的点
+    MapCoordinate scatterPoint_;
     inline static std::unordered_map<std::string, AIType> aiMap_ =
         std::unordered_map<std::string, AIType>();
     static AIType aiPinky_;
     static AIType aiBlinky_;
     static AIType aiInky_;
+    static AIType aiClyde_;
 };
 
 Monster::Direction GetDirectionFromPath(const std::vector<MapCoordinate>& path);

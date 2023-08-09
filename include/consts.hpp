@@ -6,6 +6,7 @@ constexpr SDL_Color KeyColor = {118, 66, 138, 255};
 constexpr SDL_Color BlinkyColor = {255, 0, 0, 255};
 constexpr SDL_Color PinkyColor = {255, 192, 203, 255};
 constexpr SDL_Color InkyColor = {0, 255, 255, 255};
+constexpr SDL_Color ClydeColor = {255, 127, 80, 255};
 
 constexpr float Scale = 1.5;
 inline std::string TilesheetName = "tilesheet";
@@ -60,5 +61,5 @@ constexpr size_t WindowWidth = TileSize * MapWidth + TipsWidth;
 constexpr size_t PacmanInitX = WindowWidth / 2 - TileSize;
 constexpr size_t PacmanInitY = (7 * 3 + 1) * TileSize;
 
-constexpr size_t GhostInitX = WindowWidth / 2 - TileSize * 2;
+constexpr size_t GhostInitX = (TileSize * MapWidth) / 2 - TileSize * 2;
 constexpr size_t GhostInitY = (4 * 3 + 1) * TileSize;

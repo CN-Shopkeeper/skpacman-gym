@@ -156,6 +156,7 @@ void Ghost::InitAiMap() {
     aiMap_.emplace("Blinky", aiBlinky_);
     aiMap_.emplace("Pinky", aiPinky_);
     aiMap_.emplace("Inky", aiInky_);
+    aiMap_.emplace("Clyde", aiClyde_);
 }
 
 Monster::Direction GetDirectionFromPath(
@@ -265,3 +266,18 @@ Ghost::AIType Ghost::aiInky_ = [](Pacman& pacman, Ghost& ghost,
 
     return GetDirectionFromPath(path);
 };
+
+Ghost::AIType Ghost::aiClyde_ = [](Pacman& pacman, Ghost& ghost,
+                                   std::vector<MapCoordinate>& path) {
+    auto& gameCtx = GameContext::GetInstance();
+    path = gameCtx.gameMap->ShortestPathBetweenTiles(pacman.GetMapCorrdinate(),
+                                                     ghost.GetMapCorrdinate());
+    if (path.size() > 8) {
+        return GetDirectionFromPath(path);
+    } else {
+        path = gameCtx.gameMap->ShortestPathBetweenTiles(
+            ghost.scatterPoint_, ghost.GetMapCorrdinate());
+        return GetDirectionFromPath(path);
+    }
+};
+;

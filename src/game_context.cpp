@@ -15,13 +15,20 @@ GameContext::GameContext() {
                    Vector2{PacmanInitX, PacmanInitY}});
     monsters.emplace_back(
         new Ghost{tilesheet->Get(static_cast<int>(ImageTileType::Ghost), 0),
-                  Vector2{GhostInitX, GhostInitY}, "Blinky", BlinkyColor});
+                  Vector2{GhostInitX, GhostInitY}, "Blinky", BlinkyColor,
+                  gameMap->NearestAccessibleTile({MapWidth, -1})});
+    monsters.emplace_back(
+        new Ghost{tilesheet->Get(static_cast<int>(ImageTileType::Ghost), 0),
+                  Vector2{GhostInitX + TileSize, GhostInitY}, "Pinky",
+                  PinkyColor, gameMap->NearestAccessibleTile({-1, -1})});
     monsters.emplace_back(new Ghost{
         tilesheet->Get(static_cast<int>(ImageTileType::Ghost), 0),
-        Vector2{GhostInitX + TileSize, GhostInitY}, "Pinky", PinkyColor});
-    monsters.emplace_back(new Ghost{
-        tilesheet->Get(static_cast<int>(ImageTileType::Ghost), 0),
-        Vector2{GhostInitX + TileSize * 2, GhostInitY}, "Inky", InkyColor});
+        Vector2{GhostInitX + TileSize * 2, GhostInitY}, "Inky", InkyColor,
+        gameMap->NearestAccessibleTile({MapWidth, MapHeight})});
+    monsters.emplace_back(
+        new Ghost{tilesheet->Get(static_cast<int>(ImageTileType::Ghost), 0),
+                  Vector2{GhostInitX + TileSize * 2, GhostInitY}, "Clyde",
+                  ClydeColor, gameMap->NearestAccessibleTile({-1, MapHeight})});
     controller.reset(new Controller(*dynamic_cast<Pacman*>(monsters[0].get())));
 }
 
@@ -72,5 +79,6 @@ void GameContext::newGame() {
     monsters[0]->Reset(Vector2{PacmanInitX, PacmanInitY});
     monsters[1]->Reset(Vector2{GhostInitX, GhostInitY});
     monsters[2]->Reset(Vector2{GhostInitX + TileSize, GhostInitY});
-    monsters[2]->Reset(Vector2{GhostInitX + TileSize * 2, GhostInitY});
+    monsters[3]->Reset(Vector2{GhostInitX + TileSize * 2, GhostInitY});
+    monsters[4]->Reset(Vector2{GhostInitX + TileSize * 3, GhostInitY});
 }
