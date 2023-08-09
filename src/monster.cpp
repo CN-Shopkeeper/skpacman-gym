@@ -114,34 +114,87 @@ bool Monster::isTurnBack() const {
 void Ghost::Update() {
     auto& gameCtx = GameContext::GetInstance();
     auto cor = GetMapCorrdinate();
+    auto leftD = LeftDirection();
+    auto rightD = RightDirection();
+    auto left = DirectionToCoordinate(leftD) + cor;
+    auto right = DirectionToCoordinate(rightD) + cor;
     if (cor.x == checkPoint_.x && cor.y == checkPoint_.y) {
         // 刚过检查点，
-        // 有一个在开发者模式的问题，就是当鬼怪和吃豆人在倒L形状路口接触时，会直接停住不动弹，
-        // 理由是当没有路径时默认返回向上
-        if (intentionDir == Direction::Up) {
-            if (!gameCtx.gameMap->GetTile(cor.x, cor.y - 1).IsAccessible()) {
-                intentionDir = Direction::Down;
+        // 如果意图方向面前的tile不可到达，则尝试直行、拐弯或反向。这个情况可能会在以下两种情况遇到：
+        // 1.
+        // 在开发者模式，当鬼怪和吃豆人在倒L形状路口接触时，会直接停住不动弹，理由是当没有路径时默认返回向上
+        // 2. 在Scatter模式下，绕着自己的ScatterPoint的墙壁移动时，会卡住
+        auto directionCor = DirectionToCoordinate(intentionDir);
+        if (!gameCtx.gameMap
+                 ->GetTile(cor.x + directionCor.x, cor.y + directionCor.y)
+                 .IsAccessible()) {
+            auto forward = DirectionToCoordinate(movingDir) + cor;
+            if (gameCtx.gameMap->GetTile(forward.x, forward.y).IsAccessible()) {
+                intentionDir = movingDir;
+            } else if (gameCtx.gameMap->GetTile(left.x, left.y)
+                           .IsAccessible()) {
+                intentionDir = leftD;
+            } else if (gameCtx.gameMap->GetTile(right.x, right.y)
+                           .IsAccessible()) {
+                intentionDir = rightD;
+            } else {
+                intentionDir = BackDirection();
             }
         }
+        // if (intentionDir == Direction::Up) {
+        //     if (!gameCtx.gameMap->GetTile(cor.x, cor.y - 1).IsAccessible()) {
+        //         intentionDir = Direction::Down;
+        //     }
+        // }
         // 直接进行更新
         Monster::Update();
     } else {
         // 检查是否在路口
-        auto leftD = LeftDirection();
-        auto rightD = RightDirection();
-        auto left = DirectionToCoordinate(leftD) + cor;
-        auto right = DirectionToCoordinate(rightD) + cor;
-        if (gameCtx.gameMap->GetTile(left.x, left.y).IsAccessible() ||
-            gameCtx.gameMap->GetTile(right.x, right.y).IsAccessible()) {
+        auto& leftTile = gameCtx.gameMap->GetTile(left.x, left.y);
+        auto& rightTile = gameCtx.gameMap->GetTile(right.x, right.y);
+        if (leftTile.IsAccessible() || rightTile.IsAccessible()) {
             // 在路口，更新意图
-            auto& pacman = gameCtx.controller->pacman;
-            if (aiMap_.find(name_) == aiMap_.end()) {
-                intentionDir = aiBlinky_(pacman, *this, path);
-            } else {
-                intentionDir = aiMap_[name_](pacman, *this, path);
-            }
             // 更新检查点
             checkPoint_ = cor;
+            auto& pacman = gameCtx.controller->pacman;
+            // chase模式
+            if (Ghost::Mode::Chase == mode_) {
+                if (aiMap_.find(name_) == aiMap_.end()) {
+                    intentionDir = aiBlinky_(pacman, *this);
+                } else {
+                    intentionDir = aiMap_[name_](pacman, *this);
+                }
+            } else if (Ghost::Mode::Scatter == mode_) {
+                // Scatter模式
+                if (!scatterInfo_.scatterCheckPoint &&
+                    cor.x == scatterInfo_.scatterPoint.x &&
+                    cor.y == scatterInfo_.scatterPoint.y) {
+                    scatterInfo_.scatterCheckPoint = true;
+                    scatterInfo_.scatterCCW = leftTile.IsAccessible();
+                }
+                if (scatterInfo_.scatterCheckPoint) {
+                    intentionDir = scatterInfo_.scatterCCW ? leftD : rightD;
+                } else {
+                    intentionDir = aiMap_["Frightened"](pacman, *this);
+                }
+            } else if (Ghost::Mode::Frightened == mode_) {
+                // Frightened模式
+                // 1/7 保持直行(可能会碰壁、掉头)，6/7拐弯
+                int randNum = std::rand() % 7;
+                if (randNum < 3) {
+                    if (leftTile.IsAccessible()) {
+                        intentionDir = leftD;
+                    } else {
+                        intentionDir = rightD;
+                    }
+                } else if (randNum < 6) {
+                    if (rightTile.IsAccessible()) {
+                        intentionDir = rightD;
+                    } else {
+                        intentionDir = leftD;
+                    }
+                }
+            }
         }
         Monster::Update();
     }
@@ -168,6 +221,14 @@ void Ghost::InitAiMap() {
     aiMap_.emplace("Pinky", aiPinky_);
     aiMap_.emplace("Inky", aiInky_);
     aiMap_.emplace("Clyde", aiClyde_);
+    aiMap_.emplace("Frightened", aiFrightened_);
+}
+
+void Ghost::ChangeMode(Mode mode) {
+    mode_ = mode;
+    // 直接重置
+    scatterInfo_.scatterCCW = false;
+    scatterInfo_.scatterCheckPoint = false;
 }
 
 Monster::Direction GetDirectionFromPath(
@@ -192,16 +253,15 @@ Monster::Direction GetDirectionFromPath(
     return Monster::Direction::Up;
 }
 
-Ghost::AIType Ghost::aiBlinky_ = [](Pacman& pacman, Ghost& ghost,
-                                    std::vector<MapCoordinate>& path) {
+Ghost::AIType Ghost::aiBlinky_ = [](Pacman& pacman, Ghost& ghost) {
     auto& gameCtx = GameContext::GetInstance();
-    path = gameCtx.gameMap->ShortestPathBetweenTiles(pacman.GetMapCorrdinate(),
-                                                     ghost.GetMapCorrdinate());
-    return GetDirectionFromPath(path);
+    ghost.path = gameCtx.gameMap->ShortestPathBetweenTiles(
+        pacman.GetMapCorrdinate(), ghost.GetMapCorrdinate());
+
+    return GetDirectionFromPath(ghost.path);
 };
 
-Ghost::AIType Ghost::aiPinky_ = [](Pacman& pacman, Ghost& ghost,
-                                   std::vector<MapCoordinate>& path) {
+Ghost::AIType Ghost::aiPinky_ = [](Pacman& pacman, Ghost& ghost) {
     auto& gameCtx = GameContext::GetInstance();
     auto sourceCor = pacman.GetMapCorrdinate();
     // 2 pac front of pacman
@@ -232,14 +292,13 @@ Ghost::AIType Ghost::aiPinky_ = [](Pacman& pacman, Ghost& ghost,
         }
     }
 
-    path = gameCtx.gameMap->ShortestPathBetweenTiles(sourceCor,
-                                                     ghost.GetMapCorrdinate());
+    ghost.path = gameCtx.gameMap->ShortestPathBetweenTiles(
+        sourceCor, ghost.GetMapCorrdinate());
 
-    return GetDirectionFromPath(path);
+    return GetDirectionFromPath(ghost.path);
 };
 
-Ghost::AIType Ghost::aiInky_ = [](Pacman& pacman, Ghost& ghost,
-                                  std::vector<MapCoordinate>& path) {
+Ghost::AIType Ghost::aiInky_ = [](Pacman& pacman, Ghost& ghost) {
     auto& gameCtx = GameContext::GetInstance();
     auto pinkyTargetCor = pacman.GetMapCorrdinate();
     // 2 pac front of pacman
@@ -273,22 +332,27 @@ Ghost::AIType Ghost::aiInky_ = [](Pacman& pacman, Ghost& ghost,
     auto inkyCor = ghost.GetMapCorrdinate();
     auto sourceCor = pinkyTargetCor * 2 - inkyCor;
     sourceCor = gameCtx.gameMap->NearestAccessibleTile(sourceCor);
-    path = gameCtx.gameMap->ShortestPathBetweenTiles(sourceCor, inkyCor);
+    ghost.path = gameCtx.gameMap->ShortestPathBetweenTiles(sourceCor, inkyCor);
 
-    return GetDirectionFromPath(path);
+    return GetDirectionFromPath(ghost.path);
 };
 
-Ghost::AIType Ghost::aiClyde_ = [](Pacman& pacman, Ghost& ghost,
-                                   std::vector<MapCoordinate>& path) {
+Ghost::AIType Ghost::aiClyde_ = [](Pacman& pacman, Ghost& ghost) {
     auto& gameCtx = GameContext::GetInstance();
-    path = gameCtx.gameMap->ShortestPathBetweenTiles(pacman.GetMapCorrdinate(),
-                                                     ghost.GetMapCorrdinate());
-    if (path.size() > 8) {
-        return GetDirectionFromPath(path);
+    ghost.path = gameCtx.gameMap->ShortestPathBetweenTiles(
+        pacman.GetMapCorrdinate(), ghost.GetMapCorrdinate());
+    if (ghost.path.size() > 8) {
+        return GetDirectionFromPath(ghost.path);
     } else {
-        path = gameCtx.gameMap->ShortestPathBetweenTiles(
-            ghost.scatterPoint_, ghost.GetMapCorrdinate());
-        return GetDirectionFromPath(path);
+        ghost.path = gameCtx.gameMap->ShortestPathBetweenTiles(
+            ghost.scatterInfo_.scatterPoint, ghost.GetMapCorrdinate());
+        return GetDirectionFromPath(ghost.path);
     }
 };
-;
+
+Ghost::AIType Ghost::aiFrightened_ = [](Pacman& pacman, Ghost& ghost) {
+    auto& gameCtx = GameContext::GetInstance();
+    ghost.path = gameCtx.gameMap->ShortestPathBetweenTiles(
+        ghost.scatterInfo_.scatterPoint, ghost.GetMapCorrdinate());
+    return GetDirectionFromPath(ghost.path);
+};

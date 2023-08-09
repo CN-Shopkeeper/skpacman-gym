@@ -24,6 +24,17 @@ class GameContext final : public Singlton<GameContext> {
             if (SDL_SCANCODE_G == key) {
                 debugMode = !debugMode;
             }
+            if (SDL_SCANCODE_M == key) {
+                if (debugMode) {
+                    modeCount_++;
+                    auto nowMode = static_cast<Ghost::Mode>(modeCount_ % 3);
+                    std::cout << nowMode << std::endl;
+                    for (int i = 1; i < monsters.size(); i++) {
+                        auto monster = monsters[i].get();
+                        dynamic_cast<Ghost*>(monster)->ChangeMode(nowMode);
+                    }
+                }
+            }
         }
         controller->HandleEvent(event_);
     }
@@ -37,6 +48,7 @@ class GameContext final : public Singlton<GameContext> {
    private:
     bool shouldClose_ = false;
     SDL_Event event_;
+    int modeCount_ = 0;
 
     void newGame();
     void dealCollideWithMap(Monster& Monster);

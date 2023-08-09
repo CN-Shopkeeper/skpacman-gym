@@ -56,6 +56,10 @@ class Monster {
                                       4);
     }
 
+    Direction BackDirection() const {
+        return static_cast<Direction>((static_cast<int>(intentionDir) + 2) % 4);
+    }
+
     void Draw();
     virtual void Update();
     virtual void Debug() = 0;
@@ -79,38 +83,47 @@ class Pacman : public Monster {
 
 class Ghost : public Monster {
    public:
+    enum Mode { Chase = 0, Scatter = 1, Frightened = 2 };
     Ghost(const Image& _image, const Vector2& position, std::string name,
           SDL_Color color, MapCoordinate scatterPoint)
-        : Monster(_image, position),
-          name_(name),
-          color_(color),
-          scatterPoint_(scatterPoint) {
+        : Monster(_image, position), name_(name), color_(color) {
         speed = 3;
         checkPoint_ = {-1, -1};
+        mode_ = Mode::Chase;
         image.SetColorMod(color);
+        scatterInfo_.scatterPoint = scatterPoint;
     }
     std::vector<MapCoordinate> path;
 
     static void InitAiMap();
     void Update() override;
     void Debug() override;
+    void ChangeMode(Mode mode);
 
-    using AIType =
-        std::function<Direction(Pacman&, Ghost&, std::vector<MapCoordinate>&)>;
+    using AIType = std::function<Direction(Pacman&, Ghost&)>;
 
    private:
+    struct ScatterInfo {
+        // Scatter模式下的点
+        MapCoordinate scatterPoint;
+        // Scatter模式下的检查点，是否到达scatterPoint_，如果到达则开始绕圈
+        bool scatterCheckPoint = false;
+        // Scatter模式下，到达scaterPoint_之后，绕圈的转向
+        bool scatterCCW = false;
+    };
     std::string name_;
     SDL_Color color_;
+    Mode mode_;
     // 上次转向判定点，按照wiki说明只有在路口时才能转向判定。
     MapCoordinate checkPoint_;
-    // Scatter模式下的点
-    MapCoordinate scatterPoint_;
+    ScatterInfo scatterInfo_;
     inline static std::unordered_map<std::string, AIType> aiMap_ =
         std::unordered_map<std::string, AIType>();
     static AIType aiPinky_;
     static AIType aiBlinky_;
     static AIType aiInky_;
     static AIType aiClyde_;
+    static AIType aiFrightened_;
 };
 
 Monster::Direction GetDirectionFromPath(const std::vector<MapCoordinate>& path);
