@@ -113,17 +113,34 @@ bool Monster::isTurnBack() const {
 
 void Ghost::Update() {
     auto& gameCtx = GameContext::GetInstance();
-    auto& pacman = gameCtx.controller->pacman;
-
-    if (aiMap_.find(name_) == aiMap_.end()) {
-        intentionDir = aiBlinky_(pacman, *this, path);
+    auto cor = GetMapCorrdinate();
+    if (cor.x == checkPoint_.x && cor.y == checkPoint_.y) {
+        // 刚过检查点，直接进行更新
+        Monster::Update();
     } else {
-        intentionDir = aiMap_[name_](pacman, *this, path);
+        // 检查是否在路口
+        auto leftD = LeftDirection();
+        auto rightD = RightDirection();
+        auto left = DirectionToCoordinate(leftD) + cor;
+        auto right = DirectionToCoordinate(rightD) + cor;
+        if (gameCtx.gameMap->GetTile(left.x, left.y).IsAccessible() ||
+            gameCtx.gameMap->GetTile(right.x, right.y).IsAccessible()) {
+            // 在路口，更新意图
+            auto& pacman = gameCtx.controller->pacman;
+            if (aiMap_.find(name_) == aiMap_.end()) {
+                intentionDir = aiBlinky_(pacman, *this, path);
+            } else {
+                intentionDir = aiMap_[name_](pacman, *this, path);
+            }
+            // 更新检查点
+            checkPoint_ = cor;
+        }
+        Monster::Update();
     }
+
     // intentionDir = aiBlinky_(pacman, *this);
     // std::cout << static_cast<int>(movingDir) << std::endl;
     // movingDir = aiMap_[name_](pacman, *this);
-    Monster::Update();
 }
 
 void Ghost::Debug() {

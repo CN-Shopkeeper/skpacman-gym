@@ -46,6 +46,16 @@ class Monster {
                 static_cast<int>(center.y / TileSize)};
     }
 
+    Direction LeftDirection() const {
+        return static_cast<Direction>((static_cast<int>(movingDir) - 1 + 4) %
+                                      4);
+    }
+
+    Direction RightDirection() const {
+        return static_cast<Direction>((static_cast<int>(movingDir) + 1 + 4) %
+                                      4);
+    }
+
     void Draw();
     virtual void Update();
     virtual void Debug() = 0;
@@ -73,6 +83,7 @@ class Ghost : public Monster {
           SDL_Color color)
         : Monster(image, position), name_(name), color_(color) {
         speed = 4;
+        checkPoint_ = {-1, -1};
     }
     std::vector<MapCoordinate> path;
 
@@ -86,6 +97,8 @@ class Ghost : public Monster {
    private:
     std::string name_;
     SDL_Color color_;
+    // 上次转向判定点，按照wiki说明只有在路口时才能转向判定。
+    MapCoordinate checkPoint_;
     inline static std::unordered_map<std::string, AIType> aiMap_ =
         std::unordered_map<std::string, AIType>();
     static AIType aiPinky_;

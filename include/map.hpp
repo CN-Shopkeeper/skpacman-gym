@@ -34,6 +34,10 @@ class Tetris final {
 struct MapCoordinate {
     int x;
     int y;
+
+    MapCoordinate operator+(const MapCoordinate& other) {
+        return {x + other.x, y + other.y};
+    }
 };
 
 struct BFSNode {

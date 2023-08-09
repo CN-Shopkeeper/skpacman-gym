@@ -7,3 +7,5 @@
 emcmake cmake -S . -B wasm-build
 
 cmake --build wasm-build
+
+https://gameinternals.com/understanding-pac-man-ghost-behavior
