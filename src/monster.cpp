@@ -115,7 +115,15 @@ void Ghost::Update() {
     auto& gameCtx = GameContext::GetInstance();
     auto cor = GetMapCorrdinate();
     if (cor.x == checkPoint_.x && cor.y == checkPoint_.y) {
-        // 刚过检查点，直接进行更新
+        // 刚过检查点，
+        // 有一个在开发者模式的问题，就是当鬼怪和吃豆人在倒L形状路口接触时，会直接停住不动弹，
+        // 理由是当没有路径时默认返回向上
+        if (intentionDir == Direction::Up) {
+            if (!gameCtx.gameMap->GetTile(cor.x, cor.y - 1).IsAccessible()) {
+                intentionDir = Direction::Down;
+            }
+        }
+        // 直接进行更新
         Monster::Update();
     } else {
         // 检查是否在路口
