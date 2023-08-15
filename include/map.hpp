@@ -69,6 +69,7 @@ class Map final {
     const Tile& GetTile(MapCoordinate cor) const {
         return tiles_->Get(cor.x, cor.y);
     }
+    Tile& GetTile(MapCoordinate cor) { return tiles_->Get(cor.x, cor.y); }
     int Width() const { return tiles_->Width(); }
     int Height() const { return tiles_->Height(); }
 

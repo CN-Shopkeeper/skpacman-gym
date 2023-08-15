@@ -48,8 +48,10 @@ class GameContext final : public Singlton<GameContext> {
    private:
     bool shouldClose_ = false;
     SDL_Event event_;
+    int score_ = 0;
     int modeCount_ = 0;
 
     void newGame();
     void dealCollideWithMap(Monster& Monster);
+    void tryEatBean();
 };

@@ -71,6 +71,7 @@ void GameContext::Update() {
     for (auto& monster : monsters) {
         dealCollideWithMap(*monster);
     }
+    tryEatBean();
 }
 
 void GameContext::newGame() {
@@ -81,4 +82,15 @@ void GameContext::newGame() {
     monsters[2]->Reset(Vector2{GhostInitX + TileSize, GhostInitY});
     monsters[3]->Reset(Vector2{GhostInitX + TileSize * 2, GhostInitY});
     monsters[4]->Reset(Vector2{GhostInitX + TileSize * 3, GhostInitY});
+}
+
+void GameContext::tryEatBean() {
+    auto& pacman = controller->pacman;
+    auto pacmanCor = pacman.GetMapCorrdinate();
+    bool reach = pacman.ReachTheTile(0.6, 0);
+    Tile& tile = gameMap->GetTile(pacmanCor);
+    if (reach && tile.type == Tile::Type::Bean) {
+        tile.type = Tile::Type::Empty;
+        score_++;
+    }
 }
