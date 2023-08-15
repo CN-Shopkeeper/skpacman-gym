@@ -27,7 +27,11 @@ void Draw() {
     for (auto& monster : gameCtx.monsters) {
         monster->Draw();
     }
-    ctx.GetRenderer().DrawTextTexture(*ctx.tips.get(), TileSize * MapWidth, 0);
+    auto tips = ctx.tips.get();
+    ctx.GetRenderer().DrawTextTexture(*tips, TileSize * MapWidth, 0);
+    auto tipsHeight = tips->rect.h;
+    ctx.GetRenderer().DrawTextTexture(*gameCtx.scoreText, TileSize * MapWidth,
+                                      tipsHeight + TileSize);
 }
 
 void ShutDown() {

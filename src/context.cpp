@@ -8,5 +8,10 @@ Context::Context(const std::string& title, const Size& windowSize)
     textureManager_.reset(new TextureManager(renderer_.get()));
 
     tips.reset(new TextTexture(renderer_->renderer_.get(), Tips.data(),
-                                font.font_.get()));
+                               font.font_.get()));
+}
+
+TextTexture* Context::GenerateTextTexture(const std::string& text) {
+    return new TextTexture(renderer_->renderer_.get(), text.c_str(),
+                           font.font_.get());
 }

@@ -13,6 +13,7 @@ class Context final : public Singlton<Context> {
     Context(const std::string& title, const Size& windowSize);
     auto& GetRenderer() { return *renderer_; }
     auto& GetTextureManager() { return *textureManager_; }
+    TextTexture* GenerateTextTexture(const std::string&);
 
    private:
     std::unique_ptr<Window> window_;

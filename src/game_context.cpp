@@ -92,5 +92,6 @@ void GameContext::tryEatBean() {
     if (reach && tile.type == Tile::Type::Bean) {
         tile.type = Tile::Type::Empty;
         score_++;
+        updateScoreText();
     }
 }

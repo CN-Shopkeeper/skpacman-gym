@@ -1,5 +1,6 @@
 #pragma once
 
+#include "context.hpp"
 #include "controller.hpp"
 #include "map.hpp"
 #include "monster.hpp"
@@ -8,6 +9,7 @@
 class GameContext final : public Singlton<GameContext> {
    public:
     bool debugMode = true;
+    std::unique_ptr<TextTexture> scoreText;
     bool ShouldClose() const { return shouldClose_; }
     void Exit() { shouldClose_ = true; }
 
@@ -54,4 +56,9 @@ class GameContext final : public Singlton<GameContext> {
     void newGame();
     void dealCollideWithMap(Monster& Monster);
     void tryEatBean();
+
+    void updateScoreText() {
+        scoreText.reset(Context::GetInstance().GenerateTextTexture(
+            "Score:\n" + std::to_string(score_)));
+    }
 };
