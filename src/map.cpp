@@ -49,7 +49,7 @@ void Map::Draw() {
     }
 }
 
-std::string Map::GenerateMap() {
+std::string Map::GenerateMap(int& beanCount) {
     auto tetris = Tetris::GenerateTetris<tetrisHeight, tetrisWidth>();
     const size_t width3 = tetrisWidth * 3;
     const size_t height3 = tetrisHeight * 3;
@@ -103,6 +103,7 @@ std::string Map::GenerateMap() {
         }
     }
 
+    beanCount = 0;
     std::string mapStr = std::string(MapWidth * MapHeight, ' ');
     for (int y = 0; y < MapHeight; y++) {
         for (int x = 0; x < MapWidth; x++) {
@@ -112,6 +113,7 @@ std::string Map::GenerateMap() {
                     break;
                 case 1:
                     mapStr[x + y * MapWidth] = 'B';
+                    beanCount++;
                     break;
                 case 2:
                     mapStr[x + y * MapWidth] = 'G';

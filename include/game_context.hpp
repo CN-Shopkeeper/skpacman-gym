@@ -50,6 +50,7 @@ class GameContext final : public Singlton<GameContext> {
    private:
     bool shouldClose_ = false;
     SDL_Event event_;
+    int beanCount_ = 0;
     int score_ = 0;
     int modeCount_ = 0;
 
@@ -59,6 +60,7 @@ class GameContext final : public Singlton<GameContext> {
 
     void updateScoreText() {
         scoreText.reset(Context::GetInstance().GenerateTextTexture(
-            "Score:\n" + std::to_string(score_)));
+            "Bean Total:\n" + std::to_string(beanCount_) + "\nScore:\n" +
+            std::to_string(score_)));
     }
 };

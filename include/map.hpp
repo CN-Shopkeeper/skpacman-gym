@@ -63,7 +63,7 @@ struct BFSNode {
 class Map final {
    public:
     Map(std::string_view desc, const Size& size);
-    static std::string GenerateMap();
+    static std::string GenerateMap(int& beanCount);
 
     const Tile& GetTile(int x, int y) const { return tiles_->Get(x, y); }
     const Tile& GetTile(MapCoordinate cor) const {

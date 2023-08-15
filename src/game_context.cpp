@@ -3,7 +3,7 @@
 #include "context.hpp"
 
 GameContext::GameContext() {
-    gameMap.reset(new Map(Map::GenerateMap(), {MapWidth, MapHeight}));
+    gameMap.reset(new Map(Map::GenerateMap(beanCount_), {MapWidth, MapHeight}));
 
     auto& ctx = Context::GetInstance();
     auto tilesheet = ctx.GetTextureManager().FindTilesheet(TilesheetName);
@@ -75,7 +75,7 @@ void GameContext::Update() {
 }
 
 void GameContext::newGame() {
-    gameMap.reset(new Map(Map::GenerateMap(), {MapWidth, MapHeight}));
+    gameMap.reset(new Map(Map::GenerateMap(beanCount_), {MapWidth, MapHeight}));
 
     monsters[0]->Reset(Vector2{PacmanInitX, PacmanInitY});
     monsters[1]->Reset(Vector2{GhostInitX, GhostInitY});
