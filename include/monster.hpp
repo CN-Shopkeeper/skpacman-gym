@@ -69,6 +69,23 @@ class Monster {
     Vector2 position_;
     bool isTurnBack() const;
     void doUpdate();
+
+    /**
+     * @brief  判断怪物是否抵达某一个Tile
+     * @note
+     * 实际使用中并不是point in
+     * rect就能判断角色等是否已经处于Tile中，往往需要当角色到达Tile的中心才可以
+     * 这个函数后面两个参数还是比较抽象的，具体的判定范围为：
+     * 在怪物前进方向上的
+     * `monster.speed ×(-threshold+ offset)`
+     * 到`monster.speed × (threshold + offset)`之间
+     * @param  targetTile: 目标Tile坐标
+     * @param  threshold: 判定阈值
+     * @param  offset: 阈值偏移量
+     * @retval 是否抵达Tile
+     */
+    bool reachSomeTile(MapCoordinate& targetTile, float threshold,
+                       float offset);
 };
 
 class Pacman : public Monster {

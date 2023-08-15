@@ -51,6 +51,50 @@ void Monster::doUpdate() {
     }
 }
 
+bool Monster::reachSomeTile(MapCoordinate& targetTile, float threshold,
+                            float offset) {
+    auto& gameCtx = GameContext::GetInstance();
+    auto& gameMap = gameCtx.gameMap;
+    Rect monsterRect(GetPosition(), {TileSize, TileSize});
+    auto monsterCenter = monsterRect.Center();
+    int tileX = targetTile.x;
+    int tileY = targetTile.y;
+    Rect tile = Rect{Vector2{tileX * TileSize * 1.f, tileY * TileSize * 1.f},
+                     {TileSize, TileSize}};
+    auto tileCenter = tile.Center();
+    auto diff = tileCenter - monsterCenter;
+    bool reach = false;
+    // 1.5是Right=0，Down=1和Left=2，Up=3的分界线
+    const double offset_ =
+        1.5 - static_cast<int>(movingDir) > 0 ? -offset : offset;
+    const int dirOffset = 1.5 - static_cast<int>(intentionDir) > 0 ? 1 : -1;
+    if (movingDir == Monster::Direction::Left ||
+        movingDir == Monster::Direction::Right) {
+        if (diff.x >= speed * (offset_ - threshold) &&
+            diff.x <= speed * (offset_ + threshold)) {
+            if (gameMap->IsInside(tileX, tileY + dirOffset)) {
+                reach = gameMap
+                            ->GetTile(static_cast<int>(tileX),
+                                      static_cast<int>(tileY + dirOffset))
+                            .type != Tile::Type::Wall;
+            }
+        }
+    }
+    if (movingDir == Monster ::Direction::Up ||
+        movingDir == Monster ::Direction::Down) {
+        if (diff.y >= speed * (offset_ - threshold) &&
+            diff.y <= speed * (offset_ + threshold)) {
+            if (gameMap->IsInside(tileX + dirOffset, tileY)) {
+                reach = gameMap
+                            ->GetTile(static_cast<int>(tileX + dirOffset),
+                                      static_cast<int>(tileY))
+                            .type != Tile::Type::Wall;
+            }
+        }
+    }
+    return reach;
+}
+
 // 可以在转向时对位置进行一定的容差
 // 转向时，将转向前的方向对齐到网格上（阈值为速度的-20%~100%）
 void Monster::Update() {
@@ -60,41 +104,18 @@ void Monster::Update() {
         movingDir = intentionDir;
         Monster::doUpdate();
     } else {
+        auto& gameCtx = GameContext::GetInstance();
         Rect monsterRect(GetPosition(), {TileSize, TileSize});
         auto monsterCenter = monsterRect.Center();
-        int indexX = static_cast<int>(monsterCenter.x / TileSize);
-        int indexY = static_cast<int>(monsterCenter.y / TileSize);
-        Rect tile =
-            Rect{Vector2{indexX * TileSize * 1.f, indexY * TileSize * 1.f},
-                 {TileSize, TileSize}};
+        MapCoordinate tileCoordinate = {
+            static_cast<int>(monsterCenter.x / TileSize),
+            static_cast<int>(monsterCenter.y / TileSize)};
+        Rect tile = Rect{Vector2{tileCoordinate.x * TileSize * 1.f,
+                                 tileCoordinate.y * TileSize * 1.f},
+                         {TileSize, TileSize}};
         auto tileCenter = tile.Center();
         auto diff = tileCenter - monsterCenter;
-        bool should = false;
-
-        auto& gameCtx = GameContext::GetInstance();
-
-        // constM 用于计算阈值范围
-        double constM = 1.5 - static_cast<int>(movingDir) > 0 ? -0.4 : 0.4;
-        int constI = 1.5 - static_cast<int>(intentionDir) > 0 ? 1 : -1;
-        if (movingDir == Direction::Left || movingDir == Direction::Right) {
-            if (diff.x >= speed * (constM - 0.6) &&
-                diff.x <= speed * (constM + 0.6)) {
-                // todo check boundaries
-                should = gameCtx.gameMap
-                             ->GetTile(static_cast<int>(indexX),
-                                       static_cast<int>(indexY + constI))
-                             .type != Tile::Type::Wall;
-            }
-        }
-        if (movingDir == Direction::Up || movingDir == Direction::Down) {
-            if (diff.y >= speed * (constM - 0.6) &&
-                diff.y <= speed * (constM + 0.6)) {  // todo check boundaries
-                should = gameCtx.gameMap
-                             ->GetTile(static_cast<int>(indexX + constI),
-                                       static_cast<int>(indexY))
-                             .type != Tile::Type::Wall;
-            }
-        }
+        bool should = reachSomeTile(tileCoordinate, 0.6, 0.4);
 
         if (!should) {
             Monster::doUpdate();
