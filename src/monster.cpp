@@ -51,14 +51,14 @@ void Monster::doUpdate() {
     }
 }
 
-bool Monster::reachSomeTile(MapCoordinate& targetTile, float threshold,
-                            float offset) {
+bool Monster::ReachTheTile(float threshold, float offset) {
     auto& gameCtx = GameContext::GetInstance();
     auto& gameMap = gameCtx.gameMap;
     Rect monsterRect(GetPosition(), {TileSize, TileSize});
     auto monsterCenter = monsterRect.Center();
-    int tileX = targetTile.x;
-    int tileY = targetTile.y;
+    auto tileCor = GetMapCorrdinate();
+    int tileX = tileCor.x;
+    int tileY = tileCor.y;
     Rect tile = Rect{Vector2{tileX * TileSize * 1.f, tileY * TileSize * 1.f},
                      {TileSize, TileSize}};
     auto tileCenter = tile.Center();
@@ -67,29 +67,18 @@ bool Monster::reachSomeTile(MapCoordinate& targetTile, float threshold,
     // 1.5是Right=0，Down=1和Left=2，Up=3的分界线
     const double offset_ =
         1.5 - static_cast<int>(movingDir) > 0 ? -offset : offset;
-    const int dirOffset = 1.5 - static_cast<int>(intentionDir) > 0 ? 1 : -1;
     if (movingDir == Monster::Direction::Left ||
         movingDir == Monster::Direction::Right) {
         if (diff.x >= speed * (offset_ - threshold) &&
             diff.x <= speed * (offset_ + threshold)) {
-            if (gameMap->IsInside(tileX, tileY + dirOffset)) {
-                reach = gameMap
-                            ->GetTile(static_cast<int>(tileX),
-                                      static_cast<int>(tileY + dirOffset))
-                            .type != Tile::Type::Wall;
-            }
+            reach = true;
         }
     }
     if (movingDir == Monster ::Direction::Up ||
         movingDir == Monster ::Direction::Down) {
         if (diff.y >= speed * (offset_ - threshold) &&
             diff.y <= speed * (offset_ + threshold)) {
-            if (gameMap->IsInside(tileX + dirOffset, tileY)) {
-                reach = gameMap
-                            ->GetTile(static_cast<int>(tileX + dirOffset),
-                                      static_cast<int>(tileY))
-                            .type != Tile::Type::Wall;
-            }
+            reach = true;
         }
     }
     return reach;
@@ -105,17 +94,41 @@ void Monster::Update() {
         Monster::doUpdate();
     } else {
         auto& gameCtx = GameContext::GetInstance();
-        Rect monsterRect(GetPosition(), {TileSize, TileSize});
-        auto monsterCenter = monsterRect.Center();
-        MapCoordinate tileCoordinate = {
-            static_cast<int>(monsterCenter.x / TileSize),
-            static_cast<int>(monsterCenter.y / TileSize)};
+        auto& gameMap = gameCtx.gameMap;
+        auto monsterCenter = GetRect().Center();
+        MapCoordinate tileCoordinate = GetMapCorrdinate();
+        auto tileX = tileCoordinate.x;
+        auto tileY = tileCoordinate.y;
         Rect tile = Rect{Vector2{tileCoordinate.x * TileSize * 1.f,
                                  tileCoordinate.y * TileSize * 1.f},
                          {TileSize, TileSize}};
         auto tileCenter = tile.Center();
         auto diff = tileCenter - monsterCenter;
-        bool should = reachSomeTile(tileCoordinate, 0.6, 0.4);
+        bool should = false;
+        bool reach = ReachTheTile(0.6, 0.4);
+
+        if (reach) {
+            const int dirOffset =
+                1.5 - static_cast<int>(intentionDir) > 0 ? 1 : -1;
+            if (movingDir == Monster::Direction::Left ||
+                movingDir == Monster::Direction::Right) {
+                if (gameMap->IsInside(tileX, tileY + dirOffset)) {
+                    should = gameMap
+                                 ->GetTile(static_cast<int>(tileX),
+                                           static_cast<int>(tileY + dirOffset))
+                                 .type != Tile::Type::Wall;
+                }
+            }
+            if (movingDir == Monster ::Direction::Up ||
+                movingDir == Monster ::Direction::Down) {
+                if (gameMap->IsInside(tileX + dirOffset, tileY)) {
+                    should = gameMap
+                                 ->GetTile(static_cast<int>(tileX + dirOffset),
+                                           static_cast<int>(tileY))
+                                 .type != Tile::Type::Wall;
+                }
+            }
+        }
 
         if (!should) {
             Monster::doUpdate();
