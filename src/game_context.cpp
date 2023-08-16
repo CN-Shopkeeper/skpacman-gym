@@ -78,7 +78,7 @@ void GameContext::Update() {
         elapsed = elapsed_seconds.count();
         for (int i = 1; i < monsters.size(); i++) {
             Ghost* ghost = dynamic_cast<Ghost*>(monsters[i].get());
-            auto epoch = elapsed % 27;
+            auto epoch = GetElapsedFloor() % 27;
             if (epoch < 7) {
                 ghost->ChangeMode(Ghost::Mode::Scatter);
             } else {

@@ -389,7 +389,7 @@ Ghost::AIType Ghost::aiScatter_ = [](Pacman& pacman, Ghost& ghost) {
 
 Ghost::AIType Ghost::aiWaiting_ = [](Pacman& pacman, Ghost& ghost) {
     auto& gameCtx = GameContext::GetInstance();
-    if (gameCtx.elapsed % 2 == 0) {
+    if (std::fmod(gameCtx.elapsed, 1.0f) < 0.5) {
         return Direction::Down;
     } else {
         return Direction::Up;
