@@ -8,7 +8,7 @@
 
 class GameContext final : public Singlton<GameContext> {
    public:
-    using TimePoint = std::chrono::_V2::system_clock::time_point;
+    using TimePoint = std::chrono::system_clock::time_point;
     enum GameState { Gaming, Paused, Win, Gameover };
     GameState state = Gaming;
     bool debugMode = false;
