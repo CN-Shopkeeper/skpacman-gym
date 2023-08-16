@@ -29,7 +29,7 @@ void Monster::Draw() {
     }
 
     auto& renderer = Context::GetInstance().GetRenderer();
-    renderer.DrawImage(image, position_, scale * Scale, rotation);
+    renderer.DrawImage(GetImage(), position_, scale * Scale, rotation);
 
     if (GameContext::GetInstance().debugMode) {
         Debug();
@@ -143,6 +143,15 @@ bool Monster::isTurnBack() const {
     return (4 + static_cast<int>(intentionDir) - static_cast<int>(movingDir)) %
                4 ==
            2;
+}
+
+Image Pacman::GetImage() {
+    auto& gameCtx = GameContext::GetInstance();
+    if (std::fmod(gameCtx.elapsed, 0.4f) < 0.2) {
+        return images.at(0);
+    } else {
+        return images.at(1);
+    }
 }
 
 void Ghost::Update() {

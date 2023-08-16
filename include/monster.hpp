@@ -13,11 +13,11 @@ class Monster {
     Direction movingDir = Direction::Right;
     Direction intentionDir = Direction::Right;
 
-    Image image;
+    std::vector<Image> images;
     float speed = 5.0f;
 
-    Monster(const Image& image, const Vector2& position)
-        : image(image), position_(position) {}
+    Monster(const std::vector<Image>&& _images, const Vector2& position)
+        : images(std::move(_images)), position_(position) {}
 
     virtual ~Monster() = default;
 
@@ -78,6 +78,7 @@ class Monster {
 
     void Draw();
     virtual void Update();
+    virtual Image GetImage() = 0;
     virtual void Debug() = 0;
 
    protected:
@@ -89,10 +90,11 @@ class Monster {
 
 class Pacman : public Monster {
    public:
-    Pacman(const Image& image, const Vector2& position)
-        : Monster(image, position) {}
+    Pacman(const std::vector<Image>&& _images, const Vector2& position)
+        : Monster(std::move(_images), position) {}
 
     void Debug() override{};
+    Image GetImage() override;
 
    private:
 };
@@ -100,13 +102,15 @@ class Pacman : public Monster {
 class Ghost : public Monster {
    public:
     enum Mode { Chase = 0, Scatter = 1, Frightened = 2 };
-    Ghost(const Image& _image, const Vector2& position, std::string name,
-          SDL_Color color, MapCoordinate scatterPoint)
-        : Monster(_image, position), name(name), color_(color) {
+    Ghost(const std::vector<Image>&& _images, const Vector2& position,
+          std::string name, SDL_Color color, MapCoordinate scatterPoint)
+        : Monster(std::move(_images), position), name(name), color_(color) {
         speed = 3;
         checkPoint_ = {-1, -1};
         mode = Mode::Chase;
-        image.SetColorMod(color);
+        for (auto& image : images) {
+            image.SetColorMod(color);
+        }
         scatterInfo_.scatterPoint = scatterPoint;
         if (name == "Blinky" || name == "Pinky") {
             joinChasing = true;
@@ -130,6 +134,7 @@ class Ghost : public Monster {
 
     static void InitAiMap();
     void Update() override;
+    Image GetImage() override { return images[0]; }
     void Debug() override;
     void ChangeMode(Mode mode);
     bool IsFrightened() const { return mode == Mode::Frightened; }

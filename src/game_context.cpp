@@ -11,25 +11,34 @@ GameContext::GameContext() {
 
     Ghost::InitAiMap();
 
+    monsters.emplace_back(new Pacman{
+        {tilesheet->Get(static_cast<int>(ImageTileType::Pacman), 0),
+         tilesheet->Get(static_cast<int>(ImageTileType::PacmanEat), 0)},
+        Vector2{PacmanInitX, PacmanInitY}});
     monsters.emplace_back(
-        new Pacman{tilesheet->Get(static_cast<int>(ImageTileType::Pacman), 0),
-                   Vector2{PacmanInitX, PacmanInitY}});
+        new Ghost{{tilesheet->Get(static_cast<int>(ImageTileType::Ghost), 0)},
+                  Vector2{GhostInitX + TileSize * 2, GhostInitY},
+                  "Blinky",
+                  BlinkyColor,
+                  gameMap->NearestAccessibleTile({MapWidth, -1})});
     monsters.emplace_back(
-        new Ghost{tilesheet->Get(static_cast<int>(ImageTileType::Ghost), 0),
-                  Vector2{GhostInitX + TileSize * 2, GhostInitY}, "Blinky",
-                  BlinkyColor, gameMap->NearestAccessibleTile({MapWidth, -1})});
+        new Ghost{{tilesheet->Get(static_cast<int>(ImageTileType::Ghost), 0)},
+                  Vector2{GhostInitX + TileSize, GhostInitY},
+                  "Pinky",
+                  PinkyColor,
+                  gameMap->NearestAccessibleTile({-1, -1})});
     monsters.emplace_back(
-        new Ghost{tilesheet->Get(static_cast<int>(ImageTileType::Ghost), 0),
-                  Vector2{GhostInitX + TileSize, GhostInitY}, "Pinky",
-                  PinkyColor, gameMap->NearestAccessibleTile({-1, -1})});
-    monsters.emplace_back(
-        new Ghost{tilesheet->Get(static_cast<int>(ImageTileType::Ghost), 0),
-                  Vector2{GhostInitX, GhostInitY}, "Inky", InkyColor,
+        new Ghost{{tilesheet->Get(static_cast<int>(ImageTileType::Ghost), 0)},
+                  Vector2{GhostInitX, GhostInitY},
+                  "Inky",
+                  InkyColor,
                   gameMap->NearestAccessibleTile({MapWidth, MapHeight})});
     monsters.emplace_back(
-        new Ghost{tilesheet->Get(static_cast<int>(ImageTileType::Ghost), 0),
-                  Vector2{GhostInitX + TileSize * 3, GhostInitY}, "Clyde",
-                  ClydeColor, gameMap->NearestAccessibleTile({-1, MapHeight})});
+        new Ghost{{tilesheet->Get(static_cast<int>(ImageTileType::Ghost), 0)},
+                  Vector2{GhostInitX + TileSize * 3, GhostInitY},
+                  "Clyde",
+                  ClydeColor,
+                  gameMap->NearestAccessibleTile({-1, MapHeight})});
     Ghost* Blinky = dynamic_cast<Ghost*>(monsters[1].get());
     Blinky->joinChasing = true;
     Ghost* Pinky = dynamic_cast<Ghost*>(monsters[1].get());
