@@ -68,6 +68,18 @@ void GameContext::dealCollideWithMap(Monster& monster) {
 
 void GameContext::Update() {
     if (GameState::Gaming == state) {
+        auto nowTime = std::chrono::system_clock::now();
+        std::chrono::duration<double> elapsed_seconds = nowTime - startTime_;
+        elapsed = elapsed_seconds.count();
+        for (int i = 1; i < monsters.size(); i++) {
+            Ghost* ghost = dynamic_cast<Ghost*>(monsters[i].get());
+            auto epoch = elapsed % 27;
+            if (epoch < 7) {
+                ghost->ChangeMode(Ghost::Mode::Scatter);
+            } else {
+                ghost->ChangeMode(Ghost::Mode::Chase);
+            }
+        }
         for (auto& monster : monsters) {
             monster->Update();
         }
@@ -80,14 +92,17 @@ void GameContext::Update() {
         if (score_ == beanCount_) {
             state = GameState::Win;
         }
+        updateGameInfoText();
     }
 }
 
 void GameContext::newGame() {
     state = Gaming;
+    startTime_ = std::chrono::system_clock::now();
+    elapsed = 0;
     score_ = 0;
     modeCount_ = 0;
-    debugMode = false;
+    // debugMode = false;
     gameMap.reset(new Map(Map::GenerateMap(beanCount_), {MapWidth, MapHeight}));
 
     monsters[0]->Reset(Vector2{PacmanInitX, PacmanInitY});
@@ -122,6 +137,5 @@ void GameContext::tryEatBean() {
     if (reach && tile.type == Tile::Type::Bean) {
         tile.type = Tile::Type::Empty;
         score_++;
-        updateScoreText();
     }
 }

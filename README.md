@@ -14,15 +14,21 @@
 
 3. 随机创造地图(R)
 
-4. 四种 Ghost 的 AI
+4. 四种 Ghost 的 AI。7 秒分散模式，20 秒追逐模式
 
 5. 开发者模式(G): 显示 Ghost 路径，`H`更改 Ghost 模式
+
+6. 暂停游戏(P)
 
 ## 算法依据
 
 [地图生成](https://shaunlebron.github.io/pacman-mazegen/) (简化了的)
 
 [游戏机制](https://gameinternals.com/understanding-pac-man-ghost-behavior)
+
+## TODO
+
+- 随着游戏进程出现的加分水果
 
 ## WASM
 

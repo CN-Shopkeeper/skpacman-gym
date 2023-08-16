@@ -8,6 +8,7 @@
 
 class GameContext final : public Singlton<GameContext> {
    public:
+    using TimePoint = std::chrono::_V2::system_clock::time_point;
     enum GameState { Gaming, Paused, Win, Gameover };
     GameState state = Gaming;
     bool debugMode = false;
@@ -62,15 +63,18 @@ class GameContext final : public Singlton<GameContext> {
     int beanCount_ = 0;
     int score_ = 0;
     int modeCount_ = 0;
+    TimePoint startTime_ = std::chrono::system_clock::now();
+    int elapsed = 0;
 
     void newGame();
     void dealCollideWithMap(Monster& Monster);
     void tryCapture();
     void tryEatBean();
 
-    void updateScoreText() {
+    void updateGameInfoText() {
         scoreText.reset(Context::GetInstance().GenerateTextTexture(
-            "Bean Total:\n" + std::to_string(beanCount_) + "\nScore:\n" +
+            "Chrono: " + std::to_string(elapsed) + "\nBean Total:\n" +
+            std::to_string(beanCount_) + "\nScore:\n" +
             std::to_string(score_)));
     }
 };

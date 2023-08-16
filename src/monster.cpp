@@ -258,8 +258,8 @@ void Ghost::InitAiMap() {
     aiMap_.emplace("Frightened", aiFrightened_);
 }
 
-void Ghost::ChangeMode(Mode mode) {
-    mode = mode;
+void Ghost::ChangeMode(Mode _mode) {
+    mode = _mode;
     // 直接重置
     scatterInfo_.scatterCCW = false;
     scatterInfo_.scatterCheckPoint = false;
