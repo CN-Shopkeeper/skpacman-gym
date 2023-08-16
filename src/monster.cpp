@@ -192,13 +192,13 @@ void Ghost::Update() {
             checkPoint_ = cor;
             auto& pacman = gameCtx.controller->pacman;
             // chase模式
-            if (Ghost::Mode::Chase == mode_) {
-                if (aiMap_.find(name_) == aiMap_.end()) {
+            if (Ghost::Mode::Chase == mode) {
+                if (aiMap_.find(name) == aiMap_.end()) {
                     intentionDir = aiBlinky_(pacman, *this);
                 } else {
-                    intentionDir = aiMap_[name_](pacman, *this);
+                    intentionDir = aiMap_[name](pacman, *this);
                 }
-            } else if (Ghost::Mode::Scatter == mode_) {
+            } else if (Ghost::Mode::Scatter == mode) {
                 // Scatter模式
                 if (!scatterInfo_.scatterCheckPoint &&
                     cor.x == scatterInfo_.scatterPoint.x &&
@@ -211,7 +211,7 @@ void Ghost::Update() {
                 } else {
                     intentionDir = aiMap_["Frightened"](pacman, *this);
                 }
-            } else if (Ghost::Mode::Frightened == mode_) {
+            } else if (Ghost::Mode::Frightened == mode) {
                 // Frightened模式
                 // 1/7 保持直行(可能会碰壁、掉头)，6/7拐弯
                 int randNum = std::rand() % 7;
@@ -259,7 +259,7 @@ void Ghost::InitAiMap() {
 }
 
 void Ghost::ChangeMode(Mode mode) {
-    mode_ = mode;
+    mode = mode;
     // 直接重置
     scatterInfo_.scatterCCW = false;
     scatterInfo_.scatterCheckPoint = false;

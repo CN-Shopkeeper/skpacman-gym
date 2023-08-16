@@ -65,6 +65,7 @@ class GameContext final : public Singlton<GameContext> {
 
     void newGame();
     void dealCollideWithMap(Monster& Monster);
+    void tryCapture();
     void tryEatBean();
 
     void updateScoreText() {

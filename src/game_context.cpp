@@ -32,7 +32,7 @@ GameContext::GameContext() {
     controller.reset(new Controller(*dynamic_cast<Pacman*>(monsters[0].get())));
 
     winImage = ctx.GetTextureManager().Find("Win");
-    gameoverImage = ctx.GetTextureManager().Find("GameOver");
+    gameoverImage = ctx.GetTextureManager().Find("Gameover");
 }
 
 void GameContext::dealCollideWithMap(Monster& monster) {
@@ -75,6 +75,7 @@ void GameContext::Update() {
         for (auto& monster : monsters) {
             dealCollideWithMap(*monster);
         }
+        tryCapture();
         tryEatBean();
         if (score_ == beanCount_) {
             state = GameState::Win;
@@ -94,6 +95,23 @@ void GameContext::newGame() {
     monsters[2]->Reset(Vector2{GhostInitX + TileSize, GhostInitY});
     monsters[3]->Reset(Vector2{GhostInitX + TileSize * 2, GhostInitY});
     monsters[4]->Reset(Vector2{GhostInitX + TileSize * 3, GhostInitY});
+}
+
+void GameContext::tryCapture() {
+    Pacman* pacman = dynamic_cast<Pacman*>(monsters[0].get());
+    auto pacmanRect = pacman->GetRect();
+    for (int i = 1; i < monsters.size(); i++) {
+        Ghost* ghost = dynamic_cast<Ghost*>(monsters[i].get());
+        auto ghostRect = ghost->GetRect();
+        if (pacmanRect.IsIntersect(ghostRect)) {
+            if (ghost->IsFrightened()) {
+                std::cout << ghost->name << " is catched" << std::endl;
+            } else {
+                state = GameState::Gameover;
+            }
+            // score_ += 100;
+        }
+    }
 }
 
 void GameContext::tryEatBean() {

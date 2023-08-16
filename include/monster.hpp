@@ -102,19 +102,22 @@ class Ghost : public Monster {
     enum Mode { Chase = 0, Scatter = 1, Frightened = 2 };
     Ghost(const Image& _image, const Vector2& position, std::string name,
           SDL_Color color, MapCoordinate scatterPoint)
-        : Monster(_image, position), name_(name), color_(color) {
+        : Monster(_image, position), name(name), color_(color) {
         speed = 3;
         checkPoint_ = {-1, -1};
-        mode_ = Mode::Chase;
+        mode = Mode::Chase;
         image.SetColorMod(color);
         scatterInfo_.scatterPoint = scatterPoint;
     }
+    std::string name;
+    Mode mode;
     std::vector<MapCoordinate> path;
 
     static void InitAiMap();
     void Update() override;
     void Debug() override;
     void ChangeMode(Mode mode);
+    bool IsFrightened() const { return mode == Mode::Frightened ;}
 
     using AIType = std::function<Direction(Pacman&, Ghost&)>;
 
@@ -127,9 +130,7 @@ class Ghost : public Monster {
         // Scatter模式下，到达scaterPoint_之后，绕圈的转向
         bool scatterCCW = false;
     };
-    std::string name_;
     SDL_Color color_;
-    Mode mode_;
     // 上次转向判定点，按照wiki说明只有在路口时才能转向判定。
     MapCoordinate checkPoint_;
     ScatterInfo scatterInfo_;
