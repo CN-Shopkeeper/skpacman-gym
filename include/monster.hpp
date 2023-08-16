@@ -31,7 +31,7 @@ class Monster {
     auto& GetPosition() const { return position_; }
     auto& GetVelocity() const { return offset_; }
 
-    void Reset(const Vector2& position) {
+    virtual void Reset(const Vector2& position) {
         position_ = position;
         movingDir = Direction::Right;
         intentionDir = Direction::Right;
@@ -108,16 +108,31 @@ class Ghost : public Monster {
         mode = Mode::Chase;
         image.SetColorMod(color);
         scatterInfo_.scatterPoint = scatterPoint;
+        if (name == "Blinky" || name == "Pinky") {
+            joinChasing = true;
+        } else {
+            joinChasing = false;
+        }
     }
     std::string name;
     Mode mode;
+    bool joinChasing = false;
     std::vector<MapCoordinate> path;
+
+    void Reset(const Vector2& position) override {
+        Monster::Reset(position);
+        if (name == "Blinky" || name == "Pinky") {
+            joinChasing = true;
+        } else {
+            joinChasing = false;
+        }
+    }
 
     static void InitAiMap();
     void Update() override;
     void Debug() override;
     void ChangeMode(Mode mode);
-    bool IsFrightened() const { return mode == Mode::Frightened ;}
+    bool IsFrightened() const { return mode == Mode::Frightened; }
 
     using AIType = std::function<Direction(Pacman&, Ghost&)>;
 
@@ -140,7 +155,8 @@ class Ghost : public Monster {
     static AIType aiBlinky_;
     static AIType aiInky_;
     static AIType aiClyde_;
-    static AIType aiFrightened_;
+    static AIType aiScatter_;
+    static AIType aiWaiting_;
 };
 
 Monster::Direction GetDirectionFromPath(const std::vector<MapCoordinate>& path);

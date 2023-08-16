@@ -4,6 +4,7 @@
 
 GameContext::GameContext() {
     gameMap.reset(new Map(Map::GenerateMap(beanCount_), {MapWidth, MapHeight}));
+    beanLeft_ = beanCount_;
 
     auto& ctx = Context::GetInstance();
     auto tilesheet = ctx.GetTextureManager().FindTilesheet(TilesheetName);
@@ -15,20 +16,24 @@ GameContext::GameContext() {
                    Vector2{PacmanInitX, PacmanInitY}});
     monsters.emplace_back(
         new Ghost{tilesheet->Get(static_cast<int>(ImageTileType::Ghost), 0),
-                  Vector2{GhostInitX, GhostInitY}, "Blinky", BlinkyColor,
-                  gameMap->NearestAccessibleTile({MapWidth, -1})});
+                  Vector2{GhostInitX + TileSize * 2, GhostInitY}, "Blinky",
+                  BlinkyColor, gameMap->NearestAccessibleTile({MapWidth, -1})});
     monsters.emplace_back(
         new Ghost{tilesheet->Get(static_cast<int>(ImageTileType::Ghost), 0),
                   Vector2{GhostInitX + TileSize, GhostInitY}, "Pinky",
                   PinkyColor, gameMap->NearestAccessibleTile({-1, -1})});
-    monsters.emplace_back(new Ghost{
-        tilesheet->Get(static_cast<int>(ImageTileType::Ghost), 0),
-        Vector2{GhostInitX + TileSize * 2, GhostInitY}, "Inky", InkyColor,
-        gameMap->NearestAccessibleTile({MapWidth, MapHeight})});
     monsters.emplace_back(
         new Ghost{tilesheet->Get(static_cast<int>(ImageTileType::Ghost), 0),
-                  Vector2{GhostInitX + TileSize * 2, GhostInitY}, "Clyde",
+                  Vector2{GhostInitX, GhostInitY}, "Inky", InkyColor,
+                  gameMap->NearestAccessibleTile({MapWidth, MapHeight})});
+    monsters.emplace_back(
+        new Ghost{tilesheet->Get(static_cast<int>(ImageTileType::Ghost), 0),
+                  Vector2{GhostInitX + TileSize * 3, GhostInitY}, "Clyde",
                   ClydeColor, gameMap->NearestAccessibleTile({-1, MapHeight})});
+    Ghost* Blinky = dynamic_cast<Ghost*>(monsters[1].get());
+    Blinky->joinChasing = true;
+    Ghost* Pinky = dynamic_cast<Ghost*>(monsters[1].get());
+    Pinky->joinChasing = true;
     controller.reset(new Controller(*dynamic_cast<Pacman*>(monsters[0].get())));
 
     winImage = ctx.GetTextureManager().Find("Win");
@@ -80,6 +85,17 @@ void GameContext::Update() {
                 ghost->ChangeMode(Ghost::Mode::Chase);
             }
         }
+        auto beanEaten = GetBeanEaten();
+        if (beanEaten > 30) {
+            // 吃掉超过30个豆子时，inky加入战斗
+            Ghost* inky = dynamic_cast<Ghost*>(monsters[3].get());
+            inky->joinChasing = true;
+        }
+        if (beanEaten > beanCount_ / 3) {
+            // 吃掉超过1/3豆子时，clyde加入战斗
+            Ghost* clyde = dynamic_cast<Ghost*>(monsters[4].get());
+            clyde->joinChasing = true;
+        }
         for (auto& monster : monsters) {
             monster->Update();
         }
@@ -89,7 +105,7 @@ void GameContext::Update() {
         }
         tryCapture();
         tryEatBean();
-        if (score_ == beanCount_) {
+        if (beanLeft_ == 0) {
             state = GameState::Win;
         }
         updateGameInfoText();
@@ -104,11 +120,12 @@ void GameContext::newGame() {
     modeCount_ = 0;
     // debugMode = false;
     gameMap.reset(new Map(Map::GenerateMap(beanCount_), {MapWidth, MapHeight}));
+    beanLeft_ = beanCount_;
 
     monsters[0]->Reset(Vector2{PacmanInitX, PacmanInitY});
-    monsters[1]->Reset(Vector2{GhostInitX, GhostInitY});
+    monsters[1]->Reset(Vector2{GhostInitX + TileSize * 2, GhostInitY});
     monsters[2]->Reset(Vector2{GhostInitX + TileSize, GhostInitY});
-    monsters[3]->Reset(Vector2{GhostInitX + TileSize * 2, GhostInitY});
+    monsters[3]->Reset(Vector2{GhostInitX, GhostInitY});
     monsters[4]->Reset(Vector2{GhostInitX + TileSize * 3, GhostInitY});
 }
 
@@ -121,10 +138,10 @@ void GameContext::tryCapture() {
         if (pacmanRect.IsIntersect(ghostRect)) {
             if (ghost->IsFrightened()) {
                 std::cout << ghost->name << " is catched" << std::endl;
+                score_ += 200;
             } else {
                 state = GameState::Gameover;
             }
-            // score_ += 100;
         }
     }
 }
@@ -136,6 +153,7 @@ void GameContext::tryEatBean() {
     Tile& tile = gameMap->GetTile(pacmanCor);
     if (reach && tile.type == Tile::Type::Bean) {
         tile.type = Tile::Type::Empty;
-        score_++;
+        score_ += 10;
+        beanLeft_--;
     }
 }

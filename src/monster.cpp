@@ -147,95 +147,90 @@ bool Monster::isTurnBack() const {
 
 void Ghost::Update() {
     auto& gameCtx = GameContext::GetInstance();
-    auto cor = GetMapCorrdinate();
-    auto leftD = LeftDirection();
-    auto rightD = RightDirection();
-    auto left = DirectionToCoordinate(leftD) + cor;
-    auto right = DirectionToCoordinate(rightD) + cor;
-    if (cor.x == checkPoint_.x && cor.y == checkPoint_.y) {
-        // 刚过检查点，
-        // 如果意图方向面前的tile不可到达，则尝试直行、拐弯或反向。这个情况可能会在以下两种情况遇到：
-        // 1.
-        // 在开发者模式，当鬼怪和吃豆人在倒L形状路口接触时，会直接停住不动弹，理由是当没有路径时默认返回向上
-        // 2. 在Scatter模式下，绕着自己的ScatterPoint的墙壁移动时，会卡住
-        auto directionCor = DirectionToCoordinate(intentionDir);
-        if (!gameCtx.gameMap
-                 ->GetTile(cor.x + directionCor.x, cor.y + directionCor.y)
-                 .IsAccessible()) {
-            auto forward = DirectionToCoordinate(movingDir) + cor;
-            if (gameCtx.gameMap->GetTile(forward.x, forward.y).IsAccessible()) {
-                intentionDir = movingDir;
-            } else if (gameCtx.gameMap->GetTile(left.x, left.y)
-                           .IsAccessible()) {
-                intentionDir = leftD;
-            } else if (gameCtx.gameMap->GetTile(right.x, right.y)
-                           .IsAccessible()) {
-                intentionDir = rightD;
-            } else {
-                intentionDir = BackDirection();
-            }
-        }
-        // if (intentionDir == Direction::Up) {
-        //     if (!gameCtx.gameMap->GetTile(cor.x, cor.y - 1).IsAccessible()) {
-        //         intentionDir = Direction::Down;
-        //     }
-        // }
-        // 直接进行更新
-        Monster::Update();
+    auto& pacman = gameCtx.controller->pacman;
+    if (!joinChasing) {
+        intentionDir = aiMap_["Waiting"](pacman, *this);
     } else {
-        // 检查是否在路口
-        auto& leftTile = gameCtx.gameMap->GetTile(left.x, left.y);
-        auto& rightTile = gameCtx.gameMap->GetTile(right.x, right.y);
-        if (leftTile.IsAccessible() || rightTile.IsAccessible()) {
-            // 在路口，更新意图
-            // 更新检查点
-            checkPoint_ = cor;
-            auto& pacman = gameCtx.controller->pacman;
-            // chase模式
-            if (Ghost::Mode::Chase == mode) {
-                if (aiMap_.find(name) == aiMap_.end()) {
-                    intentionDir = aiBlinky_(pacman, *this);
+        auto cor = GetMapCorrdinate();
+        auto leftD = LeftDirection();
+        auto rightD = RightDirection();
+        auto left = DirectionToCoordinate(leftD) + cor;
+        auto right = DirectionToCoordinate(rightD) + cor;
+        if (cor.x == checkPoint_.x && cor.y == checkPoint_.y) {
+            // 刚过检查点，
+            // 如果意图方向面前的tile不可到达，则尝试直行、拐弯或反向。这个情况可能会在以下两种情况遇到：
+            // 1.
+            // 在开发者模式，当鬼怪和吃豆人在倒L形状路口接触时，会直接停住不动弹，理由是当没有路径时默认返回向上
+            // 2. 在Scatter模式下，绕着自己的ScatterPoint的墙壁移动时，会卡住
+            auto directionCor = DirectionToCoordinate(intentionDir);
+            if (!gameCtx.gameMap
+                     ->GetTile(cor.x + directionCor.x, cor.y + directionCor.y)
+                     .IsAccessible()) {
+                auto forward = DirectionToCoordinate(movingDir) + cor;
+                if (gameCtx.gameMap->GetTile(forward.x, forward.y)
+                        .IsAccessible()) {
+                    intentionDir = movingDir;
+                } else if (gameCtx.gameMap->GetTile(left.x, left.y)
+                               .IsAccessible()) {
+                    intentionDir = leftD;
+                } else if (gameCtx.gameMap->GetTile(right.x, right.y)
+                               .IsAccessible()) {
+                    intentionDir = rightD;
                 } else {
-                    intentionDir = aiMap_[name](pacman, *this);
+                    intentionDir = BackDirection();
                 }
-            } else if (Ghost::Mode::Scatter == mode) {
-                // Scatter模式
-                if (!scatterInfo_.scatterCheckPoint &&
-                    cor.x == scatterInfo_.scatterPoint.x &&
-                    cor.y == scatterInfo_.scatterPoint.y) {
-                    scatterInfo_.scatterCheckPoint = true;
-                    scatterInfo_.scatterCCW = leftTile.IsAccessible();
-                }
-                if (scatterInfo_.scatterCheckPoint) {
-                    intentionDir = scatterInfo_.scatterCCW ? leftD : rightD;
-                } else {
-                    intentionDir = aiMap_["Frightened"](pacman, *this);
-                }
-            } else if (Ghost::Mode::Frightened == mode) {
-                // Frightened模式
-                // 1/7 保持直行(可能会碰壁、掉头)，6/7拐弯
-                int randNum = std::rand() % 7;
-                if (randNum < 3) {
-                    if (leftTile.IsAccessible()) {
-                        intentionDir = leftD;
+            }
+        } else {
+            // 检查是否在路口
+            auto& leftTile = gameCtx.gameMap->GetTile(left.x, left.y);
+            auto& rightTile = gameCtx.gameMap->GetTile(right.x, right.y);
+            if (leftTile.IsAccessible() || rightTile.IsAccessible()) {
+                // 在路口，更新意图
+                // 更新检查点
+                checkPoint_ = cor;
+                // chase模式
+                if (Ghost::Mode::Chase == mode) {
+                    if (aiMap_.find(name) == aiMap_.end()) {
+                        intentionDir = aiBlinky_(pacman, *this);
                     } else {
-                        intentionDir = rightD;
+                        intentionDir = aiMap_[name](pacman, *this);
                     }
-                } else if (randNum < 6) {
-                    if (rightTile.IsAccessible()) {
-                        intentionDir = rightD;
+                } else if (Ghost::Mode::Scatter == mode) {
+                    // Scatter模式
+                    if (!scatterInfo_.scatterCheckPoint &&
+                        cor.x == scatterInfo_.scatterPoint.x &&
+                        cor.y == scatterInfo_.scatterPoint.y) {
+                        scatterInfo_.scatterCheckPoint = true;
+                        scatterInfo_.scatterCCW = leftTile.IsAccessible();
+                    }
+                    if (scatterInfo_.scatterCheckPoint) {
+                        intentionDir = scatterInfo_.scatterCCW ? leftD : rightD;
                     } else {
-                        intentionDir = leftD;
+                        intentionDir = aiMap_["Frightened"](pacman, *this);
+                    }
+                } else if (Ghost::Mode::Frightened == mode) {
+                    // Frightened模式
+                    // 1/7 保持直行(可能会碰壁、掉头)，6/7拐弯
+                    int randNum = std::rand() % 7;
+                    if (randNum < 3) {
+                        if (leftTile.IsAccessible()) {
+                            intentionDir = leftD;
+                        } else {
+                            intentionDir = rightD;
+                        }
+                    } else if (randNum < 6) {
+                        if (rightTile.IsAccessible()) {
+                            intentionDir = rightD;
+                        } else {
+                            intentionDir = leftD;
+                        }
                     }
                 }
             }
         }
-        Monster::Update();
     }
 
-    // intentionDir = aiBlinky_(pacman, *this);
-    // std::cout << static_cast<int>(movingDir) << std::endl;
-    // movingDir = aiMap_[name_](pacman, *this);
+    Monster::Update();
 }
 
 void Ghost::Debug() {
@@ -255,7 +250,8 @@ void Ghost::InitAiMap() {
     aiMap_.emplace("Pinky", aiPinky_);
     aiMap_.emplace("Inky", aiInky_);
     aiMap_.emplace("Clyde", aiClyde_);
-    aiMap_.emplace("Frightened", aiFrightened_);
+    aiMap_.emplace("Frightened", aiScatter_);
+    aiMap_.emplace("Waiting", aiWaiting_);
 }
 
 void Ghost::ChangeMode(Mode _mode) {
@@ -384,9 +380,18 @@ Ghost::AIType Ghost::aiClyde_ = [](Pacman& pacman, Ghost& ghost) {
     }
 };
 
-Ghost::AIType Ghost::aiFrightened_ = [](Pacman& pacman, Ghost& ghost) {
+Ghost::AIType Ghost::aiScatter_ = [](Pacman& pacman, Ghost& ghost) {
     auto& gameCtx = GameContext::GetInstance();
     ghost.path = gameCtx.gameMap->ShortestPathBetweenTiles(
         ghost.scatterInfo_.scatterPoint, ghost.GetMapCorrdinate());
     return GetDirectionFromPath(ghost.path);
+};
+
+Ghost::AIType Ghost::aiWaiting_ = [](Pacman& pacman, Ghost& ghost) {
+    auto& gameCtx = GameContext::GetInstance();
+    if (gameCtx.elapsed % 2 == 0) {
+        return Direction::Down;
+    } else {
+        return Direction::Up;
+    }
 };

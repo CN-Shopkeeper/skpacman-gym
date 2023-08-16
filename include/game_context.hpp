@@ -15,6 +15,7 @@ class GameContext final : public Singlton<GameContext> {
     std::unique_ptr<TextTexture> scoreText;
     Texture* winImage;
     Texture* gameoverImage;
+    int elapsed = 0;
     bool ShouldClose() const { return shouldClose_; }
     void Exit() { shouldClose_ = true; }
 
@@ -57,14 +58,16 @@ class GameContext final : public Singlton<GameContext> {
 
     void Update();
 
+    int GetBeanEaten() const { return beanCount_ - beanLeft_; }
+
    private:
     bool shouldClose_ = false;
     SDL_Event event_;
     int beanCount_ = 0;
+    int beanLeft_ = 0;
     int score_ = 0;
     int modeCount_ = 0;
     TimePoint startTime_ = std::chrono::system_clock::now();
-    int elapsed = 0;
 
     void newGame();
     void dealCollideWithMap(Monster& Monster);
@@ -73,8 +76,7 @@ class GameContext final : public Singlton<GameContext> {
 
     void updateGameInfoText() {
         scoreText.reset(Context::GetInstance().GenerateTextTexture(
-            "Chrono: " + std::to_string(elapsed) + "\nBean Total:\n" +
-            std::to_string(beanCount_) + "\nScore:\n" +
-            std::to_string(score_)));
+            "Chrono: " + std::to_string(elapsed) + "\nBean Left:\n" +
+            std::to_string(beanLeft_) + "\nScore:\n" + std::to_string(score_)));
     }
 };
