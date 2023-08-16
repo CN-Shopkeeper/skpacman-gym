@@ -10,7 +10,8 @@ void StartUp() {
     auto& textureManager = ctx.GetTextureManager();
     textureManager.LoadTilesheet(TilesheetName, "./resources/tilesheet.bmp",
                                  KeyColor, TilesheetCol, TilesheetRow);
-
+    textureManager.Load("Win", "./resources/win.bmp", KeyColor);
+    textureManager.Load("Gameover", "./resources/gameover.bmp", KeyColor);
     GameContext::Init();
 }
 
@@ -28,10 +29,18 @@ void Draw() {
         monster->Draw();
     }
     auto tips = ctx.tips.get();
-    ctx.GetRenderer().DrawTextTexture(*tips, TileSize * MapWidth, 0);
+    renderer.DrawTextTexture(*tips, TileSize * MapWidth, 0);
     auto tipsHeight = tips->rect.h;
-    ctx.GetRenderer().DrawTextTexture(*gameCtx.scoreText, TileSize * MapWidth,
-                                      tipsHeight + TileSize);
+    renderer.DrawTextTexture(*gameCtx.scoreText, TileSize * MapWidth,
+                             tipsHeight + TileSize);
+    if (gameCtx.state == GameContext::GameState::Win) {
+        renderer.DrawTexture(*gameCtx.winImage, SDL_Rect{0, 0, 256, 256},
+                             (WindowWidth - 256) / 2, (WindowHeight - 256) / 2);
+    }
+    if (gameCtx.state == GameContext::GameState::Gameover) {
+        renderer.DrawTexture(*gameCtx.gameoverImage, SDL_Rect{0, 0, 256, 256},
+                             (WindowWidth - 256) / 2, (WindowHeight - 256) / 2);
+    }
 }
 
 void ShutDown() {

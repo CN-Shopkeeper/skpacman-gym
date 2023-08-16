@@ -8,8 +8,12 @@
 
 class GameContext final : public Singlton<GameContext> {
    public:
-    bool debugMode = true;
+    enum GameState { Gaming, Paused, Win, Gameover };
+    GameState state = Gaming;
+    bool debugMode = false;
     std::unique_ptr<TextTexture> scoreText;
+    Texture* winImage;
+    Texture* gameoverImage;
     bool ShouldClose() const { return shouldClose_; }
     void Exit() { shouldClose_ = true; }
 
@@ -37,8 +41,13 @@ class GameContext final : public Singlton<GameContext> {
                     }
                 }
             }
+            if (SDL_SCANCODE_P == key) {
+                state = static_cast<GameState>(1 - static_cast<int>(state));
+            }
+            if (GameState::Gaming == state) {
+                controller->HandleEvent(event_);
+            }
         }
-        controller->HandleEvent(event_);
     }
 
     std::unique_ptr<Map> gameMap;

@@ -30,6 +30,9 @@ GameContext::GameContext() {
                   Vector2{GhostInitX + TileSize * 2, GhostInitY}, "Clyde",
                   ClydeColor, gameMap->NearestAccessibleTile({-1, MapHeight})});
     controller.reset(new Controller(*dynamic_cast<Pacman*>(monsters[0].get())));
+
+    winImage = ctx.GetTextureManager().Find("Win");
+    gameoverImage = ctx.GetTextureManager().Find("GameOver");
 }
 
 void GameContext::dealCollideWithMap(Monster& monster) {
@@ -64,17 +67,26 @@ void GameContext::dealCollideWithMap(Monster& monster) {
 }
 
 void GameContext::Update() {
-    for (auto& monster : monsters) {
-        monster->Update();
-    }
+    if (GameState::Gaming == state) {
+        for (auto& monster : monsters) {
+            monster->Update();
+        }
 
-    for (auto& monster : monsters) {
-        dealCollideWithMap(*monster);
+        for (auto& monster : monsters) {
+            dealCollideWithMap(*monster);
+        }
+        tryEatBean();
+        if (score_ == beanCount_) {
+            state = GameState::Win;
+        }
     }
-    tryEatBean();
 }
 
 void GameContext::newGame() {
+    state = Gaming;
+    score_ = 0;
+    modeCount_ = 0;
+    debugMode = false;
     gameMap.reset(new Map(Map::GenerateMap(beanCount_), {MapWidth, MapHeight}));
 
     monsters[0]->Reset(Vector2{PacmanInitX, PacmanInitY});
