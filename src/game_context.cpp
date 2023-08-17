@@ -13,31 +13,22 @@ GameContext::GameContext() {
 
     monsters.emplace_back(new Pacman{
         {tilesheet->Get(static_cast<int>(ImageTileType::Pacman), 0),
-         tilesheet->Get(static_cast<int>(ImageTileType::PacmanEat), 0)},
-        Vector2{PacmanInitX, PacmanInitY}});
+         tilesheet->Get(static_cast<int>(ImageTileType::PacmanEat), 0)}});
     monsters.emplace_back(
         new Ghost{{tilesheet->Get(static_cast<int>(ImageTileType::Ghost), 0)},
-                  Vector2{GhostInitX + TileSize * 2, GhostInitY},
                   "Blinky",
-                  BlinkyColor,
                   gameMap->NearestAccessibleTile({MapWidth, -1})});
     monsters.emplace_back(
         new Ghost{{tilesheet->Get(static_cast<int>(ImageTileType::Ghost), 0)},
-                  Vector2{GhostInitX + TileSize, GhostInitY},
                   "Pinky",
-                  PinkyColor,
                   gameMap->NearestAccessibleTile({-1, -1})});
     monsters.emplace_back(
         new Ghost{{tilesheet->Get(static_cast<int>(ImageTileType::Ghost), 0)},
-                  Vector2{GhostInitX, GhostInitY},
                   "Inky",
-                  InkyColor,
                   gameMap->NearestAccessibleTile({MapWidth, MapHeight})});
     monsters.emplace_back(
         new Ghost{{tilesheet->Get(static_cast<int>(ImageTileType::Ghost), 0)},
-                  Vector2{GhostInitX + TileSize * 3, GhostInitY},
                   "Clyde",
-                  ClydeColor,
                   gameMap->NearestAccessibleTile({-1, MapHeight})});
     Ghost* Blinky = dynamic_cast<Ghost*>(monsters[1].get());
     Blinky->joinChasing = true;
@@ -83,17 +74,36 @@ void GameContext::dealCollideWithMap(Monster& monster) {
 void GameContext::Update() {
     if (GameState::Gaming == state) {
         auto nowTime = std::chrono::system_clock::now();
-        std::chrono::duration<double> elapsed_seconds = nowTime - startTime_;
-        elapsed = elapsed_seconds.count();
-        for (int i = 1; i < monsters.size(); i++) {
-            Ghost* ghost = dynamic_cast<Ghost*>(monsters[i].get());
+        std::chrono::duration<double> globalElapsedSeconds = nowTime - globalTime_;
+        globalElapsed = globalElapsedSeconds.count();
+        std::chrono::duration<double> elapsedSeconds =
+            nowTime - lastRecordTime_;
+        if (energized_) {
+            // 如果吃了充能豆子，计时不更新，ghost保持frightened状态
+            if (elapsedSeconds.count() >= 15.0f) {
+                // 超过15秒后退出
+                energized_ = false;
+            }
+        } else {
+            // 否则更新计时器
+            elapsed += elapsedSeconds.count();
+            lastRecordTime_ = nowTime;
             auto epoch = GetElapsedFloor() % 27;
-            if (epoch < 7) {
-                ghost->ChangeMode(Ghost::Mode::Scatter);
-            } else {
-                ghost->ChangeMode(Ghost::Mode::Chase);
+            // 根据计时器更改ghost的状态
+            if (epoch == 0) {
+                for (int i = 1; i < monsters.size(); i++) {
+                    Ghost* ghost = dynamic_cast<Ghost*>(monsters[i].get());
+                    ghost->ChangeMode(Ghost::Mode::Scatter);
+                }
+            }
+            if (epoch == 7) {
+                for (int i = 1; i < monsters.size(); i++) {
+                    Ghost* ghost = dynamic_cast<Ghost*>(monsters[i].get());
+                    ghost->ChangeMode(Ghost::Mode::Chase);
+                }
             }
         }
+
         auto beanEaten = GetBeanEaten();
         if (beanEaten > 30) {
             // 吃掉超过30个豆子时，inky加入战斗
@@ -114,6 +124,12 @@ void GameContext::Update() {
         }
         tryCapture();
         tryEatBean();
+        if (energized_) {
+            for (int i = 1; i < monsters.size(); i++) {
+                Ghost* ghost = dynamic_cast<Ghost*>(monsters[i].get());
+                ghost->ChangeMode(Ghost::Mode::Frightened);
+            }
+        }
         if (beanLeft_ == 0) {
             state = GameState::Win;
         }
@@ -123,7 +139,8 @@ void GameContext::Update() {
 
 void GameContext::newGame() {
     state = Gaming;
-    startTime_ = std::chrono::system_clock::now();
+    lastRecordTime_ = std::chrono::system_clock::now();
+    globalTime_ = std::chrono::system_clock::now();
     elapsed = 0;
     score_ = 0;
     modeCount_ = 0;
@@ -131,11 +148,11 @@ void GameContext::newGame() {
     gameMap.reset(new Map(Map::GenerateMap(beanCount_), {MapWidth, MapHeight}));
     beanLeft_ = beanCount_;
 
-    monsters[0]->Reset(Vector2{PacmanInitX, PacmanInitY});
-    monsters[1]->Reset(Vector2{GhostInitX + TileSize * 2, GhostInitY});
-    monsters[2]->Reset(Vector2{GhostInitX + TileSize, GhostInitY});
-    monsters[3]->Reset(Vector2{GhostInitX, GhostInitY});
-    monsters[4]->Reset(Vector2{GhostInitX + TileSize * 3, GhostInitY});
+    monsters[0]->Reset();
+    monsters[1]->Reset();
+    monsters[2]->Reset();
+    monsters[3]->Reset();
+    monsters[4]->Reset();
 }
 
 void GameContext::tryCapture() {
@@ -147,6 +164,7 @@ void GameContext::tryCapture() {
         if (pacmanRect.IsIntersect(ghostRect)) {
             if (ghost->IsFrightened()) {
                 std::cout << ghost->name << " is catched" << std::endl;
+                ghost->Reset();
                 score_ += 200;
             } else {
                 state = GameState::Gameover;
@@ -160,9 +178,25 @@ void GameContext::tryEatBean() {
     auto pacmanCor = pacman.GetMapCorrdinate();
     bool reach = pacman.ReachTheTile(0.6, 0);
     Tile& tile = gameMap->GetTile(pacmanCor);
-    if (reach && tile.type == Tile::Type::Bean) {
-        tile.type = Tile::Type::Empty;
-        score_ += 10;
-        beanLeft_--;
+    if (reach) {
+        switch (tile.type) {
+            case Tile::Type::PowerBean:
+                energized_ = true;
+                // 不break，继续执行Bean的内容
+            case Tile::Type::Bean:
+                tile.type = Tile::Type::Empty;
+                score_ += 10;
+                beanLeft_--;
+                break;
+            default:
+                break;
+        }
+        // if (tile.type == Tile::Type::Bean) {
+        // }
+        // if (tile.type == Tile::Type::PowerBean) {
+        //     tile.type = Tile::Type::Empty;
+        //     score_ += 10;
+        //     beanLeft_--;
+        // }
     }
 }

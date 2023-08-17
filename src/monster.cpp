@@ -147,7 +147,7 @@ bool Monster::isTurnBack() const {
 
 Image& Pacman::GetImage() {
     auto& gameCtx = GameContext::GetInstance();
-    if (std::fmod(gameCtx.elapsed, 0.4f) < 0.2) {
+    if (std::fmod(gameCtx.globalElapsed, 0.4f) < 0.2) {
         return images.at(0);
     } else {
         return images.at(1);
@@ -405,7 +405,7 @@ Ghost::AIType Ghost::aiScatter_ = [](Pacman& pacman, Ghost& ghost) {
 
 Ghost::AIType Ghost::aiWaiting_ = [](Pacman& pacman, Ghost& ghost) {
     auto& gameCtx = GameContext::GetInstance();
-    if (std::fmod(gameCtx.elapsed, 1.0f) < 0.5) {
+    if (std::fmod(gameCtx.globalElapsed, 1.0f) < 0.5) {
         return Direction::Down;
     } else {
         return Direction::Up;

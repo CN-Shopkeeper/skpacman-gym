@@ -16,6 +16,8 @@ class GameContext final : public Singlton<GameContext> {
     Texture* winImage;
     Texture* gameoverImage;
     float elapsed = 0;
+    // 用于对贴图进行更新
+    float globalElapsed = 0;
     bool ShouldClose() const { return shouldClose_; }
     void Exit() { shouldClose_ = true; }
 
@@ -69,7 +71,10 @@ class GameContext final : public Singlton<GameContext> {
     int beanLeft_ = 0;
     int score_ = 0;
     int modeCount_ = 0;
-    TimePoint startTime_ = std::chrono::system_clock::now();
+    bool energized_ = false;
+    TimePoint lastRecordTime_ = std::chrono::system_clock::now();
+    // 用于对贴图进行更新
+    TimePoint globalTime_ = std::chrono::system_clock::now();
 
     void newGame();
     void dealCollideWithMap(Monster& Monster);
