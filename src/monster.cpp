@@ -145,7 +145,7 @@ bool Monster::isTurnBack() const {
            2;
 }
 
-Image Pacman::GetImage() {
+Image& Pacman::GetImage() {
     auto& gameCtx = GameContext::GetInstance();
     if (std::fmod(gameCtx.elapsed, 0.4f) < 0.2) {
         return images.at(0);
@@ -268,6 +268,13 @@ void Ghost::ChangeMode(Mode _mode) {
     // 直接重置
     scatterInfo_.scatterCCW = false;
     scatterInfo_.scatterCheckPoint = false;
+    if (mode == Mode::Frightened) {
+        speed = 1.0f;
+        GetImage().color = FrightenedColor;
+    } else {
+        speed = 3.0f;
+        GetImage().color = getColor(name);
+    }
 }
 
 Monster::Direction GetDirectionFromPath(

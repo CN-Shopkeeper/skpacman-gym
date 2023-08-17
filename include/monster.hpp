@@ -78,7 +78,7 @@ class Monster {
 
     void Draw();
     virtual void Update();
-    virtual Image GetImage() = 0;
+    virtual Image& GetImage() = 0;
     virtual void Debug() = 0;
 
    protected:
@@ -94,7 +94,7 @@ class Pacman : public Monster {
         : Monster(std::move(_images), position) {}
 
     void Debug() override{};
-    Image GetImage() override;
+    Image& GetImage() override;
 
    private:
 };
@@ -134,7 +134,7 @@ class Ghost : public Monster {
 
     static void InitAiMap();
     void Update() override;
-    Image GetImage() override { return images[0]; }
+    Image& GetImage() override { return images[0]; }
     void Debug() override;
     void ChangeMode(Mode mode);
     bool IsFrightened() const { return mode == Mode::Frightened; }
@@ -162,6 +162,21 @@ class Ghost : public Monster {
     static AIType aiClyde_;
     static AIType aiScatter_;
     static AIType aiWaiting_;
+    static SDL_Color getColor(const std::string& name) {
+        if ("Blinky" == name) {
+            return BlinkyColor;
+        }
+        if ("Pinky" == name) {
+            return PinkyColor;
+        }
+        if ("Inky" == name) {
+            return InkyColor;
+        }
+        if ("Clyde" == name) {
+            return ClydeColor;
+        }
+        return BlinkyColor;
+    }
 };
 
 Monster::Direction GetDirectionFromPath(const std::vector<MapCoordinate>& path);
