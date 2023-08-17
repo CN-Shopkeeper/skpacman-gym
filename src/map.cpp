@@ -105,6 +105,7 @@ std::string Map::GenerateMap(int& beanCount) {
 
     beanCount = 0;
     std::string mapStr = std::string(MapWidth * MapHeight, ' ');
+    // 这一步暂不生成能量豆，在下一步生成
     for (int y = 0; y < MapHeight; y++) {
         for (int x = 0; x < MapWidth; x++) {
             switch (finalPath[x + y * MapWidth]) {
@@ -123,6 +124,17 @@ std::string Map::GenerateMap(int& beanCount) {
                     break;
                 default:
                     break;
+            }
+        }
+    }
+    auto interval = beanCount / 5;
+    auto tempCount = 0;
+    for (int i = 0; i < mapStr.length(); i++) {
+        if (mapStr[i] == 'B') {
+            tempCount++;
+            if (tempCount == interval) {
+                mapStr[i] = 'P';
+                tempCount = 0;
             }
         }
     }
