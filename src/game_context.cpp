@@ -72,34 +72,52 @@ void GameContext::dealCollideWithMap(Monster& monster) {
 }
 
 void GameContext::Update() {
+    auto nowTime = std::chrono::system_clock::now();
+    // 从游戏开局到现在的持续时间
+    std::chrono::duration<double> globalElapsedDuration = nowTime - globalTime_;
+    globalElapsed = globalElapsedDuration.count();
     if (GameState::Gaming == state) {
-        auto nowTime = std::chrono::system_clock::now();
-        std::chrono::duration<double> globalElapsedSeconds = nowTime - globalTime_;
-        globalElapsed = globalElapsedSeconds.count();
-        std::chrono::duration<double> elapsedSeconds =
-            nowTime - lastRecordTime_;
-        if (energized_) {
-            // 如果吃了充能豆子，计时不更新，ghost保持frightened状态
-            if (elapsedSeconds.count() >= 15.0f) {
-                // 超过15秒后退出
-                energized_ = false;
-            }
-        } else {
-            // 否则更新计时器
-            elapsed += elapsedSeconds.count();
-            lastRecordTime_ = nowTime;
-            auto epoch = GetElapsedFloor() % 27;
-            // 根据计时器更改ghost的状态
-            if (epoch == 0) {
-                for (int i = 1; i < monsters.size(); i++) {
-                    Ghost* ghost = dynamic_cast<Ghost*>(monsters[i].get());
-                    ghost->ChangeMode(Ghost::Mode::Scatter);
+        std::chrono::duration<double> FrameElapsedDuration =
+            nowTime - frameTime_;
+        float frameElapsed = FrameElapsedDuration.count();
+        frameTime_ = nowTime;
+        if (energizedTime > 0) {
+            // 如果充能豆子效果还在，计时不更新，ghost保持frightened状态
+
+            // 如果充能豆子效果时间还剩3秒，应当闪烁提示
+            if (energizedTime <= 3.0f) {
+                if (std::fmod(globalElapsed, 0.4f) < 0.2) {
+                    for (int i = 1; i < monsters.size(); i++) {
+                        Ghost* ghost = dynamic_cast<Ghost*>(monsters[i].get());
+                        ghost->images[0].color = ghost->GetColor();
+                    }
+                } else {
+                    for (int i = 1; i < monsters.size(); i++) {
+                        Ghost* ghost = dynamic_cast<Ghost*>(monsters[i].get());
+                        ghost->images[0].color = FrightenedColor;
+                    }
                 }
             }
-            if (epoch == 7) {
+            // 减去globalElapsed
+            energizedTime = std::max(0.0f, energizedTime - frameElapsed);
+        } else {
+            // 正常模式
+            normalRunningElapsed += frameElapsed;
+            auto epoch = GetElapsedFloor() % 27;
+            // 根据计时器更改ghost的状态
+            if (epoch < 7) {
                 for (int i = 1; i < monsters.size(); i++) {
                     Ghost* ghost = dynamic_cast<Ghost*>(monsters[i].get());
-                    ghost->ChangeMode(Ghost::Mode::Chase);
+                    if (ghost->mode != Ghost::Mode::Scatter) {
+                        ghost->ChangeMode(Ghost::Mode::Scatter);
+                    }
+                }
+            } else {
+                for (int i = 1; i < monsters.size(); i++) {
+                    Ghost* ghost = dynamic_cast<Ghost*>(monsters[i].get());
+                    if (ghost->mode != Ghost::Mode::Chase) {
+                        ghost->ChangeMode(Ghost::Mode::Chase);
+                    }
                 }
             }
         }
@@ -124,10 +142,12 @@ void GameContext::Update() {
         }
         tryCapture();
         tryEatBean();
-        if (energized_) {
+        if (energizedTime > 0) {
             for (int i = 1; i < monsters.size(); i++) {
                 Ghost* ghost = dynamic_cast<Ghost*>(monsters[i].get());
-                ghost->ChangeMode(Ghost::Mode::Frightened);
+                if (ghost->mode != Ghost::Mode::Frightened) {
+                    ghost->ChangeMode(Ghost::Mode::Frightened);
+                }
             }
         }
         if (beanLeft_ == 0) {
@@ -139,9 +159,11 @@ void GameContext::Update() {
 
 void GameContext::newGame() {
     state = Gaming;
-    lastRecordTime_ = std::chrono::system_clock::now();
+    globalElapsed = 0;
+    normalRunningElapsed = 0;
     globalTime_ = std::chrono::system_clock::now();
-    elapsed = 0;
+    frameTime_ = globalTime_;
+    energizedTime = 0;
     score_ = 0;
     modeCount_ = 0;
     // debugMode = false;
@@ -181,7 +203,7 @@ void GameContext::tryEatBean() {
     if (reach) {
         switch (tile.type) {
             case Tile::Type::PowerBean:
-                energized_ = true;
+                energizedTime = EnergnizedTime;
                 // 不break，继续执行Bean的内容
             case Tile::Type::Bean:
                 tile.type = Tile::Type::Empty;

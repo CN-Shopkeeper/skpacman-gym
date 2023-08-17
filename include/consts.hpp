@@ -67,3 +67,7 @@ constexpr size_t PacmanInitY = (7 * 3 + 1) * TileSize;
 
 constexpr size_t GhostInitX = (TileSize * MapWidth) / 2 - TileSize * 2;
 constexpr size_t GhostInitY = (4 * 3 + 1) * TileSize;
+
+// 游戏机制相关
+
+constexpr float EnergnizedTime = 15.0f;

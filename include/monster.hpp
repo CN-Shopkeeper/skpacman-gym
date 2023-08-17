@@ -143,6 +143,7 @@ class Ghost : public Monster {
     void Debug() override;
     void ChangeMode(Mode mode);
     bool IsFrightened() const { return mode == Mode::Frightened; }
+    SDL_Color GetColor() const { return getColor(name); }
 
     using AIType = std::function<Direction(Pacman&, Ghost&)>;
 

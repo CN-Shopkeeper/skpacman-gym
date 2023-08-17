@@ -15,8 +15,9 @@ class GameContext final : public Singlton<GameContext> {
     std::unique_ptr<TextTexture> scoreText;
     Texture* winImage;
     Texture* gameoverImage;
-    float elapsed = 0;
-    // 用于对贴图进行更新
+    // 游戏正常运行的时间
+    float normalRunningElapsed = 0;
+    // 全局过去的时间，用于对贴图进行更新
     float globalElapsed = 0;
     bool ShouldClose() const { return shouldClose_; }
     void Exit() { shouldClose_ = true; }
@@ -62,7 +63,7 @@ class GameContext final : public Singlton<GameContext> {
 
     int GetBeanEaten() const { return beanCount_ - beanLeft_; }
 
-    int GetElapsedFloor() const { return std::floor(elapsed); }
+    int GetElapsedFloor() const { return std::floor(normalRunningElapsed); }
 
    private:
     bool shouldClose_ = false;
@@ -71,10 +72,11 @@ class GameContext final : public Singlton<GameContext> {
     int beanLeft_ = 0;
     int score_ = 0;
     int modeCount_ = 0;
-    bool energized_ = false;
-    TimePoint lastRecordTime_ = std::chrono::system_clock::now();
-    // 用于对贴图进行更新
+    float energizedTime = 0.0f;
+    // 全局时间戳
     TimePoint globalTime_ = std::chrono::system_clock::now();
+    // 上一帧的时间戳
+    TimePoint frameTime_ = globalTime_;
 
     void newGame();
     void dealCollideWithMap(Monster& Monster);
