@@ -31,8 +31,14 @@ void Draw() {
     auto tips = ctx.tips.get();
     renderer.DrawTextTexture(*tips, TileSize * MapWidth, 0);
     auto tipsHeight = tips->rect.h;
-    renderer.DrawTextTexture(*gameCtx.scoreText, TileSize * MapWidth,
+    renderer.DrawTextTexture(*gameCtx.gameInfoText, TileSize * MapWidth,
                              tipsHeight + TileSize);
+    if (gameCtx.DebugMode) {
+        gameCtx.UpdateDebugText();
+        auto gameInfoHight = gameCtx.gameInfoText->rect.h;
+        renderer.DrawTextTexture(*gameCtx.debugText, TileSize * MapWidth,
+                                 tipsHeight + gameInfoHight + TileSize * 2);
+    }
     if (gameCtx.state == GameContext::GameState::Win) {
         renderer.DrawTexture(*gameCtx.winImage, SDL_Rect{0, 0, 256, 256},
                              (WindowWidth - 256) / 2, (WindowHeight - 256) / 2);

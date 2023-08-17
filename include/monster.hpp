@@ -145,6 +145,19 @@ class Ghost : public Monster {
     bool IsFrightened() const { return mode == Mode::Frightened; }
     SDL_Color GetColor() const { return getColor(name); }
 
+    std::string GetModeStr() const {
+        switch (mode) {
+            case Mode::Chase:
+                return "Chase";
+            case Mode::Scatter:
+                return "Scatter";
+            case Mode::Frightened:
+                return "Frightened";
+            default:
+                return "Chase";
+        }
+    }
+
     using AIType = std::function<Direction(Pacman&, Ghost&)>;
 
    private:
@@ -203,3 +216,18 @@ class Ghost : public Monster {
 };
 
 Monster::Direction GetDirectionFromPath(const std::vector<MapCoordinate>& path);
+
+inline std::ostream& operator<<(std::ostream& stream, const Ghost::Mode& mode) {
+    switch (mode) {
+        case Ghost::Mode::Chase:
+            stream << "Chase";
+            break;
+        case Ghost::Mode::Scatter:
+            stream << "Scatter";
+            break;
+        case Ghost::Mode::Frightened:
+            stream << "Frightened";
+            break;
+    }
+    return stream;
+}

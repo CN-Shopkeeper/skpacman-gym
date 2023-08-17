@@ -31,7 +31,7 @@ void Monster::Draw() {
     auto& renderer = Context::GetInstance().GetRenderer();
     renderer.DrawImage(GetImage(), position_, scale * Scale, rotation);
 
-    if (GameContext::GetInstance().debugMode) {
+    if (GameContext::GetInstance().DebugMode) {
         Debug();
     }
 }

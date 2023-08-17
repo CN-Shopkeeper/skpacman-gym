@@ -11,8 +11,9 @@ class GameContext final : public Singlton<GameContext> {
     using TimePoint = std::chrono::system_clock::time_point;
     enum GameState { Gaming, Paused, Win, Gameover };
     GameState state = Gaming;
-    bool debugMode = false;
-    std::unique_ptr<TextTexture> scoreText;
+    bool DebugMode = false;
+    std::unique_ptr<TextTexture> gameInfoText;
+    std::unique_ptr<TextTexture> debugText;
     Texture* winImage;
     Texture* gameoverImage;
     // 游戏正常运行的时间
@@ -33,10 +34,10 @@ class GameContext final : public Singlton<GameContext> {
                 newGame();
             }
             if (SDL_SCANCODE_G == key) {
-                debugMode = !debugMode;
+                DebugMode = !DebugMode;
             }
             if (SDL_SCANCODE_M == key) {
-                if (debugMode) {
+                if (DebugMode) {
                     modeCount_++;
                     auto nowMode = static_cast<Ghost::Mode>(modeCount_ % 3);
                     std::cout << nowMode << std::endl;
@@ -65,6 +66,12 @@ class GameContext final : public Singlton<GameContext> {
 
     int GetElapsedFloor() const { return std::floor(normalRunningElapsed); }
 
+    void UpdateDebugText() {
+        Ghost* ghost = dynamic_cast<Ghost*>(monsters[1].get());
+        debugText.reset(Context::GetInstance().GenerateTextTexture(
+            "Ghost mode:\n" + ghost->GetModeStr()));
+    }
+
    private:
     bool shouldClose_ = false;
     SDL_Event event_;
@@ -84,7 +91,7 @@ class GameContext final : public Singlton<GameContext> {
     void tryEatBean();
 
     void updateGameInfoText() {
-        scoreText.reset(Context::GetInstance().GenerateTextTexture(
+        gameInfoText.reset(Context::GetInstance().GenerateTextTexture(
             "Chrono: " + std::to_string(GetElapsedFloor()) + "\nBean Left:\n" +
             std::to_string(beanLeft_) + "\nScore:\n" + std::to_string(score_)));
     }
