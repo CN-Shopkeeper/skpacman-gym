@@ -16,8 +16,7 @@ class Monster {
     std::vector<Image> images;
     float speed = 5.0f;
 
-    Monster(const std::vector<Image>&& _images, const Vector2& position)
-        : images(std::move(_images)), position_(position) {}
+    Monster(const std::vector<Image>&& _images) : images(std::move(_images)) {}
 
     virtual ~Monster() = default;
 
@@ -31,8 +30,8 @@ class Monster {
     auto& GetPosition() const { return position_; }
     auto& GetVelocity() const { return offset_; }
 
-    virtual void Reset(const Vector2& position) {
-        position_ = position;
+    virtual void Reset() {
+        position_ = getInitPosition();
         movingDir = Direction::Right;
         intentionDir = Direction::Right;
     }
@@ -86,15 +85,20 @@ class Monster {
     Vector2 position_;
     bool isTurnBack() const;
     void doUpdate();
+    virtual Vector2 getInitPosition() = 0;
 };
 
 class Pacman : public Monster {
    public:
-    Pacman(const std::vector<Image>&& _images, const Vector2& position)
-        : Monster(std::move(_images), position) {}
+    Pacman(const std::vector<Image>&& _images) : Monster(std::move(_images)) {
+        position_ = getInitPosition();
+    }
 
     void Debug() override{};
     Image& GetImage() override;
+    Vector2 getInitPosition() override {
+        return Vector2{PacmanInitX, PacmanInitY};
+    }
 
    private:
 };
@@ -102,14 +106,15 @@ class Pacman : public Monster {
 class Ghost : public Monster {
    public:
     enum Mode { Chase = 0, Scatter = 1, Frightened = 2 };
-    Ghost(const std::vector<Image>&& _images, const Vector2& position,
-          std::string name, SDL_Color color, MapCoordinate scatterPoint)
-        : Monster(std::move(_images), position), name(name), color_(color) {
+    Ghost(const std::vector<Image>&& _images, std::string _name,
+          MapCoordinate scatterPoint)
+        : Monster(std::move(_images)), name(_name), color_(getColor(_name)) {
         speed = 3;
         checkPoint_ = {-1, -1};
         mode = Mode::Chase;
+        position_ = getInitPosition();
         for (auto& image : images) {
-            image.SetColorMod(color);
+            image.SetColorMod(color_);
         }
         scatterInfo_.scatterPoint = scatterPoint;
         if (name == "Blinky" || name == "Pinky") {
@@ -123,8 +128,8 @@ class Ghost : public Monster {
     bool joinChasing = false;
     std::vector<MapCoordinate> path;
 
-    void Reset(const Vector2& position) override {
-        Monster::Reset(position);
+    void Reset() override {
+        Monster::Reset();
         if (name == "Blinky" || name == "Pinky") {
             joinChasing = true;
         } else {
@@ -154,6 +159,7 @@ class Ghost : public Monster {
     // 上次转向判定点，按照wiki说明只有在路口时才能转向判定。
     MapCoordinate checkPoint_;
     ScatterInfo scatterInfo_;
+    Vector2 getInitPosition() override { return getInitPositionByName(name); }
     inline static std::unordered_map<std::string, AIType> aiMap_ =
         std::unordered_map<std::string, AIType>();
     static AIType aiPinky_;
@@ -176,6 +182,22 @@ class Ghost : public Monster {
             return ClydeColor;
         }
         return BlinkyColor;
+    }
+
+    static Vector2 getInitPositionByName(const std::string& name) {
+        if ("Blinky" == name) {
+            return Vector2{GhostInitX + TileSize * 2, GhostInitY};
+        }
+        if ("Pinky" == name) {
+            return Vector2{GhostInitX + TileSize, GhostInitY};
+        }
+        if ("Inky" == name) {
+            return Vector2{GhostInitX, GhostInitY};
+        }
+        if ("Clyde" == name) {
+            return Vector2{GhostInitX + TileSize * 3, GhostInitY};
+        }
+        return Vector2{GhostInitX + TileSize * 2, GhostInitY};
     }
 };
 
