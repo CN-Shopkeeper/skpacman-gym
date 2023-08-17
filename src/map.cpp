@@ -127,7 +127,7 @@ std::string Map::GenerateMap(int& beanCount) {
             }
         }
     }
-    auto interval = beanCount / 5;
+    auto interval = beanCount / 5 + 1;
     auto tempCount = 0;
     for (int i = 0; i < mapStr.length(); i++) {
         if (mapStr[i] == 'B') {
