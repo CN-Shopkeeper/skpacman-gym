@@ -81,11 +81,11 @@ void GameContext::Update() {
             nowTime - frameTime_;
         float frameElapsed = FrameElapsedDuration.count();
         frameTime_ = nowTime;
-        if (energizedTime > 0) {
+        if (energizedTime_ > 0) {
             // 如果充能豆子效果还在，计时不更新，ghost保持frightened状态
 
             // 如果充能豆子效果时间还剩3秒，应当闪烁提示
-            if (energizedTime <= 3.0f) {
+            if (energizedTime_ <= 3.0f) {
                 if (std::fmod(globalElapsed, 0.4f) < 0.2) {
                     for (int i = 1; i < monsters.size(); i++) {
                         Ghost* ghost = dynamic_cast<Ghost*>(monsters[i].get());
@@ -99,7 +99,10 @@ void GameContext::Update() {
                 }
             }
             // 减去globalElapsed
-            energizedTime = std::max(0.0f, energizedTime - frameElapsed);
+            energizedTime_ = std::max(0.0f, energizedTime_ - frameElapsed);
+            if (energizedTime_ < std::numeric_limits<float>::epsilon()) {
+                multiKillReward_ = MultiKillReward;
+            }
         } else {
             // 正常模式
             normalRunningElapsed += frameElapsed;
@@ -142,7 +145,7 @@ void GameContext::Update() {
         }
         tryCapture();
         tryEatBean();
-        if (energizedTime > 0) {
+        if (energizedTime_ > 0) {
             for (int i = 1; i < monsters.size(); i++) {
                 Ghost* ghost = dynamic_cast<Ghost*>(monsters[i].get());
                 if (ghost->mode != Ghost::Mode::Frightened) {
@@ -163,7 +166,8 @@ void GameContext::newGame() {
     normalRunningElapsed = 0;
     globalTime_ = std::chrono::system_clock::now();
     frameTime_ = globalTime_;
-    energizedTime = 0;
+    energizedTime_ = 0;
+    multiKillReward_ = MultiKillReward;
     score_ = 0;
     modeCount_ = 0;
     // debugMode = false;
@@ -187,7 +191,8 @@ void GameContext::tryCapture() {
             if (ghost->IsFrightened()) {
                 std::cout << ghost->name << " is catched" << std::endl;
                 ghost->Reset();
-                score_ += 200;
+                score_ += multiKillReward_;
+                multiKillReward_ += MultiKillReward;
             } else {
                 state = GameState::Gameover;
             }
@@ -203,11 +208,14 @@ void GameContext::tryEatBean() {
     if (reach) {
         switch (tile.type) {
             case Tile::Type::PowerBean:
-                energizedTime = EnergnizedTime;
+                energizedTime_ = EnergnizedTime;
+                // ?
+                // 这里暂时不重置multiKillReward_，即充能时间被续上时，连杀奖励更高
+                // multiKillReward_  = MultiKillReward;
                 // 不break，继续执行Bean的内容
             case Tile::Type::Bean:
                 tile.type = Tile::Type::Empty;
-                score_ += 10;
+                score_ += BeanScore;
                 beanLeft_--;
                 break;
             default:

@@ -69,7 +69,9 @@ class GameContext final : public Singlton<GameContext> {
     void UpdateDebugText() {
         Ghost* ghost = dynamic_cast<Ghost*>(monsters[1].get());
         debugText.reset(Context::GetInstance().GenerateTextTexture(
-            "Ghost mode:\n" + ghost->GetModeStr()));
+            "Global Chrono: " + std::to_string(globalElapsed) +
+            "\nMultiKill Reward: " + std::to_string(multiKillReward_) +
+            "\nGhost mode:\n" + ghost->GetModeStr()));
     }
 
    private:
@@ -79,7 +81,8 @@ class GameContext final : public Singlton<GameContext> {
     int beanLeft_ = 0;
     int score_ = 0;
     int modeCount_ = 0;
-    float energizedTime = 0.0f;
+    float energizedTime_ = 0.0f;
+    int multiKillReward_ = MultiKillReward;
     // 全局时间戳
     TimePoint globalTime_ = std::chrono::system_clock::now();
     // 上一帧的时间戳
