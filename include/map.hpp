@@ -50,6 +50,10 @@ class MapCoordinate {
     MapCoordinate operator*(const int value) const {
         return {x * value, y * value};
     }
+
+    bool operator==(const MapCoordinate& other) const {
+        return x == other.x && y == other.y;
+    }
 };
 
 inline MapCoordinate operator*(int value, const MapCoordinate& v) {

@@ -14,10 +14,11 @@ class TextTexture final {
     std::unique_ptr<SDL_Texture, decltype(DestroyTexture)> texture;
     SDL_Rect rect;
     TextTexture() : texture(nullptr, DestroyTexture) {}
-    TextTexture(SDL_Renderer* renderer, const char* text, TTF_Font* font)
+    TextTexture(SDL_Renderer* renderer, const char* text, TTF_Font* font,
+                SDL_Color color = {255, 255, 255, 255})
         : texture(nullptr, DestroyTexture) {
-        auto textSurface = TTF_RenderUTF8_Blended_Wrapped(
-            font, text, {255, 255, 255, 255}, 128);
+        auto textSurface =
+            TTF_RenderUTF8_Blended_Wrapped(font, text, color, 128);
         rect = {0, 0, textSurface->w, textSurface->h};
         texture.reset(SDL_CreateTextureFromSurface(renderer, textSurface));
         SDL_FreeSurface(textSurface);

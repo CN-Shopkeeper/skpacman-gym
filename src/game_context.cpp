@@ -38,6 +38,8 @@ GameContext::GameContext() {
 
     winImage = ctx.GetTextureManager().Find("Win");
     gameoverImage = ctx.GetTextureManager().Find("Gameover");
+
+    initEasterEggInfo();
 }
 
 void GameContext::dealCollideWithMap(Monster& monster) {
@@ -157,6 +159,27 @@ void GameContext::Update() {
             state = GameState::Win;
         }
         updateGameInfoText();
+        TryEasterEgg();
+    }
+}
+
+void GameContext::TryEasterEgg() {
+    Pacman* pacman = dynamic_cast<Pacman*>(monsters[0].get());
+    for (int i = 1; i < monsters.size(); i++) {
+        Ghost* ghost = dynamic_cast<Ghost*>(monsters[i].get());
+        if (pacman->GetMapCorrdinate() == ghost->GetScatterPoint()) {
+            easterEggInfo[i - 1].Check(scancodeQueue_);
+        }
+    }
+}
+
+void GameContext::initEasterEggInfo() {
+    auto& ctx = Context::GetInstance();
+    for (int i = 0; i < 4; i++) {
+        easterEggInfo[i] = EasterEgg(
+            i, ctx.GenerateTextTexture(std::string(testerList[i * 2]) + "\n" +
+                                           std::string(testerList[i * 2 + 1]),
+                                       {255, 0, 0, 255}));
     }
 }
 

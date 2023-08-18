@@ -11,7 +11,8 @@ Context::Context(const std::string& title, const Size& windowSize)
                                font.font_.get()));
 }
 
-TextTexture* Context::GenerateTextTexture(const std::string& text) {
+TextTexture* Context::GenerateTextTexture(const std::string& text,
+                                          SDL_Color color) {
     return new TextTexture(renderer_->renderer_.get(), text.c_str(),
-                           font.font_.get());
+                           font.font_.get(), color);
 }

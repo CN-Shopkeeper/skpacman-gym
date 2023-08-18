@@ -2,6 +2,7 @@
 
 #include "context.hpp"
 #include "controller.hpp"
+#include "easter_egg.hpp"
 #include "map.hpp"
 #include "monster.hpp"
 #include "pch.hpp"
@@ -20,6 +21,9 @@ class GameContext final : public Singlton<GameContext> {
     float normalRunningElapsed = 0;
     // 全局过去的时间，用于对贴图进行更新
     float globalElapsed = 0;
+
+    std::array<EasterEgg, 4> easterEggInfo;
+
     bool ShouldClose() const { return shouldClose_; }
     void Exit() { shouldClose_ = true; }
 
@@ -30,6 +34,7 @@ class GameContext final : public Singlton<GameContext> {
     void HandleEvent() {
         if (SDL_KEYDOWN == event_.type) {
             auto key = event_.key.keysym.scancode;
+            scancodeQueue_.push(key);
             if (SDL_SCANCODE_R == key) {
                 newGame();
             }
@@ -74,6 +79,8 @@ class GameContext final : public Singlton<GameContext> {
             "\nGhost mode:\n" + ghost->GetModeStr()));
     }
 
+    void TryEasterEgg();
+
    private:
     bool shouldClose_ = false;
     SDL_Event event_;
@@ -88,6 +95,9 @@ class GameContext final : public Singlton<GameContext> {
     // 上一帧的时间戳
     TimePoint frameTime_ = globalTime_;
 
+    FixedSizeQueue<SDL_Scancode, 6> scancodeQueue_;
+
+    void initEasterEggInfo();
     void newGame();
     void dealCollideWithMap(Monster& Monster);
     void tryCapture();

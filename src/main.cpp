@@ -33,6 +33,12 @@ void Draw() {
     auto tipsHeight = tips->rect.h;
     renderer.DrawTextTexture(*gameCtx.gameInfoText, TileSize * MapWidth,
                              tipsHeight + TileSize);
+    for (auto& easterEgg : gameCtx.easterEggInfo) {
+        if (easterEgg.show) {
+            renderer.DrawTextTexture(*easterEgg.text, easterEgg.position.x,
+                                     easterEgg.position.y);
+        }
+    }
     if (gameCtx.DebugMode) {
         gameCtx.UpdateDebugText();
         auto gameInfoHight = gameCtx.gameInfoText->rect.h;

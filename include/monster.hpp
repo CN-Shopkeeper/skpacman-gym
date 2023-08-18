@@ -150,6 +150,7 @@ class Ghost : public Monster {
     void ChangeMode(Mode mode);
     bool IsFrightened() const { return mode == Mode::Frightened; }
     SDL_Color GetColor() const { return getColor(name); }
+    MapCoordinate GetScatterPoint() const { return scatterInfo_.scatterPoint; }
 
     std::string GetModeStr() const {
         switch (mode) {

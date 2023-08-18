@@ -23,5 +23,6 @@
 #include "SDL_ttf.h"
 #endif
 
+#include "fixed_size.hpp"
 #include "singlton.hpp"
 #include "vmath.hpp"

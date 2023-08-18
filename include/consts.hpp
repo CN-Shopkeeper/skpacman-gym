@@ -73,3 +73,26 @@ constexpr size_t GhostInitY = (4 * 3 + 1) * TileSize;
 constexpr float EnergnizedTime = 15.0f;
 constexpr int BeanScore = 10;
 constexpr int MultiKillReward = 200;
+
+// 彩蛋相关
+
+// 彩蛋按键
+
+// 左上角
+constexpr std::array<SDL_Scancode, 6> UpLeftScancode = {
+    SDL_SCANCODE_W, SDL_SCANCODE_A, SDL_SCANCODE_W,
+    SDL_SCANCODE_A, SDL_SCANCODE_W, SDL_SCANCODE_A};
+constexpr std::array<SDL_Scancode, 6> UpRightScancode = {
+    SDL_SCANCODE_W, SDL_SCANCODE_D, SDL_SCANCODE_W,
+    SDL_SCANCODE_D, SDL_SCANCODE_W, SDL_SCANCODE_D};
+constexpr std::array<SDL_Scancode, 6> DownLeftScancode = {
+    SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_S,
+    SDL_SCANCODE_A, SDL_SCANCODE_S, SDL_SCANCODE_A};
+constexpr std::array<SDL_Scancode, 6> DownRightScancode = {
+    SDL_SCANCODE_S, SDL_SCANCODE_D, SDL_SCANCODE_S,
+    SDL_SCANCODE_D, SDL_SCANCODE_S, SDL_SCANCODE_D};
+
+// 内测人员名单
+constexpr std::string_view testerList[] = {
+    "shear", "shear的女王陛下", "colin_008", "satori",
+    "___",   "弗如yuanshen",    "M-thor",    "Crystal"};
