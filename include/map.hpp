@@ -12,9 +12,12 @@ struct Tile final {
         GhostDoor = static_cast<int>(ImageTileType::GhostDoor)
     };
     Type type = Type::Empty;
-    bool IsAccessible() const {
+    bool IsGhostAccessible() const {
         return type != Type::Wall;
         // return type != Type::Wall && type != Type::GhostDoor;
+    }
+    bool IsPacmanAccessible() const {
+        return type != Type::Wall && type != Type::GhostDoor;
     }
 };
 

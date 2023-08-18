@@ -141,12 +141,13 @@ std::string Map::GenerateMap(int& beanCount) {
     return mapStr;
 }
 
+// 只有ghost的ai会调用这个函数
 std::vector<MapCoordinate> Map::ShortestPathBetweenTiles(MapCoordinate source,
                                                          MapCoordinate target) {
     auto& sTile = GetTile(source.x, source.y);
     auto& tTile = GetTile(target.x, target.y);
     std::vector<MapCoordinate> result;
-    if (!sTile.IsAccessible() || !tTile.IsAccessible()) {
+    if (!sTile.IsGhostAccessible() || !tTile.IsGhostAccessible()) {
         // 起点或终点不可到达，直接返回空向量
         return result;
     }
@@ -177,22 +178,22 @@ std::vector<MapCoordinate> Map::ShortestPathBetweenTiles(MapCoordinate source,
          * 调整四个方向入队顺序（反向的），down > right > up
          */
         if (!visited[x + (y + 1) * MapWidth] &&
-            GetTile(x, y + 1).IsAccessible()) {
+            GetTile(x, y + 1).IsGhostAccessible()) {
             vec.push_back({x, y + 1, now.step + 1, index});
             visited[x + (y + 1) * MapWidth] = true;
         }
         if (!visited[x + 1 + y * MapWidth] &&
-            GetTile(x + 1, y).IsAccessible()) {
+            GetTile(x + 1, y).IsGhostAccessible()) {
             vec.push_back({x + 1, y, now.step + 1, index});
             visited[x + 1 + y * MapWidth] = true;
         }
         if (!visited[x + (y - 1) * MapWidth] &&
-            GetTile(x, y - 1).IsAccessible()) {
+            GetTile(x, y - 1).IsGhostAccessible()) {
             vec.push_back({x, y - 1, now.step + 1, index});
             visited[x + (y - 1) * MapWidth] = true;
         }
         if (!visited[(x - 1) + y * MapWidth] &&
-            GetTile(x - 1, y).IsAccessible()) {
+            GetTile(x - 1, y).IsGhostAccessible()) {
             vec.push_back({x - 1, y, now.step + 1, index});
             visited[x - 1 + y * MapWidth] = true;
         }
@@ -216,7 +217,7 @@ MapCoordinate Map::NearestAccessibleTile(MapCoordinate target) {
     while (!queue.empty()) {
         auto& now = queue.front();
         queue.pop();
-        if (GetTile(now.x, now.y).IsAccessible()) {
+        if (GetTile(now.x, now.y).IsGhostAccessible()) {
             // 找到了第一个可以到达的点
             return {now.x, now.y};
         }

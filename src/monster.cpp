@@ -113,19 +113,17 @@ void Monster::Update() {
             if (movingDir == Monster::Direction::Left ||
                 movingDir == Monster::Direction::Right) {
                 if (gameMap->IsInside(tileX, tileY + dirOffset)) {
-                    should = gameMap
-                                 ->GetTile(static_cast<int>(tileX),
-                                           static_cast<int>(tileY + dirOffset))
-                                 .type != Tile::Type::Wall;
+                    should = isAccessible(
+                        *gameMap, {static_cast<int>(tileX),
+                                   static_cast<int>(tileY + dirOffset)});
                 }
             }
             if (movingDir == Monster ::Direction::Up ||
                 movingDir == Monster ::Direction::Down) {
                 if (gameMap->IsInside(tileX + dirOffset, tileY)) {
-                    should = gameMap
-                                 ->GetTile(static_cast<int>(tileX + dirOffset),
-                                           static_cast<int>(tileY))
-                                 .type != Tile::Type::Wall;
+                    should = isAccessible(*gameMap,
+                                          {static_cast<int>(tileX + dirOffset),
+                                           static_cast<int>(tileY)});
                 }
             }
         }
@@ -174,16 +172,16 @@ void Ghost::Update() {
             auto directionCor = DirectionToCoordinate(intentionDir);
             if (!gameCtx.gameMap
                      ->GetTile(cor.x + directionCor.x, cor.y + directionCor.y)
-                     .IsAccessible()) {
+                     .IsGhostAccessible()) {
                 auto forward = DirectionToCoordinate(movingDir) + cor;
                 if (gameCtx.gameMap->GetTile(forward.x, forward.y)
-                        .IsAccessible()) {
+                        .IsGhostAccessible()) {
                     intentionDir = movingDir;
                 } else if (gameCtx.gameMap->GetTile(left.x, left.y)
-                               .IsAccessible()) {
+                               .IsGhostAccessible()) {
                     intentionDir = leftD;
                 } else if (gameCtx.gameMap->GetTile(right.x, right.y)
-                               .IsAccessible()) {
+                               .IsGhostAccessible()) {
                     intentionDir = rightD;
                 } else {
                     intentionDir = BackDirection();
@@ -193,7 +191,7 @@ void Ghost::Update() {
             // 检查是否在路口
             auto& leftTile = gameCtx.gameMap->GetTile(left.x, left.y);
             auto& rightTile = gameCtx.gameMap->GetTile(right.x, right.y);
-            if (leftTile.IsAccessible() || rightTile.IsAccessible()) {
+            if (leftTile.IsGhostAccessible() || rightTile.IsGhostAccessible()) {
                 // 在路口，更新意图
                 // 更新检查点
                 checkPoint_ = cor;
@@ -210,7 +208,7 @@ void Ghost::Update() {
                         cor.x == scatterInfo_.scatterPoint.x &&
                         cor.y == scatterInfo_.scatterPoint.y) {
                         scatterInfo_.scatterCheckPoint = true;
-                        scatterInfo_.scatterCCW = leftTile.IsAccessible();
+                        scatterInfo_.scatterCCW = leftTile.IsGhostAccessible();
                     }
                     if (scatterInfo_.scatterCheckPoint) {
                         intentionDir = scatterInfo_.scatterCCW ? leftD : rightD;
@@ -222,13 +220,13 @@ void Ghost::Update() {
                     // 1/7 保持直行(可能会碰壁、掉头)，6/7拐弯
                     int randNum = std::rand() % 7;
                     if (randNum < 3) {
-                        if (leftTile.IsAccessible()) {
+                        if (leftTile.IsGhostAccessible()) {
                             intentionDir = leftD;
                         } else {
                             intentionDir = rightD;
                         }
                     } else if (randNum < 6) {
-                        if (rightTile.IsAccessible()) {
+                        if (rightTile.IsGhostAccessible()) {
                             intentionDir = rightD;
                         } else {
                             intentionDir = leftD;
@@ -326,13 +324,13 @@ Ghost::AIType Ghost::aiPinky_ = [](Pacman& pacman, Ghost& ghost) {
             break;
         }
         if (gameCtx.gameMap->GetTile(now.x + pacMoveCor.x, now.y + pacMoveCor.y)
-                .IsAccessible()) {
+                .IsGhostAccessible()) {
             queue.push(
                 {now.x + pacMoveCor.x, now.y + pacMoveCor.y, now.step + 1, 0});
         }
         if (gameCtx.gameMap
                 ->GetTile(now.x + intentionCor.x, now.y + intentionCor.y)
-                .IsAccessible()) {
+                .IsGhostAccessible()) {
             queue.push({now.x + intentionCor.x, now.y + intentionCor.y,
                         now.step + 1, 0});
         }
@@ -363,13 +361,13 @@ Ghost::AIType Ghost::aiInky_ = [](Pacman& pacman, Ghost& ghost) {
             break;
         }
         if (gameCtx.gameMap->GetTile(now.x + pacMoveCor.x, now.y + pacMoveCor.y)
-                .IsAccessible()) {
+                .IsGhostAccessible()) {
             queue.push(
                 {now.x + pacMoveCor.x, now.y + pacMoveCor.y, now.step + 1, 0});
         }
         if (gameCtx.gameMap
                 ->GetTile(now.x + intentionCor.x, now.y + intentionCor.y)
-                .IsAccessible()) {
+                .IsGhostAccessible()) {
             queue.push({now.x + intentionCor.x, now.y + intentionCor.y,
                         now.step + 1, 0});
         }

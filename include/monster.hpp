@@ -86,6 +86,8 @@ class Monster {
     bool isTurnBack() const;
     void doUpdate();
     virtual Vector2 getInitPosition() = 0;
+    virtual bool isAccessible(Map& gameMap,
+                              const MapCoordinate& coor) const = 0;
 };
 
 class Pacman : public Monster {
@@ -101,6 +103,10 @@ class Pacman : public Monster {
     }
 
    private:
+    virtual bool isAccessible(Map& gameMap,
+                              const MapCoordinate& coor) const override {
+        return gameMap.GetTile(coor).IsPacmanAccessible();
+    };
 };
 
 class Ghost : public Monster {
@@ -174,6 +180,10 @@ class Ghost : public Monster {
     MapCoordinate checkPoint_;
     ScatterInfo scatterInfo_;
     Vector2 getInitPosition() override { return getInitPositionByName(name); }
+    virtual bool isAccessible(Map& gameMap,
+                              const MapCoordinate& coor) const override {
+        return gameMap.GetTile(coor).IsGhostAccessible();
+    };
     inline static std::unordered_map<std::string, AIType> aiMap_ =
         std::unordered_map<std::string, AIType>();
     static AIType aiPinky_;
