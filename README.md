@@ -22,6 +22,12 @@
 
 ## 更新日志
 
+- 2023 年 8 月 18 日
+
+  - v1.1，极有可能是最终版本
+  - 增加了连杀奖励
+  - Pacman 现在不可以去 Ghost house 刷分
+
 - 2023 年 8 月 17 日
 
   - 地图中有能量豆，吃了之后 Ghost 会进入 Frightened 模式
@@ -46,8 +52,8 @@
 ## TODO
 
 - 随着游戏进程出现的加分水果
-- Pacman 不应该可以进入鬼屋
-- Frightened 模式下对 Ghost 应该有连杀奖励
+- ~~Pacman 不应该可以进入鬼屋~~
+- ~~Frightened 模式下对 Ghost 应该有连杀奖励~~
 
 ## WASM
 
