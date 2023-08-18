@@ -21,11 +21,6 @@ class FixedSizeQueue {
     const T& Get(int index) const { return queue_.at(index); }
 
     bool IsEqual(const std::array<T, MaxSize> vec) const {
-        std::cout << *this << std::endl;
-        for (int i = 0; i < vec.size(); i++) {
-            std::cout << vec[i] << " ";
-        }
-        std::cout << std::endl;
         if (vec.size() != size()) {
             return false;
         }
