@@ -3,6 +3,7 @@
 #include "consts.hpp"
 #include "context.hpp"
 #include "game_context.hpp"
+#include "text_input.hpp"
 
 void StartUp() {
     Context::Init("Pacman", Vector2{WindowWidth, WindowHeight});
@@ -66,13 +67,28 @@ void Update() {
 }
 
 void Run() {
+    auto& ctx = Context::GetInstance();
     auto& gameCtx = GameContext::GetInstance();
     auto& event = gameCtx.GetEvent();
     while (SDL_PollEvent(&event)) {
         if (event.type == SDL_QUIT) {
             gameCtx.Exit();
         }
-        gameCtx.HandleEvent();
+        if (ctx.playerIdHandler.canInput) {
+            if (event.type == SDL_KEYDOWN) {
+                if (event.key.keysym.scancode == SDL_SCANCODE_RETURN ||
+                    event.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
+                    ctx.playerIdHandler.canInput = false;
+                }
+                if (event.key.keysym.scancode == SDL_SCANCODE_BACKSPACE) {
+                    ctx.playerIdHandler.PopOneChar();
+                }
+            } else if (event.type == SDL_TEXTINPUT) {
+                ctx.playerIdHandler.HandleTextInput(event);
+            }
+        } else {
+            gameCtx.HandleEvent();
+        }
     }
 
     auto& renderer = Context::GetInstance().GetRenderer();
@@ -89,6 +105,8 @@ int main(int argc, char** argv) {
     TTF_Init();
     StartUp();
 
+    SDL_StartTextInput();
+
 #ifdef __EMSCRIPTEN__
 #include "emscripten.h"
     emscripten_set_main_loop(Run, 0, 1);
@@ -98,6 +116,7 @@ int main(int argc, char** argv) {
     }
 #endif
 
+    SDL_StopTextInput();
     ShutDown();
     TTF_Quit();
     SDL_Quit();

@@ -51,19 +51,58 @@ inline std::ostream& operator<<(std::ostream& stream,
 //     std::array<char, 10> chars;
 // };
 
-// template <typename T, std::size_t MaxSize>
-// class FixedSizeStack {
-//    public:
-//     void push(const T& value) {
-//         if (!queue_.size() >= MaxSize) {
-//             queue_.push_back(value);
-//         }
-//     }
+template <typename T, std::size_t MaxSize>
+class FixedSizeStack {
+   public:
+    void push(const T& value) {
+        if (!(stack_.size() > MaxSize)) {
+            stack_.push_back(value);
+        }
+    }
 
-//     const T& front() const { return queue_.front(); }
+    const T& front() const { return stack_.front(); }
 
-//     std::size_t size() const { return queue_.size(); }
+    void Pop() {
+        if (!stack_.empty()) {
+            stack_.pop_back();
+        }
+    }
 
-//    private:
-//     std::array<T> array_;
-// };
+    std::size_t Size() const { return stack_.size(); }
+
+    std::string ToString() { return std::string("ToString"); }
+
+   private:
+    std::deque<T> stack_;
+};
+
+template <std::size_t MaxSize>
+class FixedSizeStack<char, MaxSize> {
+   public:
+    void push(const char& value) {
+        if (!(stack_.size() > MaxSize)) {
+            stack_.push_back(value);
+        }
+    }
+
+    const char& Front() const { return stack_.front(); }
+
+    std::size_t Size() const { return stack_.size(); }
+
+    void Pop() {
+        if (!stack_.empty()) {
+            stack_.pop_back();
+        }
+    }
+
+    std::string ToString() {
+        std::string content;
+        for (int i = 0; i < stack_.size(); i++) {
+            content += stack_.at(i);
+        }
+        return content;
+    }
+
+   private:
+    std::deque<char> stack_;
+};
