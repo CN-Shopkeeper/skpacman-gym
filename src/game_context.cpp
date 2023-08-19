@@ -217,7 +217,7 @@ void GameContext::tryCapture() {
                 score_ += multiKillReward_;
                 multiKillReward_ += MultiKillReward;
             } else {
-                state = GameState::Gameover;
+                if (!DebugMode) state = GameState::Gameover;
             }
         }
     }
