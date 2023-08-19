@@ -29,22 +29,34 @@ void Draw() {
     for (auto& monster : gameCtx.monsters) {
         monster->Draw();
     }
+    int textHeightOffset = 0;
+    // 绘制提示
     auto tips = ctx.tips.get();
     renderer.DrawTextTexture(*tips, TileSize * MapWidth, 0);
-    auto tipsHeight = tips->rect.h;
+    textHeightOffset += tips->rect.h + TileSize;
+    // 绘制游戏信息
     renderer.DrawTextTexture(*gameCtx.gameInfoText, TileSize * MapWidth,
-                             tipsHeight + TileSize);
+                             textHeightOffset);
+    textHeightOffset += gameCtx.gameInfoText->rect.h + TileSize;
+    // 绘制debug信息
+    if (gameCtx.DebugMode) {
+        gameCtx.UpdateDebugText();
+        renderer.DrawTextTexture(*gameCtx.debugText, TileSize * MapWidth,
+                                 textHeightOffset);
+        textHeightOffset += gameCtx.debugText->rect.h + TileSize;
+    }
+    // 绘制用户ID
+    if (ctx.playerIdHandler.GetContent().length() > 0) {
+        auto text = ctx.GenerateTextTexture("Your ID is:\n" +
+                                            ctx.playerIdHandler.GetContent());
+        renderer.DrawTextTexture(*text, TileSize * MapWidth, textHeightOffset);
+    }
+    //  绘制彩蛋
     for (auto& easterEgg : gameCtx.easterEggInfo) {
         if (easterEgg.show) {
             renderer.DrawTextTexture(*easterEgg.text, easterEgg.position.x,
                                      easterEgg.position.y);
         }
-    }
-    if (gameCtx.DebugMode) {
-        gameCtx.UpdateDebugText();
-        auto gameInfoHight = gameCtx.gameInfoText->rect.h;
-        renderer.DrawTextTexture(*gameCtx.debugText, TileSize * MapWidth,
-                                 tipsHeight + gameInfoHight + TileSize * 2);
     }
     if (gameCtx.state == GameContext::GameState::Win) {
         renderer.DrawTexture(*gameCtx.winImage, SDL_Rect{0, 0, 256, 256},
@@ -75,17 +87,7 @@ void Run() {
             gameCtx.Exit();
         }
         if (ctx.playerIdHandler.canInput) {
-            if (event.type == SDL_KEYDOWN) {
-                if (event.key.keysym.scancode == SDL_SCANCODE_RETURN ||
-                    event.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
-                    ctx.playerIdHandler.canInput = false;
-                }
-                if (event.key.keysym.scancode == SDL_SCANCODE_BACKSPACE) {
-                    ctx.playerIdHandler.PopOneChar();
-                }
-            } else if (event.type == SDL_TEXTINPUT) {
-                ctx.playerIdHandler.HandleTextInput(event);
-            }
+            ctx.playerIdHandler.HandleEvent(event);
         } else {
             gameCtx.HandleEvent();
         }
@@ -97,6 +99,18 @@ void Run() {
     Update();
     Draw();
     renderer.Present();
+
+    if (gameCtx.WonMessage) {
+        // 应该只触发一次
+        gameCtx.WonMessage = false;
+        auto result = ShowMessageBox(
+            "You Win!",
+            ("Your Socre Is " + std::to_string(gameCtx.GetScore())).c_str());
+        if (MessageBoxResult::Yes == result) {
+            SDL_StartTextInput();
+            ctx.playerIdHandler.canInput = true;
+        }
+    }
     SDL_Delay(30);
 }
 
@@ -104,8 +118,6 @@ int main(int argc, char** argv) {
     SDL_Init(SDL_INIT_EVERYTHING);
     TTF_Init();
     StartUp();
-
-    SDL_StartTextInput();
 
 #ifdef __EMSCRIPTEN__
 #include "emscripten.h"
@@ -116,7 +128,6 @@ int main(int argc, char** argv) {
     }
 #endif
 
-    SDL_StopTextInput();
     ShutDown();
     TTF_Quit();
     SDL_Quit();
