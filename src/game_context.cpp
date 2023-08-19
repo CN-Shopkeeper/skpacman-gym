@@ -157,6 +157,7 @@ void GameContext::Update() {
         }
         if (beanLeft_ == 0) {
             state = GameState::Win;
+            WonMessage = true;
         }
         updateGameInfoText();
         TryEasterEgg();

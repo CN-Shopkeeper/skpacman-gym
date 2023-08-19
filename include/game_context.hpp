@@ -13,6 +13,7 @@ class GameContext final : public Singlton<GameContext> {
     enum GameState { Gaming, Paused, Win, Gameover };
     GameState state = Gaming;
     bool DebugMode = false;
+    bool WonMessage = false;
     std::unique_ptr<TextTexture> gameInfoText;
     std::unique_ptr<TextTexture> debugText;
     Texture* winImage;
@@ -66,6 +67,8 @@ class GameContext final : public Singlton<GameContext> {
     std::unique_ptr<Controller> controller;
 
     void Update();
+
+    int GetScore() const { return score_; }
 
     int GetBeanEaten() const { return beanCount_ - beanLeft_; }
 
