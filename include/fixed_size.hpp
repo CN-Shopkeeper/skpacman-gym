@@ -70,7 +70,9 @@ class FixedSizeStack {
 
     std::size_t Size() const { return stack_.size(); }
 
-    std::string ToString() { return std::string("ToString"); }
+    std::string ToString() const { return std::string("ToString"); }
+
+    void Clear() { stack_.clear(); }
 
    private:
     std::deque<T> stack_;
@@ -95,13 +97,15 @@ class FixedSizeStack<char, MaxSize> {
         }
     }
 
-    std::string ToString() {
+    std::string ToString() const {
         std::string content;
         for (int i = 0; i < stack_.size(); i++) {
             content += stack_.at(i);
         }
         return content;
     }
+
+    void Clear() { stack_.clear(); }
 
    private:
     std::deque<char> stack_;
