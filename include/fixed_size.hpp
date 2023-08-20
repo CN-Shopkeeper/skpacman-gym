@@ -47,15 +47,11 @@ inline std::ostream& operator<<(std::ostream& stream,
     return stream;
 }
 
-// class temp {
-//     std::array<char, 10> chars;
-// };
-
 template <typename T, std::size_t MaxSize>
 class FixedSizeStack {
    public:
     void push(const T& value) {
-        if (!(stack_.size() > MaxSize)) {
+        if (!(stack_.size() >= MaxSize)) {
             stack_.push_back(value);
         }
     }
@@ -82,7 +78,7 @@ template <std::size_t MaxSize>
 class FixedSizeStack<char, MaxSize> {
    public:
     void push(const char& value) {
-        if (!(stack_.size() > MaxSize)) {
+        if (!(stack_.size() >= MaxSize)) {
             stack_.push_back(value);
         }
     }
@@ -109,4 +105,24 @@ class FixedSizeStack<char, MaxSize> {
 
    private:
     std::deque<char> stack_;
+};
+
+template <typename T, std::size_t MaxSize, typename _Compare = std::less<T>>
+class FixedSizeMultiset {
+   public:
+    void Push(const T& value) {
+        set_.insert(value);
+        while (set_.size() > MaxSize) {
+            auto lastElement = set_.end();
+            --lastElement;  // 移动迭代器到最后一个元素
+            set_.erase(lastElement);
+        }
+    }
+
+    auto begin() const { return set_.begin(); }
+
+    auto end() const { return set_.end(); }
+
+   private:
+    std::multiset<T, _Compare> set_;
 };

@@ -57,12 +57,14 @@ constexpr int MapWidth = tetrisWidth * 3 * 2;
 constexpr int MapHeight = tetrisHeight * 3 + 2;
 
 constexpr size_t TileSize = 24;
-constexpr size_t TipsWidth = 128;
+constexpr size_t TipsWidth = 160;
+constexpr size_t RankingListWidth = 160;
 
 constexpr size_t WindowHeight = TileSize * MapHeight;
-constexpr size_t WindowWidth = TileSize * MapWidth + TipsWidth;
+constexpr size_t WindowWidth =
+    TileSize * MapWidth + TipsWidth + RankingListWidth;
 
-constexpr size_t PacmanInitX = WindowWidth / 2 - TileSize;
+constexpr size_t PacmanInitX = (TileSize * MapWidth) / 2 - TileSize;
 constexpr size_t PacmanInitY = (7 * 3 + 1) * TileSize;
 
 constexpr size_t GhostInitX = (TileSize * MapWidth) / 2 - TileSize * 2;

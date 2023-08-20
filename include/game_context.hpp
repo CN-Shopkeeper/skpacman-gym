@@ -53,6 +53,13 @@ class GameContext final : public Singlton<GameContext> {
                     }
                 }
             }
+            // todo delete me
+            if (SDL_SCANCODE_K == key) {
+                if (DebugMode) {
+                    state = GameState::Win;
+                    WonMessage = true;
+                }
+            }
             if (SDL_SCANCODE_P == key) {
                 state = static_cast<GameState>(1 - static_cast<int>(state));
             }

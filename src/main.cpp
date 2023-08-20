@@ -46,11 +46,17 @@ void Draw() {
         textHeightOffset += gameCtx.debugText->rect.h + TileSize;
     }
     // 绘制用户ID
-    if (ctx.playerIdHandler.GetContent().length() > 0) {
-        auto text = ctx.GenerateTextTexture("Your ID is:\n" +
-                                            ctx.playerIdHandler.GetContent());
+    if (ctx.playerIdHandler.canInput) {
+        auto text = ctx.GenerateTextTexture(
+            "Your ID is:\n(" +
+            std::to_string(ctx.playerIdHandler.GetContent().length()) +
+            "/10)\n" + ctx.playerIdHandler.GetContent());
         renderer.DrawTextTexture(*text, TileSize * MapWidth, textHeightOffset);
     }
+    // 绘制排行榜
+    auto text = ctx.GenerateTextTexture(ctx.rankingList.ToString());
+
+    renderer.DrawTextTexture(*text, TileSize * MapWidth + TipsWidth, 0);
     //  绘制彩蛋
     for (auto& easterEgg : gameCtx.easterEggInfo) {
         if (easterEgg.show) {
@@ -88,6 +94,14 @@ void Run() {
         }
         if (ctx.playerIdHandler.canInput) {
             ctx.playerIdHandler.HandleEvent(event);
+            if (ctx.playerIdHandler.finished) {
+                // todo delete the loop
+                for (int i = 0; i < 20; i++) {
+                    ctx.rankingList.add(ctx.playerIdHandler.GetContent(),
+                                        gameCtx.GetScore() + i);
+                }
+                ctx.playerIdHandler.finished = false;
+            }
         } else {
             gameCtx.HandleEvent();
         }
@@ -104,8 +118,9 @@ void Run() {
         // 应该只触发一次
         gameCtx.WonMessage = false;
         auto result = ShowMessageBox(
-            "You Win!",
-            ("Your Socre Is " + std::to_string(gameCtx.GetScore())).c_str());
+            "You Win!", ("Your Socre Is " + std::to_string(gameCtx.GetScore()) +
+                         "\n是否录入进排行榜?\n如是, 请输入你的ID")
+                            .c_str());
         if (MessageBoxResult::Yes == result) {
             SDL_StartTextInput();
             ctx.playerIdHandler.canInput = true;

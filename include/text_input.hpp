@@ -7,6 +7,7 @@ template <size_t MaxSize>
 class TextInputHandler {
    public:
     bool canInput = false;
+    bool finished = false;
 
     void HandleEvent(const SDL_Event &event) {
         if (event.type == SDL_KEYDOWN) {
@@ -19,7 +20,7 @@ class TextInputHandler {
                 } else if (result == MessageBoxResult::Yes) {
                     canInput = false;
                     SDL_StopTextInput();
-                    // todo 记录进排行榜
+                    finished = true;
                 } else if (result == MessageBoxResult::No) {
                     // do nothing. let player continue input
                 }
@@ -31,7 +32,6 @@ class TextInputHandler {
                 } else if (result == MessageBoxResult::Yes) {
                     canInput = false;
                     SDL_StopTextInput();
-                    // todo 取消记录进排行榜
                     textInputStack_.Clear();
                 } else if (result == MessageBoxResult::No) {
                     // do nothing. let player continue input

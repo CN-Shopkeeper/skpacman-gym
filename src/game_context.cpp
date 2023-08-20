@@ -180,7 +180,7 @@ void GameContext::initEasterEggInfo() {
         easterEggInfo[i] = EasterEgg(
             i, ctx.GenerateTextTexture(std::string(testerList[i * 2]) + "\n" +
                                            std::string(testerList[i * 2 + 1]),
-                                       {255, 0, 0, 255}));
+                                       {0, 255, 0, 255}, 128));
     }
 }
 

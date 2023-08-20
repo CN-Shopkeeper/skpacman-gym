@@ -15,10 +15,10 @@ class TextTexture final {
     SDL_Rect rect;
     TextTexture() : texture(nullptr, DestroyTexture) {}
     TextTexture(SDL_Renderer* renderer, const char* text, TTF_Font* font,
-                SDL_Color color = {255, 255, 255, 255})
+                SDL_Color color = {255, 255, 255, 255}, Uint32 wrapLength = 160)
         : texture(nullptr, DestroyTexture) {
         auto textSurface =
-            TTF_RenderUTF8_Blended_Wrapped(font, text, color, 128);
+            TTF_RenderUTF8_Blended_Wrapped(font, text, color, wrapLength);
         rect = {0, 0, textSurface->w, textSurface->h};
         texture.reset(SDL_CreateTextureFromSurface(renderer, textSurface));
         SDL_FreeSurface(textSurface);
