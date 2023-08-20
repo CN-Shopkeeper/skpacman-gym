@@ -24,6 +24,8 @@ class RankingList {
         }
     };
 
+    RankingList() { getRankingListFromFile(); }
+
     void add(const std::string& id, const int& score) {
         ranks_.Push(RankInfo{id, std::to_string(score)});
     }
@@ -36,6 +38,21 @@ class RankingList {
         return result;
     }
 
+    void WriteToFile() {
+        // 写入文本文件，如果文件不存在则创建它
+        std::ofstream outFile("ranking_list.txt");
+        if (outFile.is_open()) {
+            for (auto& rank : ranks_) {
+                outFile << rank.id << std::endl;
+                outFile << rank.score << std::endl;
+            }
+            outFile.close();
+            std::cout << "File written successfully." << std::endl;
+        } else {
+            std::cerr << "Failed to open file for writing." << std::endl;
+        }
+    }
+
    private:
     struct CompareGreater {
         bool operator()(const RankInfo& lhs, const RankInfo& rhs) const {
@@ -43,4 +60,18 @@ class RankingList {
         }
     };
     FixedSizeMultiset<RankInfo, 20, CompareGreater> ranks_;
+
+    void getRankingListFromFile() {
+        std::ifstream inFile("ranking_list.txt");
+        if (inFile.is_open()) {
+            std::string id;
+            std::string score;
+            while (std::getline(inFile, id) && std::getline(inFile, score)) {
+                ranks_.Push({id, score});
+            }
+            inFile.close();
+        } else {
+            std::cerr << "Failed to open file for reading." << std::endl;
+        }
+    }
 };

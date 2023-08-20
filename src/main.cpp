@@ -95,11 +95,9 @@ void Run() {
         if (ctx.playerIdHandler.canInput) {
             ctx.playerIdHandler.HandleEvent(event);
             if (ctx.playerIdHandler.finished) {
-                // todo delete the loop
-                for (int i = 0; i < 20; i++) {
-                    ctx.rankingList.add(ctx.playerIdHandler.GetContent(),
-                                        gameCtx.GetScore() + i);
-                }
+                ctx.rankingList.add(ctx.playerIdHandler.GetContent(),
+                                    gameCtx.GetScore());
+                ctx.rankingList.WriteToFile();
                 ctx.playerIdHandler.finished = false;
             }
         } else {
