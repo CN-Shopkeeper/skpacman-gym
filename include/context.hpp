@@ -13,7 +13,6 @@ class Context final : public Singlton<Context> {
     Font font;
     std::unique_ptr<TextTexture> tips;
     TextInputHandler<10> playerIdHandler;
-    RankingList rankingList;
 
     Context(const std::string& title, const Size& windowSize);
     auto& GetRenderer() { return *renderer_; }

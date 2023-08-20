@@ -49,7 +49,7 @@ if(EMSCRIPTEN)
     CopyResForWASM(${GAME_NAME}) # NOTE: em++ work under ${CMAKE_BINARY_DIR}, so we copy resources dir to there for resources path correctly
     set(USE_SDL "-sUSE_SDL=2 -sUSE_SDL_TTF=2")
     set(PRELOAD "--preload-file resources --use-preload-plugins")
-    set(OTHER_FLAGS "-s WASM=1 -s ALLOW_MEMORY_GROWTH=1")
+    set(OTHER_FLAGS "-s WASM=1 -s ALLOW_MEMORY_GROWTH=1 -s FETCH")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${USE_SDL}")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${USE_SDL}")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${USE_SDL} ${PRELOAD} ${OTHER_FLAGS}")

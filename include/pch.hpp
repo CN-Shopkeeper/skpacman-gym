@@ -11,6 +11,7 @@
 #include <queue>
 #include <random>
 #include <set>
+#include <sstream>
 #include <stack>
 #include <string>
 #include <string_view>
@@ -20,6 +21,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <emscripten/emscripten.h>
+#include <emscripten/fetch.h>
 #else
 #include "SDL.h"
 #include "SDL_ttf.h"

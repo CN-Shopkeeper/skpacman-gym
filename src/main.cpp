@@ -14,6 +14,7 @@ void StartUp() {
     textureManager.Load("Win", "./resources/win.bmp", KeyColor);
     textureManager.Load("Gameover", "./resources/gameover.bmp", KeyColor);
     GameContext::Init();
+    RankingList::Init();
 }
 
 void Draw() {
@@ -54,7 +55,7 @@ void Draw() {
         renderer.DrawTextTexture(*text, TileSize * MapWidth, textHeightOffset);
     }
     // 绘制排行榜
-    auto text = ctx.GenerateTextTexture(ctx.rankingList.ToString());
+    auto text = ctx.GenerateTextTexture(RankingList::GetInstance().ToString());
 
     renderer.DrawTextTexture(*text, TileSize * MapWidth + TipsWidth, 0);
     //  绘制彩蛋
@@ -95,8 +96,8 @@ void Run() {
         if (ctx.playerIdHandler.canInput) {
             ctx.playerIdHandler.HandleEvent(event);
             if (ctx.playerIdHandler.finished) {
-                ctx.rankingList.add(ctx.playerIdHandler.GetContent(),
-                                    gameCtx.GetScore());
+                RankingList::GetInstance().add(ctx.playerIdHandler.GetContent(),
+                                               gameCtx.GetScore());
                 ctx.playerIdHandler.finished = false;
             }
         } else {
