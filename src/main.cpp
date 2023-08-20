@@ -97,7 +97,6 @@ void Run() {
             if (ctx.playerIdHandler.finished) {
                 ctx.rankingList.add(ctx.playerIdHandler.GetContent(),
                                     gameCtx.GetScore());
-                ctx.rankingList.WriteToFile();
                 ctx.playerIdHandler.finished = false;
             }
         } else {
