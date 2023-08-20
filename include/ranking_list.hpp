@@ -28,10 +28,7 @@ class RankingList : public Singlton<RankingList> {
 
     RankingList() { getRankingListFromFile(); }
 
-    ~RankingList() {
-        delete postChar;
-        delete[] requestHeaders;
-    }
+    ~RankingList() { delete postChar; }
 
     void add(const std::string& id, const int& score) {
         ranks_.Push(RankInfo{id, std::to_string(score)});
@@ -55,10 +52,10 @@ class RankingList : public Singlton<RankingList> {
         }
     };
     FixedSizeMultiset<RankInfo, 20, CompareGreater> ranks_;
-    char* postChar;
+    inline static char* postChar;
 
-    const char* const requestHeaders[3] = {"Content-Type", "application/json",
-                                           nullptr};
+    inline static const char* const requestHeaders[3] = {
+        "Content-Type", "application/json", nullptr};
 
     void getRankingListFromFile() {
 #ifdef __EMSCRIPTEN__
