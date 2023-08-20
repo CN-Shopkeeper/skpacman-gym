@@ -53,10 +53,7 @@ class TextInputHandler {
         }
     }
 
-    void PopOneChar() {
-        textInputStack_.Pop();
-        std::cout << "stack: " << textInputStack_.ToString() << std::endl;
-    }
+    void PopOneChar() { textInputStack_.Pop(); }
 
     std::string GetContent() const { return textInputStack_.ToString(); }
 
@@ -64,11 +61,8 @@ class TextInputHandler {
     FixedSizeStack<char, MaxSize> textInputStack_;
 
     void handleTextInput(const SDL_Event &event) {
-        std::cout << "text input " << event.text.text << std::endl;
         for (int i = 0; event.text.text[i] != '\0'; i++) {
             textInputStack_.push(event.text.text[i]);
         }
-        std::cout << "stack: " << textInputStack_.ToString() << std::endl
-                  << std::endl;
     }
 };

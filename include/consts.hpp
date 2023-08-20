@@ -96,5 +96,5 @@ constexpr std::array<SDL_Scancode, 6> DownRightScancode = {
 
 // 内测人员名单
 constexpr std::string_view testerList[] = {
-    "shear", "shear的女王陛下", "colin_008", "satori",
-    "___",   "弗如yuanshen",    "M-thor",    "Crystal"};
+    "shear", "shear的女王陛下", "colin_008", "satori", "Lynn00",
+    "TX7",   "M-thor",          "Crystal"};
