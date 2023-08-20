@@ -14,7 +14,7 @@ class RankingList {
         }
 
         std::string ToString() const {
-            int spaces = 16 - id.length() - score.length();
+            int spaces = 18 - id.length() - score.length();
             std::string result = std::string(id);
             for (int i = 0; i < spaces; i++) {
                 result += " ";

@@ -12,17 +12,23 @@ class TextInputHandler {
     void HandleEvent(const SDL_Event &event) {
         if (event.type == SDL_KEYDOWN) {
             if (event.key.keysym.scancode == SDL_SCANCODE_RETURN) {
-                auto result = ShowMessageBox(
-                    "输入ID", ("你的ID是" + GetContent()).c_str());
-                if (result == MessageBoxResult::Cancel) {
-                    canInput = false;
-                    SDL_StopTextInput();
-                } else if (result == MessageBoxResult::Yes) {
-                    canInput = false;
-                    SDL_StopTextInput();
-                    finished = true;
-                } else if (result == MessageBoxResult::No) {
-                    // do nothing. let player continue input
+                if (textInputStack_.Size() == 0) {
+                    ShowMessageBox("错误的", "用户名不能为空\n任意键返回");
+                } else {
+                    auto result = ShowMessageBox(
+                        "输入ID", ("你的ID是" + GetContent() +
+                                   "\nCancel取消录入\nYes确认录入\nNo继续录入")
+                                      .c_str());
+                    if (result == MessageBoxResult::Cancel) {
+                        canInput = false;
+                        SDL_StopTextInput();
+                    } else if (result == MessageBoxResult::Yes) {
+                        canInput = false;
+                        SDL_StopTextInput();
+                        finished = true;
+                    } else if (result == MessageBoxResult::No) {
+                        // do nothing. let player continue input
+                    }
                 }
             }
             if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
