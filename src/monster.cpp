@@ -267,10 +267,10 @@ void Ghost::ChangeMode(Mode _mode) {
     scatterInfo_.scatterCCW = false;
     scatterInfo_.scatterCheckPoint = false;
     if (mode == Mode::Frightened) {
-        speed = 1.0f;
+        speed = 2.0f;
         GetImage().color = FrightenedColor;
     } else {
-        speed = 3.0f;
+        speed = 5.0f;
         GetImage().color = getColor(name);
     }
 }

@@ -115,7 +115,7 @@ class Ghost : public Monster {
     Ghost(const std::vector<Image>&& _images, std::string _name,
           MapCoordinate scatterPoint)
         : Monster(std::move(_images)), name(_name), color_(getColor(_name)) {
-        speed = 3;
+        speed = 5;
         checkPoint_ = {-1, -1};
         mode = Mode::Chase;
         position_ = getInitPosition();
