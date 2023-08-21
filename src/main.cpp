@@ -116,6 +116,7 @@ void Run() {
     if (gameCtx.WonMessage) {
         // 应该只触发一次
         gameCtx.WonMessage = false;
+        gameCtx.CalculateScore();
         auto result = ShowMessageBox(
             "You Win!", ("Your Socre Is " + std::to_string(gameCtx.GetScore()) +
                          "\n是否录入进排行榜?\n如是, 请输入你的ID")

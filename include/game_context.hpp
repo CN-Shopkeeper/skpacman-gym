@@ -77,6 +77,11 @@ class GameContext final : public Singlton<GameContext> {
 
     int GetScore() const { return score_; }
 
+    void CalculateScore() {
+        score_ += getTimeBonus();
+        score_ += getRemainingLifeBonus();
+    }
+
     int GetBeanEaten() const { return beanCount_ - beanLeft_; }
 
     int GetElapsedFloor() const { return std::floor(normalRunningElapsed); }
@@ -96,6 +101,7 @@ class GameContext final : public Singlton<GameContext> {
     SDL_Event event_;
     int beanCount_ = 0;
     int beanLeft_ = 0;
+    int lifeRemaining_ = RemainingLifeCount;
     int score_ = 0;
     int modeCount_ = 0;
     float energizedTime_ = 0.0f;
@@ -113,9 +119,21 @@ class GameContext final : public Singlton<GameContext> {
     void tryCapture();
     void tryEatBean();
 
+    int getTimeBonus() const {
+        return std::max(0, BonusTimeCount - GetElapsedFloor()) *
+               TimeBonusPerSec;
+    }
+
+    int getRemainingLifeBonus() const {
+        return lifeRemaining_ * RemainingLifeBonus;
+    }
+
     void updateGameInfoText() {
         gameInfoText.reset(Context::GetInstance().GenerateTextTexture(
-            "Chrono: " + std::to_string(GetElapsedFloor()) + "\nBean Left:\n" +
-            std::to_string(beanLeft_) + "\nScore:\n" + std::to_string(score_)));
+            std::string("Chrono: " + std::to_string(GetElapsedFloor()))
+                .append("\nBean Left:\n" + std::to_string(beanLeft_))
+                .append("\nScore:\n" + std::to_string(score_) + "+" +
+                        std::to_string(getTimeBonus()) + "+" +
+                        std::to_string(getRemainingLifeBonus()))));
     }
 };

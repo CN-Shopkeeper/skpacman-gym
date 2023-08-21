@@ -72,6 +72,10 @@ constexpr size_t GhostInitY = (4 * 3 + 1) * TileSize;
 constexpr float EnergnizedTime = 15.0f;
 constexpr int BeanScore = 10;
 constexpr int MultiKillReward = 200;
+constexpr int TimeBonusPerSec = 300;
+constexpr int RemainingLifeBonus = 1000;
+constexpr int BonusTimeCount = 30;
+constexpr int RemainingLifeCount = 0;
 
 // 彩蛋相关
 

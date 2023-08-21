@@ -197,6 +197,7 @@ void GameContext::newGame() {
     globalTime_ = std::chrono::system_clock::now();
     frameTime_ = globalTime_;
     energizedTime_ = 0;
+    lifeRemaining_ = RemainingLifeCount;
     multiKillReward_ = MultiKillReward;
     score_ = 0;
     modeCount_ = 0;
