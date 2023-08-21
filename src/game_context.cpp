@@ -99,6 +99,12 @@ void GameContext::Update() {
                         ghost->images[0].color = FrightenedColor;
                     }
                 }
+            } else {
+                // 防止续费时，颜色闪回正常的
+                for (int i = 1; i < monsters.size(); i++) {
+                    Ghost* ghost = dynamic_cast<Ghost*>(monsters[i].get());
+                    ghost->images[0].color = FrightenedColor;
+                }
             }
             // 减去globalElapsed
             energizedTime_ = std::max(0.0f, energizedTime_ - frameElapsed);
