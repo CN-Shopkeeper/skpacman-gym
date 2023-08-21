@@ -42,12 +42,9 @@ constexpr std::string_view MapDesc =
 
 constexpr std::string_view Tips =
     "操作提示:\n"
-    "WASD->行走\n"
-    "R->重开游戏\n"
-    "G->开发者模式\n"
-    "M(G模式下)->\n"
-    "更改Ghost模式\n"
-    "P->暂停\n";
+    "WASD -> 行走\n"
+    "R -> 重开游戏\n"
+    "P ->    暂停\n";
 
 // 界面相关
 

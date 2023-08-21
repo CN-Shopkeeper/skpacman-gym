@@ -51,7 +51,8 @@ void Draw() {
         auto text = ctx.GenerateTextTexture(
             "Your ID is:\n(" +
             std::to_string(ctx.playerIdHandler.GetContent().length()) +
-            "/10)\n" + ctx.playerIdHandler.GetContent());
+            "/10)\n" + ctx.playerIdHandler.GetContent() +
+            "\nEsc to Cancel\nEnter to Confirm");
         renderer.DrawTextTexture(*text, TileSize * MapWidth, textHeightOffset);
     }
     // 绘制排行榜
