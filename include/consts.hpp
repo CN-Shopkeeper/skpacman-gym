@@ -8,6 +8,8 @@ constexpr SDL_Color PinkyColor = {255, 192, 203, 255};
 constexpr SDL_Color InkyColor = {0, 255, 255, 255};
 constexpr SDL_Color ClydeColor = {255, 127, 80, 255};
 constexpr SDL_Color FrightenedColor = {0, 0, 255, 255};
+constexpr SDL_Color InvincibleColor = {255, 0, 0, 255};
+constexpr SDL_Color WhiteColor = {255, 255, 255, 255};
 
 constexpr float Scale = 1.5;
 inline std::string TilesheetName = "tilesheet";
@@ -76,6 +78,7 @@ constexpr int TimeBonusPerSec = 300;
 constexpr int RemainingLifeBonus = 1000;
 constexpr int BonusTimeCount = 30;
 constexpr int RemainingLifeCount = 2;
+constexpr float InvinciateTime = 3.0f;
 
 // 彩蛋相关
 

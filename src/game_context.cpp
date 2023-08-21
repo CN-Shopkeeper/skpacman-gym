@@ -83,6 +83,12 @@ void GameContext::Update() {
             nowTime - frameTime_;
         float frameElapsed = FrameElapsedDuration.count();
         frameTime_ = nowTime;
+        auto* pacman = dynamic_cast<Pacman*>(monsters[0].get());
+        if (pacman->invincibleTime > 0) {
+            // pacman处于无敌状态，需要更新计时
+            pacman->invincibleTime =
+                std::max(0.0f, pacman->invincibleTime - frameElapsed);
+        }
         if (energizedTime_ > 0) {
             // 如果充能豆子效果还在，计时不更新，ghost保持frightened状态
 
@@ -225,12 +231,13 @@ void GameContext::tryCapture() {
                 score_ += multiKillReward_;
                 multiKillReward_ += MultiKillReward;
             } else {
-                if (!DebugMode) {
+                if (!(DebugMode || pacman->invincibleTime > 0.0f)) {
                     if (lifeRemaining_ <= 0) {
                         state = GameState::Gameover;
                     } else {
                         lifeRemaining_--;
                         pacman->Reset();
+                        pacman->invincibleTime = InvinciateTime;
                     }
                 }
             }

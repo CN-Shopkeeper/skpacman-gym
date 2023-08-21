@@ -145,11 +145,23 @@ bool Monster::isTurnBack() const {
 
 Image& Pacman::GetImage() {
     auto& gameCtx = GameContext::GetInstance();
-    if (std::fmod(gameCtx.globalElapsed, 0.4f) < 0.2) {
-        return images.at(0);
+    int index = std::fmod(gameCtx.globalElapsed, 0.4f) < 0.2 ? 0 : 1;
+    return images.at(index);
+}
+
+void Pacman::Update() {
+    auto& gameCtx = GameContext::GetInstance();
+    auto& image = GetImage();
+    if (invincibleTime > 0) {
+        image.color = std::fmod(gameCtx.globalElapsed, 0.2f) < 0.1
+                          ? InvincibleColor
+                          : WhiteColor;
+        speed = 10;
     } else {
-        return images.at(1);
+        image.color = WhiteColor;
+        speed = 5;
     }
+    Monster::Update();
 }
 
 void Ghost::Update() {

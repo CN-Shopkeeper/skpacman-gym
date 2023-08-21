@@ -92,6 +92,8 @@ class Monster {
 
 class Pacman : public Monster {
    public:
+    float invincibleTime = 0.0f;
+
     Pacman(const std::vector<Image>&& _images) : Monster(std::move(_images)) {
         position_ = getInitPosition();
     }
@@ -100,6 +102,12 @@ class Pacman : public Monster {
     Image& GetImage() override;
     Vector2 getInitPosition() override {
         return Vector2{PacmanInitX, PacmanInitY};
+    }
+    void Update() override;
+
+    void Reset() override {
+        Monster::Reset();
+        invincibleTime = 0;
     }
 
    private:
