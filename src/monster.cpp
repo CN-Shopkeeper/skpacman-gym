@@ -282,7 +282,7 @@ void Ghost::ChangeMode(Mode _mode) {
         speed = 2.0f;
         GetImage().color = FrightenedColor;
     } else {
-        speed = 4.9f;
+        speed = 5.0f;
         GetImage().color = getColor(name);
     }
 }

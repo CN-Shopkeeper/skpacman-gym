@@ -26,16 +26,12 @@ class RankingList : public Singlton<RankingList> {
         }
     };
 
-    inline static RankInfo toAdd_;
-
     RankingList() { getRankingListFromFile(); }
 
     ~RankingList() { delete postChar; }
 
     void add(const std::string& id, const int& score) {
-        // 先存下来，等更新一波排行榜后再写入
-        RankingList::toAdd_ = RankInfo{id, std::to_string(score)};
-        writeToFile();
+        writeToFile(RankInfo{id, std::to_string(score)});
     }
 
     void Clear() { ranks_.Clear(); }
@@ -73,7 +69,7 @@ class RankingList : public Singlton<RankingList> {
         attr.attributes = EMSCRIPTEN_FETCH_LOAD_TO_MEMORY;
         attr.onsuccess = downloadSucceeded;
         attr.onerror = downloadFailed;
-        emscripten_fetch(&attr, Url.data());
+        emscripten_fetch(&attr, UrlGet.data());
 #else
         std::ifstream inFile("pacman_ranking_list.txt");
         if (inFile.is_open()) {
@@ -89,20 +85,37 @@ class RankingList : public Singlton<RankingList> {
 #endif
     }
 
-    void writeToFile() {
+    void writeToFile(const RankInfo& record) {
 #ifdef __EMSCRIPTEN__
 #include <emscripten/fetch.h>
-        // 先拉取更新排行榜
+
         emscripten_fetch_attr_t attr;
         emscripten_fetch_attr_init(&attr);
-        strcpy(attr.requestMethod, "GET");
         attr.attributes = EMSCRIPTEN_FETCH_LOAD_TO_MEMORY;
-        attr.onsuccess = startUpload;
-        attr.onerror = downloadFailed;
-        emscripten_fetch(&attr, Url.data());
+        // 配置请求属性
+        strcpy(attr.requestMethod, "POST");
+        // JSON 数据作为请求体
+        std::string jsonBody = "{\"id\": \"" + record.id + "\",\"score\": \"" +
+                               record.score + "\"}";
+
+        // 设置POST请求的JSON数据
+        postChar = new char[jsonBody.size() + 1];
+        std::copy(jsonBody.begin(), jsonBody.end(), postChar);
+        postChar[jsonBody.size()] = '\0';
+        attr.requestData = postChar;
+        attr.requestDataSize = strlen(postChar);
+
+        attr.requestHeaders = requestHeaders;
+
+        // 配置回调函数
+        attr.onsuccess = onRequestComplete;
+        attr.onerror = onRequestError;
+
+        // 发起异步请求
+        emscripten_fetch(&attr, UrlPost.data());
 
 #else
-        ranks_.Push(RankingList::toAdd_);
+        ranks_.Push(record);
         // 写入文本文件，如果文件不存在则创建它
         std::ofstream outFile("pacman_ranking_list.txt");
         if (outFile.is_open()) {
@@ -135,60 +148,6 @@ class RankingList : public Singlton<RankingList> {
         emscripten_fetch_close(fetch);  // Free data associated with the fetch.
     }
 
-    static void startUpload(emscripten_fetch_t* fetch) {
-        printf("Finished downloading %llu bytes for Ranking List.\n",
-               fetch->numBytes);
-        auto& rankingList = RankingList::GetInstance();
-        // 清空，重新赋值
-        rankingList.Clear();
-        std::istringstream stream(std::string(fetch->data, fetch->numBytes));
-        std::string id;
-        std::string score;
-        while (std::getline(stream, id) && std::getline(stream, score)) {
-            rankingList.getRanks().Push({id, score});
-        }
-        rankingList.getRanks().Push(RankingList::toAdd_);
-        emscripten_fetch_close(fetch);  // Free data associated with the fetch.
-
-        std::cout << "try upload" << std::endl;
-        emscripten_fetch_attr_t attr;
-        emscripten_fetch_attr_init(&attr);
-
-        // 配置请求属性
-        strcpy(attr.requestMethod, "POST");
-
-        auto& ranks_ = rankingList.getRanks();
-        // JSON 数据作为请求体
-        std::string jsonBody = "[";
-        for (auto it = ranks_.begin(); it != ranks_.end(); it++) {
-            auto& rank = *it;
-            if (it == ranks_.begin()) {
-                jsonBody += "{\"id\": \"" + rank.id + "\",\"score\": \"" +
-                            rank.score + "\"}";
-            } else {
-                jsonBody += ",{\"id\": \"" + rank.id + "\",\"score\": \"" +
-                            rank.score + "\"}";
-            }
-        }
-        jsonBody += "]";
-
-        // 设置POST请求的JSON数据
-        postChar = new char[jsonBody.size() + 1];
-        std::copy(jsonBody.begin(), jsonBody.end(), postChar);
-        postChar[jsonBody.size()] = '\0';
-        attr.requestData = postChar;
-        attr.requestDataSize = strlen(postChar);
-
-        attr.requestHeaders = requestHeaders;
-
-        // 配置回调函数
-        attr.onsuccess = onRequestComplete;
-        attr.onerror = onRequestError;
-
-        // 发起异步请求
-        emscripten_fetch(&attr, Url.data());
-    }
-
     static void downloadFailed(emscripten_fetch_t* fetch) {
         printf(
             "Downloading Ranking List failed, HTTP failure status code: %d.\n",
@@ -199,9 +158,17 @@ class RankingList : public Singlton<RankingList> {
     // 定义异步请求完成后的回调函数
     static void onRequestComplete(emscripten_fetch_t* fetch) {
         if (fetch->status == 200) {
-            std::string responseData((char*)fetch->data, fetch->numBytes);
-            printf("Upload rank record success!\nResponse: %s\n",
-                   responseData.c_str());
+            auto& rankingList = RankingList::GetInstance();
+            // 清空，重新赋值
+            rankingList.Clear();
+            // 将 fetch->data 转换为字符串
+            std::istringstream stream(
+                std::string(fetch->data, fetch->numBytes));
+            std::string id;
+            std::string score;
+            while (std::getline(stream, id) && std::getline(stream, score)) {
+                rankingList.getRanks().Push({id, score});
+            }
         } else {
             printf("Request failed with status: %d\n", fetch->status);
         }
