@@ -42,10 +42,12 @@ class EasterEgg {
         }
     }
 
-    void Check(const FixedSizeQueue<SDL_Scancode, 6>& scancodeQueue) {
-        if (show) return;
+    bool Check(const FixedSizeQueue<SDL_Scancode, 6>& scancodeQueue) {
+        if (show) return false;
         if (scancodeQueue.IsEqual(scancodes)) {
             show = true;
+            return true;
         }
+        return false;
     }
 };

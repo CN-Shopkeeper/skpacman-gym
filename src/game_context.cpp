@@ -181,7 +181,9 @@ void GameContext::TryEasterEgg() {
     for (int i = 1; i < monsters.size(); i++) {
         Ghost* ghost = dynamic_cast<Ghost*>(monsters[i].get());
         if (pacman->GetMapCorrdinate() == ghost->GetScatterPoint()) {
-            easterEggInfo[i - 1].Check(scancodeQueue_);
+            if (easterEggInfo[i - 1].Check(scancodeQueue_)) {
+                pacman->invincibleTime = InvinciateTime;
+            }
         }
     }
 }
