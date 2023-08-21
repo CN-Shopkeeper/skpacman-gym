@@ -119,6 +119,8 @@ class FixedSizeMultiset {
         }
     }
 
+    void Clear() { set_.clear(); }
+
     auto begin() const { return set_.begin(); }
 
     auto end() const { return set_.end(); }
