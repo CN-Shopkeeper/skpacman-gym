@@ -75,7 +75,7 @@ constexpr int MultiKillReward = 200;
 constexpr int TimeBonusPerSec = 300;
 constexpr int RemainingLifeBonus = 1000;
 constexpr int BonusTimeCount = 30;
-constexpr int RemainingLifeCount = 0;
+constexpr int RemainingLifeCount = 2;
 
 // 彩蛋相关
 

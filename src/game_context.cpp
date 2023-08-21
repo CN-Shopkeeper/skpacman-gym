@@ -225,7 +225,14 @@ void GameContext::tryCapture() {
                 score_ += multiKillReward_;
                 multiKillReward_ += MultiKillReward;
             } else {
-                if (!DebugMode) state = GameState::Gameover;
+                if (!DebugMode) {
+                    if (lifeRemaining_ <= 0) {
+                        state = GameState::Gameover;
+                    } else {
+                        lifeRemaining_--;
+                        pacman->Reset();
+                    }
+                }
             }
         }
     }
