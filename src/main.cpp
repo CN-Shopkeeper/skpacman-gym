@@ -38,7 +38,18 @@ void Draw() {
     // 绘制游戏信息
     renderer.DrawTextTexture(*gameCtx.gameInfoText, TileSize * MapWidth,
                              textHeightOffset);
-    textHeightOffset += gameCtx.gameInfoText->rect.h + TileSize;
+    textHeightOffset += gameCtx.gameInfoText->rect.h;
+    // 绘制生命数量
+    auto pacmanImage =
+        tilesheet->Get(static_cast<int>(ImageTileType::PacmanEat), 0);
+    for (int i = 0; i < gameCtx.GetRemainingLife(); i++) {
+        renderer.DrawImage(
+            pacmanImage,
+            {static_cast<float>(TileSize * MapWidth + i * TileSize),
+             static_cast<float>(textHeightOffset)},
+            {Scale, Scale}, 0.0f);
+    }
+    textHeightOffset += TileSize * 2;
     // 绘制debug信息
     if (gameCtx.DebugMode) {
         gameCtx.UpdateDebugText();

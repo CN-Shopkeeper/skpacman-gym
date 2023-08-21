@@ -86,6 +86,8 @@ class GameContext final : public Singlton<GameContext> {
 
     int GetElapsedFloor() const { return std::floor(normalRunningElapsed); }
 
+    int GetRemainingLife() const { return lifeRemaining_; }
+
     void UpdateDebugText() {
         Ghost* ghost = dynamic_cast<Ghost*>(monsters[1].get());
         debugText.reset(Context::GetInstance().GenerateTextTexture(
@@ -134,6 +136,7 @@ class GameContext final : public Singlton<GameContext> {
                 .append("\nBean Left:\n" + std::to_string(beanLeft_))
                 .append("\nScore:\n" + std::to_string(score_) + "+" +
                         std::to_string(getTimeBonus()) + "+" +
-                        std::to_string(getRemainingLifeBonus()))));
+                        std::to_string(getRemainingLifeBonus()))
+                .append("\n\nLifeRemaining")));
     }
 };
