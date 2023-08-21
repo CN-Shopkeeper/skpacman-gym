@@ -169,7 +169,7 @@ void GameContext::Update() {
         }
         if (beanLeft_ == 0) {
             state = GameState::Win;
-            WonMessage = true;
+            Won = true;
         }
         updateGameInfoText();
         TryEasterEgg();
@@ -236,6 +236,7 @@ void GameContext::tryCapture() {
                 if (!(DebugMode || pacman->invincibleTime > 0.0f)) {
                     if (lifeRemaining_ <= 0) {
                         state = GameState::Gameover;
+                        GameIsOver = true;
                     } else {
                         lifeRemaining_--;
                         pacman->Reset();

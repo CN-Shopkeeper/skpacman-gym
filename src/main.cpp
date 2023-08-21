@@ -124,14 +124,27 @@ void Run() {
     Draw();
     renderer.Present();
 
-    if (gameCtx.WonMessage) {
+    if (gameCtx.Won) {
         // 应该只触发一次
-        gameCtx.WonMessage = false;
+        gameCtx.Won = false;
         gameCtx.CalculateScore();
         auto result = ShowMessageBox(
             "You Win!", ("Your Socre Is " + std::to_string(gameCtx.GetScore()) +
                          "\n是否录入进排行榜?\n如是, 请输入你的ID")
                             .c_str());
+        if (MessageBoxResult::Yes == result) {
+            SDL_StartTextInput();
+            ctx.playerIdHandler.canInput = true;
+        }
+    }
+    if (gameCtx.GameIsOver) {
+        // 应该只触发一次
+        gameCtx.GameIsOver = false;
+        auto result = ShowMessageBox(
+            "GameOver!",
+            ("Your Socre Is " + std::to_string(gameCtx.GetScore()) +
+             "\n是否录入进排行榜?\n如是, 请输入你的ID")
+                .c_str());
         if (MessageBoxResult::Yes == result) {
             SDL_StartTextInput();
             ctx.playerIdHandler.canInput = true;

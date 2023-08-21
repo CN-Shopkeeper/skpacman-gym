@@ -13,7 +13,8 @@ class GameContext final : public Singlton<GameContext> {
     enum GameState { Gaming, Paused, Win, Gameover };
     GameState state = Gaming;
     bool DebugMode = false;
-    bool WonMessage = false;
+    // Won 和 GameIsOver用于记录游戏获胜或失败的那一刻
+    bool Won = false, GameIsOver = false;
     std::unique_ptr<TextTexture> gameInfoText;
     std::unique_ptr<TextTexture> debugText;
     Texture* winImage;
@@ -57,7 +58,7 @@ class GameContext final : public Singlton<GameContext> {
             if (SDL_SCANCODE_K == key) {
                 if (DebugMode) {
                     state = GameState::Win;
-                    WonMessage = true;
+                    Won = true;
                 }
             }
             if (SDL_SCANCODE_P == key) {
