@@ -167,6 +167,19 @@ void Pacman::Update() {
 void Ghost::Update() {
     auto& gameCtx = GameContext::GetInstance();
     auto& pacman = gameCtx.controller->pacman;
+    // 更新颜色
+    // 如果害怕效果时间还剩3秒，应当闪烁提示
+    if (frightenedTime > 0) {
+        if (frightenedTime <= 3.0f) {
+            if (std::fmod(gameCtx.globalElapsed, 0.4f) < 0.2) {
+                GetImage().color = GetColor();
+            } else {
+                GetImage().color = FrightenedColor;
+            }
+        } else {
+            GetImage().color = FrightenedColor;
+        }
+    }
     if (!joinChasing) {
         intentionDir = aiMap_["Waiting"](pacman, *this);
     } else {
@@ -279,9 +292,11 @@ void Ghost::ChangeMode(Mode _mode) {
     scatterInfo_.scatterCCW = false;
     scatterInfo_.scatterCheckPoint = false;
     if (mode == Mode::Frightened) {
+        frightenedTime = FrightenedTime;
         speed = 2.0f;
         GetImage().color = FrightenedColor;
     } else {
+        frightenedTime = 0.0f;
         speed = 5.0f;
         GetImage().color = getColor(name);
     }

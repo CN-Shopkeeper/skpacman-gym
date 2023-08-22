@@ -120,6 +120,7 @@ class Pacman : public Monster {
 class Ghost : public Monster {
    public:
     enum Mode { Chase = 0, Scatter = 1, Frightened = 2 };
+    float frightenedTime = 0.0f;
     Ghost(const std::vector<Image>&& _images, std::string _name,
           MapCoordinate scatterPoint)
         : Monster(std::move(_images)), name(_name), color_(getColor(_name)) {
@@ -144,6 +145,7 @@ class Ghost : public Monster {
 
     void Reset() override {
         Monster::Reset();
+        ChangeMode(Mode::Scatter);
         if (name == "Blinky" || name == "Pinky") {
             joinChasing = true;
         } else {
