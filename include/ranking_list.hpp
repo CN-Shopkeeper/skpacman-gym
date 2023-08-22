@@ -52,7 +52,7 @@ class RankingList : public Singlton<RankingList> {
             return !(lhs < rhs);  // 降序排列
         }
     };
-    FixedSizeMultiset<RankInfo, 20, CompareGreater> ranks_;
+    FixedSizeMultiset<RankInfo, 30, CompareGreater> ranks_;
     inline static char* postChar;
 
     inline static const char* const requestHeaders[3] = {
