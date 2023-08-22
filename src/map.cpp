@@ -87,6 +87,8 @@ std::string Map::GenerateMap(int& beanCount) {
             halfPath[1 + i + (3 * 3 + 2 + j) * width3] = -1;
         }
     }
+    // 出生点附近置空
+    halfPath[1 + (3 * 7) * width3] = halfPath[2 + (3 * 7) * width3] = -1;
     for (int y = 0; y < height3; y++) {
         halfPath[0 + y * width3] = halfPath[1 + y * width3];
         halfPath[width3 - 1 + y * width3] = 1;
