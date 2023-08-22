@@ -37,7 +37,7 @@ class RankingList : public Singlton<RankingList> {
     void Clear() { ranks_.Clear(); }
 
     std::string ToString() const {
-        std::string result = "排行榜：\n";
+        std::string result = "RankingList(Top30)\n";
         for (auto& rank : ranks_) {
             result += rank.ToString() + "\n";
         }

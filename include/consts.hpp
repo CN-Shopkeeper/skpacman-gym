@@ -43,10 +43,10 @@ constexpr std::string_view MapDesc =
     "WWWWWWWWWW";
 
 constexpr std::string_view Tips =
-    "操作提示:\n"
-    "WASD -> 行走\n"
-    "R -> 重开游戏\n"
-    "P ->    暂停\n";
+    "Tips:\n"
+    "WASD -> Action\n"
+    "R -> Restart\n"
+    "P -> Pause\n";
 
 // 界面相关
 
