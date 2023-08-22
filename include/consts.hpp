@@ -76,7 +76,7 @@ constexpr int BeanScore = 10;
 constexpr int MultiKillReward = 200;
 constexpr int TimeBonusPerSec = 300;
 constexpr int RemainingLifeBonus = 1000;
-constexpr int BonusTimeCount = 30;
+constexpr int BonusTimeCount = 40;
 constexpr int RemainingLifeCount = 2;
 constexpr float InvinciateTime = 3.0f;
 
