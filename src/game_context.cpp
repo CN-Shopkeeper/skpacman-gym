@@ -217,6 +217,11 @@ void GameContext::newGame() {
     monsters[2]->Reset();
     monsters[3]->Reset();
     monsters[4]->Reset();
+
+    // 重置彩蛋
+    for (auto& egg : easterEggInfo) {
+        egg.show = false;
+    }
 }
 
 void GameContext::tryCapture() {
