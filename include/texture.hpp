@@ -17,8 +17,8 @@ class TextTexture final {
     TextTexture(SDL_Renderer* renderer, const char* text, TTF_Font* font,
                 SDL_Color color = {255, 255, 255, 255}, Uint32 wrapLength = 160)
         : texture(nullptr, DestroyTexture) {
-        auto textSurface =
-            TTF_RenderUTF8_Blended_Wrapped(font, text, color, wrapLength);
+        auto textSurface = TTF_RenderUTF8_Shaded_Wrapped(
+            font, text, color, {0, 0, 0, 255}, wrapLength);
         rect = {0, 0, textSurface->w, textSurface->h};
         texture.reset(SDL_CreateTextureFromSurface(renderer, textSurface));
         SDL_FreeSurface(textSurface);

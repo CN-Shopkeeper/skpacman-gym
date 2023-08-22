@@ -99,6 +99,7 @@ constexpr std::array<SDL_Scancode, 6> DownRightScancode = {
     SDL_SCANCODE_D, SDL_SCANCODE_S, SDL_SCANCODE_D};
 
 // 内测人员名单
-constexpr std::string_view testerList[] = {
-    "shear", "shear的女王陛下", "colin_008", "satori", "Lynn00",
-    "TX7",   "M-thor",          "Crystal"};
+constexpr std::string_view testerList[] = {"shear and his Queen",
+                                           "colin_008 & satori", "TX7 & Lynn00",
+                                           "Crystal & M-thor"};
+constexpr int TextWidth[] = {152, 144, 96, 128};

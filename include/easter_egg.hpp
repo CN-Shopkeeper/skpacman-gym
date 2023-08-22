@@ -18,24 +18,22 @@ class EasterEgg {
         switch (index) {
             case 0:
                 scancodes = UpRightScancode;
-                position.x =
-                    TileSize * MapWidth /* - TileSize * 1 */ - text->rect.w;
-                position.y = 1 * TileSize;
+                position.x = TileSize * MapWidth - text->rect.w;
+                position.y = 0;
                 break;
             case 1:
                 scancodes = UpLeftScancode;
-                position = {1 * TileSize, 1 * TileSize};
+                position = {0, 0};
                 break;
             case 2:
                 scancodes = DownRightScancode;
-                position.x =
-                    TileSize * MapWidth /* - TileSize * 1*/ - text->rect.w;
-                position.y = TileSize * MapHeight - TileSize * 1 - text->rect.h;
+                position.x = TileSize * MapWidth - text->rect.w;
+                position.y = TileSize * MapHeight - text->rect.h;
                 break;
             case 3:
                 scancodes = DownLeftScancode;
-                position.x = 1 * TileSize;
-                position.y = TileSize * MapHeight - TileSize * 1 - text->rect.h;
+                position.x = 0;
+                position.y = TileSize * MapHeight - text->rect.h;
                 break;
             default:
                 break;

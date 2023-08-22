@@ -191,10 +191,9 @@ void GameContext::TryEasterEgg() {
 void GameContext::initEasterEggInfo() {
     auto& ctx = Context::GetInstance();
     for (int i = 0; i < 4; i++) {
-        easterEggInfo[i] = EasterEgg(
-            i, ctx.GenerateTextTexture(std::string(testerList[i * 2]) + "\n" +
-                                           std::string(testerList[i * 2 + 1]),
-                                       {0, 255, 0, 255}, 128));
+        auto text = ctx.GenerateTextTexture(std::string(testerList[i]),
+                                            {255, 215, 0, 255}, TextWidth[i]);
+        easterEggInfo[i] = EasterEgg(i, text);
     }
 }
 
