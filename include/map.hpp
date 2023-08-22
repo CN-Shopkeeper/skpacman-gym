@@ -25,6 +25,7 @@ class Tetris final {
    public:
     template <const size_t height, const size_t width>
     static std::array<int, height * width> GenerateTetris();
+    inline static int randSeed = 0;
 
    private:
     template <const size_t height, const size_t width>

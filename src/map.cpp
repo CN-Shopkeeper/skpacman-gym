@@ -248,6 +248,7 @@ MapCoordinate Map::NearestAccessibleTile(MapCoordinate target) {
 
 template <const size_t height, const size_t width>
 std::array<int, height * width> Tetris::GenerateTetris() {
+    randSeed++;
     std::array<int, height * width> tetris{0};
     int flag = 1;
     // 鬼门
@@ -284,8 +285,9 @@ std::array<int, height * width> Tetris::GenerateTetris() {
 }
 
 int Tetris::getTreisCount() {
-    srand((unsigned)time(NULL));
-    int rand = std::rand() % 100;
+    std::mt19937 rng(randSeed);  // 手动指定种子
+    std::uniform_int_distribution<int> dist(0, 99);
+    int rand = dist(rng);
     // 1个的概率: 5%
     // 2个的概率: 10%
     // 3个的概率: 20%
@@ -307,8 +309,7 @@ int Tetris::getTreisCount() {
 template <const size_t height, const size_t width>
 void Tetris::bfs(std::array<int, height * width>& terris, int x, int y, int cnt,
                  int num) {
-    auto rd = std::random_device{};
-    auto rng = std::default_random_engine{rd()};
+    std::mt19937 rng(randSeed);
     std::queue<Vector2> queue;
     queue.push({static_cast<float>(x), static_cast<float>(y)});
     while (cnt >= 0 && !queue.empty()) {

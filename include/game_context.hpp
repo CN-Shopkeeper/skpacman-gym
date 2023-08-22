@@ -94,7 +94,8 @@ class GameContext final : public Singlton<GameContext> {
         debugText.reset(Context::GetInstance().GenerateTextTexture(
             "Global Chrono: " + std::to_string(globalElapsed) +
             "\nMultiKill Reward: " + std::to_string(multiKillReward_) +
-            "\nGhost mode:\n" + ghost->GetModeStr()));
+            "\nGhost mode:\n" + ghost->GetModeStr() + "\nRandom Seed:\n" +
+            std::to_string(Tetris::randSeed)));
     }
 
     void TryEasterEgg();
