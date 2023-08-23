@@ -18,7 +18,7 @@
 
 ## 游戏规则
 
-复现雅达利的经典游戏 "吃豆人"（Pac-Man）。游戏的目标是控制一个叫做 "吃豆人"（Pac-Man）的角色，吃掉游戏迷宫中的所有小豆子，同时避开四只追逐着吃豆人的鬼魂。以下是游戏的主要规则：
+复现雅达利的经典游戏 "吃豆人"（Pac-Man）。游戏的目标是控制一个叫做 "吃豆人"的角色，吃掉游戏迷宫中的所有小豆子，同时避开四只追逐着吃豆人的鬼魂。以下是游戏的主要规则：
 
 1. 角色控制： 玩家控制的角色是一个呈现为一个圆形的 "吃豆人"（Pac-Man）。玩家可以使用键盘上的 WSAD 键来控制吃豆人的移动方向：上、下、左、右。
 
@@ -31,6 +31,41 @@
 5. 吃掉鬼魂： 当鬼魂变为蓝色时，吃豆人可以吃掉它们，吃掉蓝色鬼魂会增加额外的分数。蓝色鬼魂会在一段时间后恢复成正常状态并重新追逐吃豆人。
 
 6. 生命和得分： 玩家开始游戏时有多条生命。玩家通过吃豆子、吃掉鬼魂和完成特定任务（速通或保留更多生命）来获得分数。游戏的目标是获取尽可能高的分数。
+
+## 游戏截图
+
+<div style="text-align:center">
+  <img src="snapshots/ranking_list_2023-8-22.png" alt="排行榜(截至2023年8月22日)">
+  <figcaption>排行榜(截至2023年8月22日)</figcaption>
+</div>
+
+<div style="text-align:center">
+  <img src="snapshots/gaming.png" alt="运行时">
+  <figcaption>运行时</figcaption>
+</div>
+
+## 特别鸣谢
+
+特别感谢`单身剑法传人`（[B 站](https://space.bilibili.com/256768793/) & [GitHub](https://github.com/VisualGMQ)）对我的帮助。
+
+感谢以下内测人员的参与与反馈：
+
+```
+colin_008
+satori
+shear
+shear's Queen
+Crystal
+M-thor
+TX7
+Lynn00
+```
+
+## 算法依据
+
+[地图生成](https://shaunlebron.github.io/pacman-mazegen/) (简化了的)
+
+[游戏机制](https://gameinternals.com/understanding-pac-man-ghost-behavior)
 
 ## 更新日志
 
@@ -91,15 +126,9 @@
   - 增加了 inky 和 clyde 的出动条件（默认开局是不出鬼屋的）
   - 为 pacman 添加了动画
 
-## 算法依据
-
-[地图生成](https://shaunlebron.github.io/pacman-mazegen/) (简化了的)
-
-[游戏机制](https://gameinternals.com/understanding-pac-man-ghost-behavior)
-
 ## TODO
 
-- 随着游戏进程出现的加分水果
+- 随着游戏进程出现的加分水果(不做了)
 - ~~Pacman 不应该可以进入鬼屋~~
 - ~~Frightened 模式下对 Ghost 应该有连杀奖励~~
 - ~~触发彩蛋后????~~
