@@ -41,7 +41,8 @@ class GameContext final : public Singlton<GameContext> {
                 newGame();
             }
             if (SDL_SCANCODE_G == key) {
-                DebugMode = !DebugMode;
+                // ! 移除Debug模式
+                // DebugMode = !DebugMode;
             }
             if (SDL_SCANCODE_M == key) {
                 if (DebugMode) {
@@ -52,13 +53,6 @@ class GameContext final : public Singlton<GameContext> {
                         auto monster = monsters[i].get();
                         dynamic_cast<Ghost*>(monster)->ChangeMode(nowMode);
                     }
-                }
-            }
-            // todo delete me
-            if (SDL_SCANCODE_K == key) {
-                if (DebugMode) {
-                    state = GameState::Win;
-                    Won = true;
                 }
             }
             if (SDL_SCANCODE_P == key) {
