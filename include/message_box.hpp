@@ -8,16 +8,8 @@ inline MessageBoxResult ShowSDLMessageBox(const char* title,
                                           const char* message);
 
 inline MessageBoxResult ShowMessageBox(const char* title, const char* message) {
-#ifdef __EMSCRIPTEN__
-#include "emscripten.h"
-    int result = EM_ASM_INT(
-        {return confirm(UTF8ToString($0))},
-        std::string(std::string(title).append("\n").append(message)).c_str());
-    // std::cout << result << std::endl;
-    return static_cast<MessageBoxResult>(result);
-#else
+
     return ShowSDLMessageBox(title, message);
-#endif
 }
 
 MessageBoxResult ShowSDLMessageBox(const char* title, const char* message) {
