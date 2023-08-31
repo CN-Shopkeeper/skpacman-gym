@@ -28,11 +28,11 @@ include(cmake/copyresources.cmake)
 
 set(GAME_NAME Pacman)
 
-aux_source_directory(src SRC)
+aux_source_directory(src/cpp/src SRC)
 add_executable(${GAME_NAME} ${SRC})
 
 # target_precompile_headers(${GAME_NAME} PUBLIC "include/pch.hpp")
-target_include_directories(${GAME_NAME} PRIVATE include)
+target_include_directories(${GAME_NAME} PRIVATE src/cpp/include)
 
 target_link_libraries(${GAME_NAME} PRIVATE SDL2 SDL2_ttf)
 

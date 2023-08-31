@@ -8,3 +8,7 @@
 
 - [ ] ~~emscripten(WASM)~~
 
+## todo
+
+- [ ] env.action_space
+- [ ] env.observation_space
