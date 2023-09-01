@@ -16,3 +16,11 @@ wasm-build/*
 
 .vscode/*
 .idea/*
+
+build/
+dist/
+_build/
+_generate/
+*.so
+*.egg-info
+**/__pycache__/*

@@ -6,9 +6,13 @@ project(
     LANGUAGES CXX
 )
 
-# 开启控制台输出
-set(CMAKE_EXE_LINKER_FLAGS "-Wl,-subsystem,console")
+if(MSVC)
+    # 设置UTF-8编码选项
+    add_compile_options(/utf-8)
+endif()
 
+# 开启控制台输出
+# set(CMAKE_EXE_LINKER_FLAGS "-Wl,-subsystem,console")
 include(cmake/utility.cmake)
 
 if(WIN32)
@@ -25,14 +29,23 @@ include(cmake/FindSDL2_ttf.cmake)
 
 include(cmake/copydll.cmake)
 include(cmake/copyresources.cmake)
+add_subdirectory(extern/pybind11)
 
 set(GAME_NAME Pacman)
 
+# aux_source_directory(src/cpp/src SRC)
+# add_executable(${GAME_NAME} ${SRC})
 aux_source_directory(src/cpp/src SRC)
-add_executable(${GAME_NAME} ${SRC})
+
+list(REMOVE_ITEM SRC src/cpp/src/main.cpp)
+pybind11_add_module(${GAME_NAME} MODULE ${SRC})
+set_target_properties(${GAME_NAME} PROPERTIES
+    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
+)
 
 # target_precompile_headers(${GAME_NAME} PUBLIC "include/pch.hpp")
 target_include_directories(${GAME_NAME} PRIVATE src/cpp/include)
+target_include_directories(${GAME_NAME} PRIVATE ${PYBIND11_INCLUDE_PATH})
 
 target_link_libraries(${GAME_NAME} PRIVATE SDL2 SDL2_ttf)
 
