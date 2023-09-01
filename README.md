@@ -3,11 +3,40 @@
 本项目 Clone 自[pacman-SDL2](https://github.com/CN-Shopkeeper/pacman-SDL2)，目的是将 pacman-SDL2
 修改为适配[openai 的 gym 项目](https://gymnasium.farama.org/)的接口规范，并使用强化学习进行训练学习。
 
+## 项目结构说明
+
+```
+📦 skpacman-gym
+ ┣ 📂 cmake - cmake配置文件
+ ┣ 📂 resources - 资源文件
+ ┣ 📂 src
+ ┃ ┣ 📂 cpp - skpacman-sym的源码，改自pacman-SDL2
+ ┃ ┃ ┣ 📂 include - .hpp文件
+ ┃ ┃ ┗ 📂 src - .cpp文件
+ ┃ ┗ 📂 python - python的源码
+ ┃   ┣ 📂 skpacman_gym - skpacman_gym的类gym环境
+ ┃   ┃ ┣ 📂 skpacman_gym
+ ┃   ┃ ┃ ┣ 📂 envs 环境类
+ ┃   ┃ ┃   ┣ 📂 lib skpacman-sym源码编译结果
+ ┃   ┗ 📂 skpacman_rl - 强化学习代码，使用skpacman_gym的类gym环境
+ ┣ 📂 extern - 存放submodule，本项目使用了pybind11
+```
+
 ## skpacman-gym VS. pacman-SDL2
 
 - [x] 相同的游戏机制
 
 - [ ] ~~emscripten(WASM)~~
+
+## 递归克隆这个项目
+
+该项目使用了 pybind11 作为 submodule，请使用以下指令进行克隆：
+
+```shell
+git@github.com:CN-Shopkeeper/skpacman-gym.git
+```
+
+pybind11 将被克隆在`extern/pybind11`中。
 
 ## 编译 skpacman-gym 为.pyd
 
