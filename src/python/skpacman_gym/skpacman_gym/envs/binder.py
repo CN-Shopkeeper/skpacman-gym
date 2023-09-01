@@ -1,13 +1,14 @@
+from .lib import Pacman as ctx
+
 def get_pacman_location():
     return [0, 0]
 
 
-# todo 与cpp交互
 def init():
-    return {
-        "map_width": 10,
-        "map_height": 20
-    }
+    return ctx.init()
+
+def reset():
+    return
 
 
 # return reward and terminated
@@ -20,4 +21,5 @@ def render():
 
 
 def quit():
+    ctx.quit()
     return

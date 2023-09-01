@@ -3,10 +3,11 @@
 #include "consts.hpp"
 #include "context.hpp"
 #include "game_context.hpp"
+#include "pch.hpp"
 
 namespace py = pybind11;
 
-void Init() {
+py::dict Init() {
     SDL_Init(SDL_INIT_EVERYTHING);
     TTF_Init();
     Context::Init("Pacman", Vector2{WindowWidth, WindowHeight});
@@ -18,6 +19,11 @@ void Init() {
     textureManager.Load("Gameover", "./resources/gameover.bmp", KeyColor);
     GameContext::Init();
     RankingList::Init();
+
+    py::dict ctxInfo;
+    ctxInfo["map_width"] = MapWidth;
+    ctxInfo["map_height"] = MapHeight;
+    return ctxInfo;
 }
 
 void Quit() {

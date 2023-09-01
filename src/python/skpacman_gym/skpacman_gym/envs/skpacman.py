@@ -34,7 +34,9 @@ class SKPacmanEnv(gym.Env):
             options=None,
     ):
         super().reset(seed=seed)
-
+        
+        binder.reset()
+        
         if self.render_mode == "human":
             self._render_frame()
         return self._get_obs(), self._get_obs()
