@@ -49,7 +49,10 @@ void Map::Draw() {
     }
 }
 
-std::string Map::GenerateMap(int& beanCount) {
+std::string Map::GenerateMap(int& beanCount, std::optional<int> seed) {
+    if (seed != std::nullopt) {
+        Tetris::randSeed = seed.value();
+    }
     auto tetris = Tetris::GenerateTetris<tetrisHeight, tetrisWidth>();
     const size_t width3 = tetrisWidth * 3;
     const size_t height3 = tetrisHeight * 3;
@@ -223,23 +226,23 @@ MapCoordinate Map::NearestAccessibleTile(MapCoordinate target) {
             // 找到了第一个可以到达的点
             return {now.x, now.y};
         }
-        if (!visited[now.x - 1 + now.y * MapWidth] &&
-            IsInside(now.x - 1, now.y)) {
+        if (IsInside(now.x - 1, now.y) &&
+            !visited[now.x - 1 + now.y * MapWidth]) {
             queue.push({now.x - 1, now.y, now.step + 1, now.pre});
             visited[now.x - 1 + now.y * MapWidth] = true;
         }
-        if (!visited[now.x + 1 + now.y * MapWidth] &&
-            IsInside(now.x + 1, now.y)) {
+        if (IsInside(now.x + 1, now.y) &&
+            !visited[now.x + 1 + now.y * MapWidth]) {
             queue.push({now.x + 1, now.y, now.step + 1, now.pre});
             visited[now.x + 1 + now.y * MapWidth] = true;
         }
-        if (!visited[now.x + (now.y - 1) * MapWidth] &&
-            IsInside(now.x, now.y - 1)) {
+        if (IsInside(now.x, now.y - 1) &&
+            !visited[now.x + (now.y - 1) * MapWidth]) {
             queue.push({now.x, now.y - 1, now.step + 1, now.pre});
             visited[now.x + (now.y - 1) * MapWidth] = true;
         }
-        if (!visited[now.x + (now.y + 1) * MapWidth] &&
-            IsInside(now.x, now.y + 1)) {
+        if (IsInside(now.x, now.y + 1) &&
+            !visited[now.x + (now.y + 1) * MapWidth]) {
             queue.push({now.x, now.y + 1, now.step + 1, now.pre});
             visited[now.x + (now.y + 1) * MapWidth] = true;
         }

@@ -15,6 +15,8 @@ class GameContext final : public Singlton<GameContext> {
     bool DebugMode = false;
     // Won 和 GameIsOver用于记录游戏获胜或失败的那一刻
     bool Won = false, GameIsOver = false;
+    // 记录这一帧是否吃到了豆子
+    bool eatABean = false;
     std::unique_ptr<TextTexture> gameInfoText;
     std::unique_ptr<TextTexture> debugText;
     Texture* winImage;
@@ -38,7 +40,7 @@ class GameContext final : public Singlton<GameContext> {
             auto key = event_.key.keysym.scancode;
             scancodeQueue_.push(key);
             if (SDL_SCANCODE_R == key) {
-                newGame();
+                NewGame();
             }
             if (SDL_SCANCODE_G == key) {
                 // ! 移除Debug模式
@@ -72,9 +74,11 @@ class GameContext final : public Singlton<GameContext> {
 
     int GetScore() const { return score_; }
 
+    void NewGame(std::optional<int> seed = std::nullopt);
+
     void CalculateScore() {
-        score_ += getTimeBonus();
-        score_ += getRemainingLifeBonus();
+        score_ += GetTimeBonus();
+        score_ += GetRemainingLifeBonus();
     }
 
     int GetBeanEaten() const { return beanCount_ - beanLeft_; }
@@ -94,6 +98,15 @@ class GameContext final : public Singlton<GameContext> {
 
     void TryEasterEgg();
 
+    int GetTimeBonus() const {
+        return std::max(0, BonusTimeCount - GetElapsedFloor()) *
+               TimeBonusPerSec;
+    }
+
+    int GetRemainingLifeBonus() const {
+        return lifeRemaining_ * RemainingLifeBonus;
+    }
+
    private:
     bool shouldClose_ = false;
     SDL_Event event_;
@@ -112,27 +125,17 @@ class GameContext final : public Singlton<GameContext> {
     FixedSizeQueue<SDL_Scancode, 6> scancodeQueue_;
 
     void initEasterEggInfo();
-    void newGame();
     void dealCollideWithMap(Monster& Monster);
     void tryCapture();
-    void tryEatBean();
-
-    int getTimeBonus() const {
-        return std::max(0, BonusTimeCount - GetElapsedFloor()) *
-               TimeBonusPerSec;
-    }
-
-    int getRemainingLifeBonus() const {
-        return lifeRemaining_ * RemainingLifeBonus;
-    }
+    bool tryEatBean();
 
     void updateGameInfoText() {
         gameInfoText.reset(Context::GetInstance().GenerateTextTexture(
             std::string("Chrono: " + std::to_string(GetElapsedFloor()))
                 .append("\nBean Left:\n" + std::to_string(beanLeft_))
                 .append("\nScore:\n" + std::to_string(score_) + "+" +
-                        std::to_string(getTimeBonus()) + "+" +
-                        std::to_string(getRemainingLifeBonus()))
+                        std::to_string(GetTimeBonus()) + "+" +
+                        std::to_string(GetRemainingLifeBonus()))
                 .append("\n\nLifeRemaining")));
     }
 };

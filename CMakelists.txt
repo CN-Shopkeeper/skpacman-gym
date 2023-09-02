@@ -33,11 +33,11 @@ add_subdirectory(extern/pybind11)
 
 set(GAME_NAME Pacman)
 
-# aux_source_directory(src/cpp/src SRC)
-# add_executable(${GAME_NAME} ${SRC})
 aux_source_directory(src/cpp/src SRC)
-
+list(REMOVE_ITEM SRC src/cpp/src/test.cpp)
 list(REMOVE_ITEM SRC src/cpp/src/main.cpp)
+
+# add_executable(${GAME_NAME} ${SRC})
 pybind11_add_module(${GAME_NAME} MODULE ${SRC})
 set_target_properties(${GAME_NAME} PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib

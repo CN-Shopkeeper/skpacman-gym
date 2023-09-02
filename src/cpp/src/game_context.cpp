@@ -145,7 +145,7 @@ void GameContext::Update() {
             dealCollideWithMap(*monster);
         }
         tryCapture();
-        tryEatBean();
+        eatABean = tryEatBean();
         if (beanLeft_ == 0) {
             state = GameState::Win;
             Won = true;
@@ -176,7 +176,7 @@ void GameContext::initEasterEggInfo() {
     }
 }
 
-void GameContext::newGame() {
+void GameContext::NewGame(std::optional<int> seed) {
     state = Gaming;
     globalElapsed = 0;
     normalRunningElapsed = 0;
@@ -231,7 +231,7 @@ void GameContext::tryCapture() {
     }
 }
 
-void GameContext::tryEatBean() {
+bool GameContext::tryEatBean() {
     auto& pacman = controller->pacman;
     auto pacmanCor = pacman.GetMapCorrdinate();
     bool reach = pacman.ReachTheTile(0.6, 0);
@@ -252,16 +252,12 @@ void GameContext::tryEatBean() {
                 tile.type = Tile::Type::Empty;
                 score_ += BeanScore;
                 beanLeft_--;
+                return true;
                 break;
             default:
                 break;
         }
-        // if (tile.type == Tile::Type::Bean) {
-        // }
-        // if (tile.type == Tile::Type::PowerBean) {
-        //     tile.type = Tile::Type::Empty;
-        //     score_ += 10;
-        //     beanLeft_--;
-        // }
+
+        return false;
     }
 }
