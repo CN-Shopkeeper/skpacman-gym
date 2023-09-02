@@ -26,6 +26,11 @@
 
 - [x] 相同的游戏机制
 
+- [x] _使用 pybind11 打包成动态链接库_
+
+  - [x] _在 python 脚本中逐帧控制_
+  - [x] _暴露 init、quit、update、reset、render 等接口函数_
+
 - [ ] ~~emscripten(WASM)~~
 
 ## 递归克隆这个项目
