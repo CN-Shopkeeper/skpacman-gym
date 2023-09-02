@@ -96,7 +96,15 @@ std::tuple<int, bool> Update(int intentionCode) {
                 break;
         }
     }
-    gameCtx.HandleEvent();
+
+    auto& event = gameCtx.GetEvent();
+    while (SDL_PollEvent(&event)) {
+        if (event.type == SDL_QUIT) {
+            gameCtx.Exit();
+            Quit();
+        }
+        gameCtx.HandleEvent();
+    }
     gameCtx.Update();
 
     int reward = 0;
