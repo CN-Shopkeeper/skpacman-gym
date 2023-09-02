@@ -1,1 +1,1 @@
-from .skpacman import SKPacmanEnv
+from skpacman_gym.envs.skpacman import SKPacmanEnv

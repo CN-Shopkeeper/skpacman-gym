@@ -23,10 +23,11 @@ class SKPacmanEnv(gym.Env):
         self.render_mode = render_mode
 
     def _get_obs(self):
-        return {"agent": binder.get_pacman_location()}
+        return binder.get_observation()
 
     def _get_info(self):
-        return {"life_remains": 3, "time_bonus": 300}
+        # return {"life_remains": 3, "time_bonus": 300}
+        return binder.get_info()
 
     def reset(
             self,
@@ -36,10 +37,10 @@ class SKPacmanEnv(gym.Env):
         super().reset(seed=seed)
         
         binder.reset()
-        
+
         if self.render_mode == "human":
             self._render_frame()
-        return self._get_obs(), self._get_obs()
+        return self._get_obs(), self._get_info()
 
     def step(
             self, action
@@ -52,20 +53,13 @@ class SKPacmanEnv(gym.Env):
 
         return observation, reward, terminated, False, info
 
+    # ! return Nothing!
     def render(self):
-        if self.render_mode == "rgb_array":
-            return self._render_frame()
+        self._render_frame()
+        return
 
     def _render_frame(self):
-        rgb_array = binder.render()
-
-        if self.render_mode == "human":
-            return
-        else:  # rgb_array
-            # return np.transpose(
-            #     np.array(pygame.surfarray.pixels3d(canvas)), axes=(1, 0, 2)
-            # )
-            return rgb_array
+        binder.render()
 
     def close(self):
         binder.quit()
