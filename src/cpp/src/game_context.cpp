@@ -188,7 +188,8 @@ void GameContext::NewGame(std::optional<int> seed) {
     score_ = 0;
     modeCount_ = 0;
     // debugMode = false;
-    gameMap.reset(new Map(Map::GenerateMap(beanCount_), {MapWidth, MapHeight}));
+    gameMap.reset(
+        new Map(Map::GenerateMap(beanCount_, seed), {MapWidth, MapHeight}));
     beanLeft_ = beanCount_;
 
     monsters[0]->Reset();

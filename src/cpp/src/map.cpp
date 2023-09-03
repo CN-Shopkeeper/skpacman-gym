@@ -253,7 +253,6 @@ MapCoordinate Map::NearestAccessibleTile(MapCoordinate target) {
 
 template <const size_t height, const size_t width>
 std::array<int, height * width> Tetris::GenerateTetris() {
-    randSeed++;
     std::array<int, height * width> tetris{0};
     int flag = 1;
     // 鬼门
