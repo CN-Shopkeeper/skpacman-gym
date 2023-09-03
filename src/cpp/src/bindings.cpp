@@ -1,5 +1,6 @@
 #include "bindings.hpp"
 
+#include <pybind11/numpy.h>
 #include <pybind11/stl.h>
 
 py::dict Init() {
@@ -142,21 +143,26 @@ py::dict GetObservation() {
     auto& gameCtx = GameContext::GetInstance();
     auto pacman = dynamic_cast<Pacman*>(gameCtx.monsters[0].get());
     py::dict pacman_;
-    pacman_["position"] =
+    auto& position =
         std::array<float, 2>{pacman->GetPosition().x, pacman->GetPosition().y};
+    pacman_["position"] = py::array_t<float>(position.size(), position.data());
     pacman_["status"] = pacman->invincibleTime > 0.0f ? 1 : 0;
     pacman_["move_dir"] = static_cast<int>(pacman->movingDir) + 1;
-    pacman_["speed"] = pacman->speed;
+    pacman_["speed"] =
+        py::array_t<float>(1, std::array<float, 1>{pacman->speed}.data());
     observation["pacman"] = pacman_;
     std::tuple<py::dict, py::dict, py::dict, py::dict> ghosts;
     for (int i = 1; i < gameCtx.monsters.size(); i++) {
         auto ghost = dynamic_cast<Ghost*>(gameCtx.monsters[i].get());
         py::dict ghost_;
-        ghost_["position"] = std::array<float, 2>{ghost->GetPosition().x,
-                                                  ghost->GetPosition().y};
+        auto& position = std::array<float, 2>{ghost->GetPosition().x,
+                                              ghost->GetPosition().y};
+        ghost_["position"] =
+            py::array_t<float>(position.size(), position.data());
         ghost_["status"] = ghost->frightenedTime > 0.0f ? 1 : 0;
         ghost_["move_dir"] = static_cast<int>(ghost->movingDir) + 1;
-        ghost_["speed"] = ghost->speed;
+        ghost_["speed"] =
+            py::array_t<float>(1, std::array<float, 1>{ghost->speed}.data());
         switch (i - 1) {
             case 0:
                 std::get<0>(ghosts) = ghost_;
@@ -175,7 +181,9 @@ py::dict GetObservation() {
         }
     }
     observation["ghosts"] = ghosts;
-    observation["map_tiles"] = gameCtx.GetMapTiles();
+    auto& mapTiles = gameCtx.GetMapTiles();
+    observation["map_tiles"] =
+        py::array_t<int>(mapTiles.size(), mapTiles.data());
     observation["bonus_time"] = gameCtx.GetBonusTime();
     observation["life_remains"] = gameCtx.GetRemainingLife();
     return observation;
@@ -187,7 +195,18 @@ void Render() {
     renderer.SetColor(SDL_Color{0, 0, 0, 255});
     renderer.Clear();
     draw();
-    renderer.Present();
+    Context::TimePoint nowTime = std::chrono::system_clock::now();
+    std::chrono::duration<double> frameElapsedDuration =
+        nowTime - ctx.lastFrame;
+    double frameElapsed = frameElapsedDuration.count() * 1000;
+    if (frameElapsed >= FrameTime) {
+        renderer.Present();
+        ctx.lastFrame = nowTime;
+    } else {
+        SDL_Delay(FrameTime - frameElapsed);
+        renderer.Present();
+        ctx.lastFrame = std::chrono::system_clock::now();
+    }
 }
 
 void draw() {

@@ -80,6 +80,9 @@ constexpr int BonusTimeCount = 35;
 constexpr int RemainingLifeCount = 2;
 constexpr float InvinciateTime = 3.0f;
 
+constexpr int Framerate = 33;
+constexpr float FrameTime = 1000.f / Framerate;
+
 // 彩蛋相关
 
 // 彩蛋按键
