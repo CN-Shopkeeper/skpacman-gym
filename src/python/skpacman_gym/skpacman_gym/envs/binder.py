@@ -1,10 +1,13 @@
 from .lib import Pacman as ctx
 
+
 def get_observation():
-    return {}
+    return ctx.get_observation()
+
 
 def get_info():
     return {}
+
 
 def init():
     return ctx.init()
