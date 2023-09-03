@@ -7,7 +7,7 @@ from . import binder
 
 
 class SKPacmanEnv(gym.Env):
-    metadata = {"render_modes": ["human", "rgb_array"]}
+    metadata = {"render_modes": ["human"],"render_fps": 33}
 
     def __init__(self, render_mode=None):
         game_context_info = binder.init()
@@ -19,12 +19,12 @@ class SKPacmanEnv(gym.Env):
             {
                 "position": spaces.Box(low=np.array([0, 0]),
                                        high=np.array(
-                                           [map_width * tile_size - 1, map_height * tile_size - 1]),
+                                           [map_width * tile_size , map_height * tile_size]),
                                        shape=(2,), dtype=np.float32),
                 # ghost是否处于frightened状态或pacman是否处于无敌状态，0：no，1：yes
                 "status": spaces.Discrete(2),
-                "move_dir": spaces.Discrete(4),
-                "speed": spaces.Box(low=2, high=10, shape=(1,), dtype=np.float32)
+                "move_dir": spaces.Discrete(5),
+                "speed": spaces.Box(low=0, high=20,  dtype=np.float32)
             }
         )
         self.observation_space = spaces.Dict(
@@ -32,11 +32,11 @@ class SKPacmanEnv(gym.Env):
                 "pacman": monster,
                 "ghosts": spaces.Tuple((monster, monster, monster, monster)),
                 # 地图块，0：空，1：普通豆子，2：能量豆子，3：墙，4：鬼门
-                "map_tiles": spaces.Box(low=0, high=4, shape=(map_height * map_width,), dtype=np.int_),
+                "map_tiles": spaces.Box(low=0, high=4, shape=(map_height * map_width,), dtype=np.int32),
                 # 剩余奖励时间，最多35，最少0
-                "bonus_time": spaces.Discrete(35),
+                "bonus_time": spaces.Discrete(36),
                 # 剩余生命，最多2，最少0
-                "life_remains": spaces.Discrete(2)
+                "life_remains": spaces.Discrete(3)
             })
 
         # NOOP[0], RIGHT[1], DOWN[2], LEFT[3], UP[4]
