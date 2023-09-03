@@ -58,15 +58,24 @@ class RankingList : public Singlton<RankingList> {
 
     void getRankingListFromFile() {
         std::ifstream inFile("pacman_ranking_list.txt");
-        if (inFile.is_open()) {
+        if (!inFile.is_open()) {
+            // 文件打开失败，您可以选择在此处创建文件
+            std::ofstream output("pacman_ranking_list.txt");
+            if (output.is_open()) {
+                output.close();
+            } else {
+                // 文件创建失败
+                std::cerr << "无法创建文件 pacman_ranking_list.txt"
+                          << std::endl;
+            }
+        } else {
+            // 文件成功打开，您可以在这里读取文件的内容
             std::string id;
             std::string score;
             while (std::getline(inFile, id) && std::getline(inFile, score)) {
                 ranks_.Push({id, score});
             }
             inFile.close();
-        } else {
-            std::cerr << "Failed to open file for reading." << std::endl;
         }
     }
 

@@ -124,14 +124,14 @@ std::tuple<int, bool> Update(int intentionCode) {
         reward += gameCtx.GetTimeBonus();
         reward += gameCtx.GetRemainingLifeBonus();
         terminated = true;
-        // todo 记录进排行榜
+        RankingList::GetInstance().add("skpacman_rl", gameCtx.GetScore());
     }
     if (gameCtx.GameIsOver) {
         // 应该只触发一次
         gameCtx.GameIsOver = false;
         reward = -5000;
         terminated = true;
-        // todo 记录进排行榜
+        RankingList::GetInstance().add("skpacman_rl", gameCtx.GetScore());
     }
 
     return std::tuple<int, bool>(reward, terminated);
