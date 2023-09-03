@@ -150,7 +150,7 @@ void GameContext::Update() {
             state = GameState::Win;
             Won = true;
         }
-        updateGameInfoText();
+        UpdateGameInfoText();
         TryEasterEgg();
     }
 }
@@ -257,7 +257,6 @@ bool GameContext::tryEatBean() {
             default:
                 break;
         }
-
-        return false;
     }
+    return false;
 }

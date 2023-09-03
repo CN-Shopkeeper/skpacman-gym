@@ -15,9 +15,13 @@ py::dict Init() {
     GameContext::Init();
     RankingList::Init();
 
+    // Context::GetInstance().
+    GameContext::GetInstance().UpdateGameInfoText();
+
     py::dict ctxInfo;
     ctxInfo["map_width"] = MapWidth;
     ctxInfo["map_height"] = MapHeight;
+    ctxInfo["tile_size"] = TileSize;
     return ctxInfo;
 }
 
@@ -39,20 +43,6 @@ std::tuple<int, bool> Update(int intentionCode) {
         SDL_Event event;
         switch (intentionCode) {
             case 1:
-                // 模拟按下键盘上的 'W' 键
-                event.type = SDL_KEYDOWN;
-                event.key.keysym.sym = SDLK_w;
-                event.key.keysym.scancode = SDL_SCANCODE_W;
-                SDL_PushEvent(&event);
-
-                // 模拟释放键盘上的 'W' 键
-                event.type = SDL_KEYUP;
-                event.key.keysym.sym = SDLK_w;
-                event.key.keysym.scancode = SDL_SCANCODE_W;
-                SDL_PushEvent(&event);
-                break;
-
-            case 2:
                 // 模拟按下键盘上的 'D' 键
                 event.type = SDL_KEYDOWN;
                 event.key.keysym.sym = SDLK_d;
@@ -65,7 +55,8 @@ std::tuple<int, bool> Update(int intentionCode) {
                 event.key.keysym.scancode = SDL_SCANCODE_D;
                 SDL_PushEvent(&event);
                 break;
-            case 3:
+
+            case 2:
                 // 模拟按下键盘上的 'S' 键
                 event.type = SDL_KEYDOWN;
                 event.key.keysym.sym = SDLK_s;
@@ -78,17 +69,30 @@ std::tuple<int, bool> Update(int intentionCode) {
                 event.key.keysym.scancode = SDL_SCANCODE_S;
                 SDL_PushEvent(&event);
                 break;
-            case 4:
+            case 3:
                 // 模拟按下键盘上的 'A' 键
                 event.type = SDL_KEYDOWN;
                 event.key.keysym.sym = SDLK_a;
                 event.key.keysym.scancode = SDL_SCANCODE_A;
                 SDL_PushEvent(&event);
 
-                // 模拟释放键盘上的 'W' 键
+                // 模拟释放键盘上的 'A' 键
                 event.type = SDL_KEYUP;
                 event.key.keysym.sym = SDLK_a;
                 event.key.keysym.scancode = SDL_SCANCODE_A;
+                SDL_PushEvent(&event);
+                break;
+            case 4:
+                // 模拟按下键盘上的 'W' 键
+                event.type = SDL_KEYDOWN;
+                event.key.keysym.sym = SDLK_w;
+                event.key.keysym.scancode = SDL_SCANCODE_W;
+                SDL_PushEvent(&event);
+
+                // 模拟释放键盘上的 'W' 键
+                event.type = SDL_KEYUP;
+                event.key.keysym.sym = SDLK_w;
+                event.key.keysym.scancode = SDL_SCANCODE_W;
                 SDL_PushEvent(&event);
                 break;
 
@@ -133,7 +137,49 @@ std::tuple<int, bool> Update(int intentionCode) {
     return std::tuple<int, bool>(reward, terminated);
 }
 
-// py::dict GetObservation() {}
+py::dict GetObservation() {
+    py::dict observation;
+    auto& gameCtx = GameContext::GetInstance();
+    auto pacman = dynamic_cast<Pacman*>(gameCtx.monsters[0].get());
+    py::dict pacman_;
+    pacman_["position"] =
+        std::array<float, 2>{pacman->GetPosition().x, pacman->GetPosition().y};
+    pacman_["status"] = pacman->invincibleTime > 0.0f ? 1 : 0;
+    pacman_["move_dir"] = static_cast<int>(pacman->movingDir) + 1;
+    pacman_["speed"] = pacman->speed;
+    observation["pacman"] = pacman_;
+    std::tuple<py::dict, py::dict, py::dict, py::dict> ghosts;
+    for (int i = 1; i < gameCtx.monsters.size(); i++) {
+        auto ghost = dynamic_cast<Ghost*>(gameCtx.monsters[i].get());
+        py::dict ghost_;
+        ghost_["position"] = std::array<float, 2>{ghost->GetPosition().x,
+                                                  ghost->GetPosition().y};
+        ghost_["status"] = ghost->frightenedTime > 0.0f ? 1 : 0;
+        ghost_["move_dir"] = static_cast<int>(ghost->movingDir) + 1;
+        ghost_["speed"] = ghost->speed;
+        switch (i - 1) {
+            case 0:
+                std::get<0>(ghosts) = ghost_;
+                break;
+            case 1:
+                std::get<1>(ghosts) = ghost_;
+                break;
+            case 2:
+                std::get<2>(ghosts) = ghost_;
+                break;
+            case 3:
+                std::get<3>(ghosts) = ghost_;
+                break;
+            default:
+                break;
+        }
+    }
+    observation["ghosts"] = ghosts;
+    observation["map_tiles"] = gameCtx.GetMapTiles();
+    observation["bonus_time"] = gameCtx.GetBonusTime();
+    observation["life_remains"] = gameCtx.GetRemainingLife();
+    return observation;
+}
 
 void Render() {
     auto& ctx = Context::GetInstance();
@@ -184,15 +230,6 @@ void draw() {
                                  textHeightOffset);
         textHeightOffset += gameCtx.debugText->rect.h + TileSize;
     }
-    // 绘制用户ID
-    if (ctx.playerIdHandler.canInput) {
-        auto text = ctx.GenerateTextTexture(
-            "Your ID is:\n(" +
-            std::to_string(ctx.playerIdHandler.GetContent().length()) +
-            "/10)\n" + ctx.playerIdHandler.GetContent() +
-            "\nEsc to Cancel\nEnter to Confirm");
-        renderer.DrawTextTexture(*text, TileSize * MapWidth, textHeightOffset);
-    }
     // 绘制排行榜
     auto text = ctx.GenerateTextTexture(RankingList::GetInstance().ToString());
 
@@ -222,4 +259,5 @@ PYBIND11_MODULE(Pacman, m) {
     m.def("reset", &Reset, "Reset with seed", py::arg("seed") = std::nullopt);
     m.def("update", &Update, "Update");
     m.def("render", &Render, "Render");
+    m.def("get_observation", &GetObservation, "Get observation");
 }

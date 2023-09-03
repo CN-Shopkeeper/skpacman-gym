@@ -103,8 +103,51 @@ class GameContext final : public Singlton<GameContext> {
                TimeBonusPerSec;
     }
 
+    int GetBonusTime() const {
+        return std::max(0, BonusTimeCount - GetElapsedFloor());
+    }
+
     int GetRemainingLifeBonus() const {
         return lifeRemaining_ * RemainingLifeBonus;
+    }
+
+    std::array<int, MapWidth * MapHeight> GetMapTiles() const {
+        std::array<int, MapWidth * MapHeight> mapTiles;
+        for (int i = 0; i < MapWidth; i++) {
+            for (int j = 0; j < MapHeight; j++) {
+                auto& tile = gameMap->GetTile(i, j);
+                switch (tile.type) {
+                    case Tile::Type::Empty:
+                        mapTiles[i + j * MapWidth] = 0;
+                        break;
+                    case Tile::Type::Bean:
+                        mapTiles[i + j * MapWidth] = 1;
+                        break;
+                    case Tile::Type::PowerBean:
+                        mapTiles[i + j * MapWidth] = 2;
+                        break;
+                    case Tile::Type::Wall:
+                        mapTiles[i + j * MapWidth] = 3;
+                        break;
+                    case Tile::Type::GhostDoor:
+                        mapTiles[i + j * MapWidth] = 4;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+        return mapTiles;
+    }
+
+    void UpdateGameInfoText() {
+        gameInfoText.reset(Context::GetInstance().GenerateTextTexture(
+            std::string("Chrono: " + std::to_string(GetElapsedFloor()))
+                .append("\nBean Left:\n" + std::to_string(beanLeft_))
+                .append("\nScore:\n" + std::to_string(score_) + "+" +
+                        std::to_string(GetTimeBonus()) + "+" +
+                        std::to_string(GetRemainingLifeBonus()))
+                .append("\n\nLifeRemaining")));
     }
 
    private:
@@ -128,14 +171,4 @@ class GameContext final : public Singlton<GameContext> {
     void dealCollideWithMap(Monster& Monster);
     void tryCapture();
     bool tryEatBean();
-
-    void updateGameInfoText() {
-        gameInfoText.reset(Context::GetInstance().GenerateTextTexture(
-            std::string("Chrono: " + std::to_string(GetElapsedFloor()))
-                .append("\nBean Left:\n" + std::to_string(beanLeft_))
-                .append("\nScore:\n" + std::to_string(score_) + "+" +
-                        std::to_string(GetTimeBonus()) + "+" +
-                        std::to_string(GetRemainingLifeBonus()))
-                .append("\n\nLifeRemaining")));
-    }
 };

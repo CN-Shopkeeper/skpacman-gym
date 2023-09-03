@@ -10,7 +10,7 @@ py::dict Init();
 
 void Quit();
 
-// py::dict GetObservation();
+py::dict GetObservation();
 
 void Reset(std::optional<int> randomSeed);
 
