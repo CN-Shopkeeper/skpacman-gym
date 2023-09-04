@@ -145,17 +145,16 @@ bool Monster::isTurnBack() const {
 
 Image& Pacman::GetImage() {
     auto& gameCtx = GameContext::GetInstance();
-    int index = std::fmod(gameCtx.globalElapsed, 0.4f) < 0.2 ? 0 : 1;
+    int index = gameCtx.globalFrame % 16 < 8 ? 0 : 1;
     return images.at(index);
 }
 
 void Pacman::Update() {
     auto& gameCtx = GameContext::GetInstance();
     auto& image = GetImage();
-    if (invincibleTime > 0) {
-        image.color = std::fmod(gameCtx.globalElapsed, 0.2f) < 0.1
-                          ? InvincibleColor
-                          : WhiteColor;
+    if (invincibleFrame > 0) {
+        image.color =
+            gameCtx.globalFrame % 8 < 4 ? InvincibleColor : WhiteColor;
         speed = 10;
     } else {
         image.color = WhiteColor;
@@ -169,9 +168,9 @@ void Ghost::Update() {
     auto& pacman = gameCtx.controller->pacman;
     // 更新颜色
     // 如果害怕效果时间还剩3秒，应当闪烁提示
-    if (frightenedTime > 0) {
-        if (frightenedTime <= 3.0f) {
-            if (std::fmod(gameCtx.globalElapsed, 0.4f) < 0.2) {
+    if (frightenedFrame > 0) {
+        if (frightenedFrame <= static_cast<int>(3.0f * Framerate)) {
+            if (gameCtx.globalFrame % 16 < 8) {
                 GetImage().color = GetColor();
             } else {
                 GetImage().color = FrightenedColor;
@@ -292,11 +291,11 @@ void Ghost::ChangeMode(Mode _mode) {
     scatterInfo_.scatterCCW = false;
     scatterInfo_.scatterCheckPoint = false;
     if (mode == Mode::Frightened) {
-        frightenedTime = FrightenedTime;
+        frightenedFrame = static_cast<int>(FrightenedTime * Framerate);
         speed = 2.0f;
         GetImage().color = FrightenedColor;
     } else {
-        frightenedTime = 0.0f;
+        frightenedFrame = 0;
         speed = 5.0f;
         GetImage().color = getColor(name);
     }
@@ -430,7 +429,7 @@ Ghost::AIType Ghost::aiScatter_ = [](Pacman& pacman, Ghost& ghost) {
 
 Ghost::AIType Ghost::aiWaiting_ = [](Pacman& pacman, Ghost& ghost) {
     auto& gameCtx = GameContext::GetInstance();
-    if (std::fmod(gameCtx.globalElapsed, 1.0f) < 0.5) {
+    if (gameCtx.globalFrame % 32 < 16) {
         return Direction::Down;
     } else {
         return Direction::Up;

@@ -92,7 +92,7 @@ class Monster {
 
 class Pacman : public Monster {
    public:
-    float invincibleTime = 0.0f;
+    int invincibleFrame = 0;
 
     Pacman(const std::vector<Image>&& _images) : Monster(std::move(_images)) {
         position_ = getInitPosition();
@@ -107,7 +107,7 @@ class Pacman : public Monster {
 
     void Reset() override {
         Monster::Reset();
-        invincibleTime = 0;
+        invincibleFrame = 0;
     }
 
    private:
@@ -120,7 +120,7 @@ class Pacman : public Monster {
 class Ghost : public Monster {
    public:
     enum Mode { Chase = 0, Scatter = 1, Frightened = 2 };
-    float frightenedTime = 0.0f;
+    int frightenedFrame = 0;
     Ghost(const std::vector<Image>&& _images, std::string _name,
           MapCoordinate scatterPoint)
         : Monster(std::move(_images)), name(_name), color_(getColor(_name)) {

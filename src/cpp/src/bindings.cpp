@@ -117,7 +117,7 @@ std::tuple<int, bool> Update(int intentionCode) {
     if (gameCtx.eatABean) {
         reward += 10;
     }
-    reward+=gameCtx.captureResult;
+    reward += gameCtx.captureResult;
     if (gameCtx.Won) {
         // 应该只触发一次
         gameCtx.Won = false;
@@ -145,7 +145,7 @@ ObservationDict GetObservation() {
     auto& position =
         std::array<float, 2>{pacman->GetPosition().x, pacman->GetPosition().y};
     pacman_["position"] = position;
-    pacman_["status"] = pacman->invincibleTime > 0.0f ? 1 : 0;
+    pacman_["status"] = pacman->invincibleFrame;
     pacman_["move_dir"] = static_cast<int>(pacman->movingDir) + 1;
     pacman_["speed"] = std::array<float, 1>{pacman->speed};
     observation["pacman"] = pacman_;
@@ -156,7 +156,7 @@ ObservationDict GetObservation() {
         auto& position = std::array<float, 2>{ghost->GetPosition().x,
                                               ghost->GetPosition().y};
         ghost_["position"] = position;
-        ghost_["status"] = ghost->frightenedTime > 0.0f ? 1 : 0;
+        ghost_["status"] = ghost->frightenedFrame;
         ghost_["move_dir"] = static_cast<int>(ghost->movingDir) + 1;
         ghost_["speed"] = std::array<float, 1>{ghost->speed};
         switch (i - 1) {

@@ -23,10 +23,10 @@ class GameContext final : public Singlton<GameContext> {
     std::unique_ptr<TextTexture> rankingListText;
     Texture* winImage;
     Texture* gameoverImage;
-    // 游戏正常运行的时间
-    float normalRunningElapsed = 0;
-    // 全局过去的时间，用于对贴图进行更新
-    float globalElapsed = 0;
+    // 游戏正常运行的帧数
+    int normalRunningFrame = 0;
+    // 全局过去的帧数，用于对贴图进行更新
+    int globalFrame = 0;
 
     std::array<EasterEgg, 4> easterEggInfo;
 
@@ -85,14 +85,17 @@ class GameContext final : public Singlton<GameContext> {
 
     int GetBeanEaten() const { return beanCount_ - beanLeft_; }
 
-    int GetElapsedFloor() const { return std::floor(normalRunningElapsed); }
+    int GetElapsedFloor() const {
+        return static_cast<int>(
+            std::floor(normalRunningFrame * FrameTime / 1000));
+    }
 
     int GetRemainingLife() const { return lifeRemaining_; }
 
     void UpdateDebugText() {
         Ghost* ghost = dynamic_cast<Ghost*>(monsters[1].get());
         debugText.reset(Context::GetInstance().GenerateTextTexture(
-            "Global Chrono: " + std::to_string(globalElapsed) +
+            "Global Chrono: " + std::to_string(globalFrame * FrameTime / 1000) +
             "\nMultiKill Reward: " + std::to_string(multiKillReward_) +
             "\nGhost mode:\n" + ghost->GetModeStr() + "\nRandom Seed:\n" +
             std::to_string(Tetris::randSeed)));
@@ -165,12 +168,12 @@ class GameContext final : public Singlton<GameContext> {
     int lifeRemaining_ = RemainingLifeCount;
     int score_ = 0;
     int modeCount_ = 0;
-    float energizedTime_ = 0.0f;
+    int energizedFrame_ = 0;
     int multiKillReward_ = MultiKillReward;
     // 全局时间戳
-    TimePoint globalTime_ = std::chrono::system_clock::now();
-    // 上一帧的时间戳
-    TimePoint frameTime_ = globalTime_;
+    // TimePoint globalTime_ = std::chrono::system_clock::now();
+    // // 上一帧的时间戳
+    // TimePoint frameTime_ = globalTime_;
 
     FixedSizeQueue<SDL_Scancode, 6> scancodeQueue_;
 
