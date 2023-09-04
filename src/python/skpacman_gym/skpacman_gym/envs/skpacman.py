@@ -7,7 +7,7 @@ from . import binder
 
 
 class SKPacmanEnv(gym.Env):
-    metadata = {"render_modes": ["human"],"render_fps": 33}
+    metadata = {"render_modes": ["human"], "render_fps": 33}
 
     def __init__(self, render_mode=None):
         game_context_info = binder.init()
@@ -19,12 +19,12 @@ class SKPacmanEnv(gym.Env):
             {
                 "position": spaces.Box(low=np.array([0, 0]),
                                        high=np.array(
-                                           [map_width * tile_size , map_height * tile_size]),
+                                           [map_width * tile_size, map_height * tile_size]),
                                        shape=(2,), dtype=np.float32),
                 # ghost是否处于frightened状态或pacman是否处于无敌状态，0：no，1：yes
-                "status": spaces.Discrete(2),
+                "status": spaces.Discrete(15 * 33 + 1),
                 "move_dir": spaces.Discrete(5),
-                "speed": spaces.Box(low=0, high=20,  dtype=np.float32)
+                "speed": spaces.Box(low=0, high=20, dtype=np.float32)
             }
         )
         self.observation_space = spaces.Dict(
