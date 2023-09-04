@@ -16,7 +16,7 @@ class Context final : public Singlton<Context> {
     TimePoint lastFrame =
         std::chrono::system_clock::from_time_t(std::time_t{0});
 
-    Context(const std::string& title, const Size& windowSize);
+    Context(const std::string& title, const Size& windowSize,const std::string& baseDir);
     auto& GetRenderer() { return *renderer_; }
     auto& GetTextureManager() { return *textureManager_; }
     TextTexture* GenerateTextTexture(const std::string&,

@@ -1,4 +1,5 @@
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 
 #include <unordered_map>
 #include <variant>
@@ -18,7 +19,7 @@ using ObservationDict = std::unordered_map<
                  std::tuple<MonsterDict, MonsterDict, MonsterDict, MonsterDict>,
                  std::array<int, MapWidth * MapHeight>, int>>;
 
-std::unordered_map<std::string,int> Init();
+std::unordered_map<std::string,int> Init(const std::string& baseDir);
 
 void Quit();
 

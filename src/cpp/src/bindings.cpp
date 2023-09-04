@@ -1,15 +1,17 @@
 #include "bindings.hpp"
 
-std::unordered_map<std::string, int> Init() {
+std::unordered_map<std::string, int> Init(const std::string& baseDir) {
     SDL_Init(SDL_INIT_EVERYTHING);
     TTF_Init();
-    Context::Init("Pacman", Vector2{WindowWidth, WindowHeight});
+    Context::Init("Pacman", Vector2{WindowWidth, WindowHeight}, baseDir);
     auto& ctx = Context::GetInstance();
     auto& textureManager = ctx.GetTextureManager();
-    textureManager.LoadTilesheet(TilesheetName, "./resources/tilesheet.bmp",
-                                 KeyColor, TilesheetCol, TilesheetRow);
-    textureManager.Load("Win", "./resources/win.bmp", KeyColor);
-    textureManager.Load("Gameover", "./resources/gameover.bmp", KeyColor);
+    textureManager.LoadTilesheet(TilesheetName,
+                                 baseDir + "/resources/tilesheet.bmp", KeyColor,
+                                 TilesheetCol, TilesheetRow);
+    textureManager.Load("Win", baseDir + "/resources/win.bmp", KeyColor);
+    textureManager.Load("Gameover", baseDir + "/resources/gameover.bmp",
+                        KeyColor);
     GameContext::Init();
     RankingList::Init();
 
@@ -267,7 +269,8 @@ void draw() {
 PYBIND11_MODULE(Pacman, m) {
     m.doc() = "pybind11 example plugin";  // optional module docstring
 
-    m.def("init", &Init, "Init SDL, Context and GameContext");
+    m.def("init", &Init, "Init SDL, Context and GameContext",
+          py::arg("base_dir"));
     m.def("quit", &Quit, "Quit");
     m.def("reset", &Reset, "Reset with seed", py::arg("seed") = std::nullopt);
     m.def("update", &Update, "Update");
