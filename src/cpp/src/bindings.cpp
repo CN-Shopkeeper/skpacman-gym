@@ -1,6 +1,7 @@
 #include "bindings.hpp"
 
-std::unordered_map<std::string, int> Init(const std::string& baseDir) {
+std::unordered_map<std::string, int> Init(const std::string& baseDir,
+                                          bool debug) {
     SDL_Init(SDL_INIT_EVERYTHING);
     TTF_Init();
     Context::Init("Pacman", Vector2{WindowWidth, WindowHeight}, baseDir);
@@ -14,6 +15,8 @@ std::unordered_map<std::string, int> Init(const std::string& baseDir) {
                         KeyColor);
     GameContext::Init();
     RankingList::Init();
+
+    GameContext::GetInstance().DebugMode = debug;
 
     // Context::GetInstance().
     GameContext::GetInstance().UpdateGameInfoText();
@@ -272,7 +275,7 @@ PYBIND11_MODULE(Pacman, m) {
     m.doc() = "pybind11 example plugin";  // optional module docstring
 
     m.def("init", &Init, "Init SDL, Context and GameContext",
-          py::arg("base_dir"));
+          py::arg("base_dir"), py::arg("debug"));
     m.def("quit", &Quit, "Quit");
     m.def("reset", &Reset, "Reset with seed", py::arg("seed") = std::nullopt);
     m.def("update", &Update, "Update");

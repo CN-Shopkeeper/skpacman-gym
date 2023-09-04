@@ -19,7 +19,7 @@ using ObservationDict = std::unordered_map<
                  std::tuple<MonsterDict, MonsterDict, MonsterDict, MonsterDict>,
                  std::array<int, MapWidth * MapHeight>, int>>;
 
-std::unordered_map<std::string,int> Init(const std::string& baseDir);
+std::unordered_map<std::string,int> Init(const std::string& baseDir,bool debug=false);
 
 void Quit();
 
