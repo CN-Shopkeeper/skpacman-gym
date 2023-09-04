@@ -125,12 +125,14 @@ std::tuple<int, bool> Update(int intentionCode) {
         reward += gameCtx.GetTimeBonus();
         reward += gameCtx.GetRemainingLifeBonus();
         terminated = true;
+        std::cout << "Your Score Is " << gameCtx.GetScore() << std::endl;
         RankingList::GetInstance().add("skpacman_rl", gameCtx.GetScore());
     }
     if (gameCtx.GameIsOver) {
         // 应该只触发一次
         gameCtx.GameIsOver = false;
         terminated = true;
+        std::cout << "Your Score Is " << gameCtx.GetScore() << std::endl;
         RankingList::GetInstance().add("skpacman_rl", gameCtx.GetScore());
     }
 
