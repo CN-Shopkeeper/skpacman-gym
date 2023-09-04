@@ -144,7 +144,7 @@ void GameContext::Update() {
         for (auto& monster : monsters) {
             dealCollideWithMap(*monster);
         }
-        tryCapture();
+        captureResult = tryCapture();
         eatABean = tryEatBean();
         if (beanLeft_ == 0) {
             state = GameState::Win;
@@ -204,7 +204,8 @@ void GameContext::NewGame(std::optional<int> seed) {
     }
 }
 
-void GameContext::tryCapture() {
+int GameContext::tryCapture() {
+    int captureResult = 0;
     Pacman* pacman = dynamic_cast<Pacman*>(monsters[0].get());
     auto pacmanRect = pacman->GetRect();
     for (int i = 1; i < monsters.size(); i++) {
@@ -212,24 +213,28 @@ void GameContext::tryCapture() {
         auto ghostRect = ghost->GetRect();
         if (pacmanRect.IsIntersect(ghostRect)) {
             if (ghost->IsFrightened()) {
-                std::cout << ghost->name << " is catched" << std::endl;
+                // std::cout << ghost->name << " is catched" << std::endl;
                 ghost->Reset();
                 score_ += multiKillReward_;
+                captureResult += multiKillReward_;
                 multiKillReward_ += MultiKillReward;
             } else {
                 if (!(DebugMode || pacman->invincibleTime > 0.0f)) {
                     if (lifeRemaining_ <= 0) {
                         state = GameState::Gameover;
                         GameIsOver = true;
+                        captureResult -= 5000;
                     } else {
                         lifeRemaining_--;
                         pacman->Reset();
                         pacman->invincibleTime = InvinciateTime;
+                        captureResult -= 1000;
                     }
                 }
             }
         }
     }
+    return captureResult;
 }
 
 bool GameContext::tryEatBean() {

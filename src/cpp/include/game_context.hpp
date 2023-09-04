@@ -17,6 +17,7 @@ class GameContext final : public Singlton<GameContext> {
     bool Won = false, GameIsOver = false;
     // 记录这一帧是否吃到了豆子
     bool eatABean = false;
+    int captureResult = 0;
     std::unique_ptr<TextTexture> gameInfoText;
     std::unique_ptr<TextTexture> debugText;
     std::unique_ptr<TextTexture> rankingListText;
@@ -175,6 +176,6 @@ class GameContext final : public Singlton<GameContext> {
 
     void initEasterEggInfo();
     void dealCollideWithMap(Monster& Monster);
-    void tryCapture();
+    int tryCapture();
     bool tryEatBean();
 };

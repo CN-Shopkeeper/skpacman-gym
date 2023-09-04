@@ -117,6 +117,7 @@ std::tuple<int, bool> Update(int intentionCode) {
     if (gameCtx.eatABean) {
         reward += 10;
     }
+    reward+=gameCtx.captureResult;
     if (gameCtx.Won) {
         // 应该只触发一次
         gameCtx.Won = false;
@@ -129,7 +130,6 @@ std::tuple<int, bool> Update(int intentionCode) {
     if (gameCtx.GameIsOver) {
         // 应该只触发一次
         gameCtx.GameIsOver = false;
-        reward = -5000;
         terminated = true;
         RankingList::GetInstance().add("skpacman_rl", gameCtx.GetScore());
     }
