@@ -1,16 +1,28 @@
 #include <pybind11/pybind11.h>
 
+#include <unordered_map>
+#include <variant>
+
 #include "consts.hpp"
 #include "context.hpp"
 #include "game_context.hpp"
 
 namespace py = pybind11;
 
-py::dict Init();
+using MonsterDict = std::unordered_map<
+    std::string, std::variant<std::array<float, 2>, int, std::array<float, 1>>>;
+
+using ObservationDict = std::unordered_map<
+    std::string,
+    std::variant<MonsterDict,
+                 std::tuple<MonsterDict, MonsterDict, MonsterDict, MonsterDict>,
+                 std::array<int, MapWidth * MapHeight>, int>>;
+
+std::unordered_map<std::string,int> Init();
 
 void Quit();
 
-py::dict GetObservation();
+ObservationDict GetObservation();
 
 void Reset(std::optional<int> randomSeed);
 

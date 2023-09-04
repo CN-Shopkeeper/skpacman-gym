@@ -24,3 +24,7 @@ _generate/
 *.so
 *.egg-info
 **/__pycache__/*
+
+.vs/
+
+CMakeSettings.json

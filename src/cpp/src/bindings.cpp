@@ -1,9 +1,6 @@
 #include "bindings.hpp"
 
-#include <pybind11/numpy.h>
-#include <pybind11/stl.h>
-
-py::dict Init() {
+std::unordered_map<std::string, int> Init() {
     SDL_Init(SDL_INIT_EVERYTHING);
     TTF_Init();
     Context::Init("Pacman", Vector2{WindowWidth, WindowHeight});
@@ -19,7 +16,7 @@ py::dict Init() {
     // Context::GetInstance().
     GameContext::GetInstance().UpdateGameInfoText();
 
-    py::dict ctxInfo;
+    std::unordered_map<std::string, int> ctxInfo;
     ctxInfo["map_width"] = MapWidth;
     ctxInfo["map_height"] = MapHeight;
     ctxInfo["tile_size"] = TileSize;
@@ -138,31 +135,28 @@ std::tuple<int, bool> Update(int intentionCode) {
     return std::tuple<int, bool>(reward, terminated);
 }
 
-py::dict GetObservation() {
-    py::dict observation;
+ObservationDict GetObservation() {
+    ObservationDict observation;
     auto& gameCtx = GameContext::GetInstance();
     auto pacman = dynamic_cast<Pacman*>(gameCtx.monsters[0].get());
-    py::dict pacman_;
+    MonsterDict pacman_;
     auto& position =
         std::array<float, 2>{pacman->GetPosition().x, pacman->GetPosition().y};
-    pacman_["position"] = py::array_t<float>(position.size(), position.data());
+    pacman_["position"] = position;
     pacman_["status"] = pacman->invincibleTime > 0.0f ? 1 : 0;
     pacman_["move_dir"] = static_cast<int>(pacman->movingDir) + 1;
-    pacman_["speed"] =
-        py::array_t<float>(1, std::array<float, 1>{pacman->speed}.data());
+    pacman_["speed"] = std::array<float, 1>{pacman->speed};
     observation["pacman"] = pacman_;
-    std::tuple<py::dict, py::dict, py::dict, py::dict> ghosts;
+    std::tuple<MonsterDict, MonsterDict, MonsterDict, MonsterDict> ghosts;
     for (int i = 1; i < gameCtx.monsters.size(); i++) {
         auto ghost = dynamic_cast<Ghost*>(gameCtx.monsters[i].get());
-        py::dict ghost_;
+        MonsterDict ghost_;
         auto& position = std::array<float, 2>{ghost->GetPosition().x,
                                               ghost->GetPosition().y};
-        ghost_["position"] =
-            py::array_t<float>(position.size(), position.data());
+        ghost_["position"] = position;
         ghost_["status"] = ghost->frightenedTime > 0.0f ? 1 : 0;
         ghost_["move_dir"] = static_cast<int>(ghost->movingDir) + 1;
-        ghost_["speed"] =
-            py::array_t<float>(1, std::array<float, 1>{ghost->speed}.data());
+        ghost_["speed"] = std::array<float, 1>{ghost->speed};
         switch (i - 1) {
             case 0:
                 std::get<0>(ghosts) = ghost_;
@@ -182,8 +176,7 @@ py::dict GetObservation() {
     }
     observation["ghosts"] = ghosts;
     auto& mapTiles = gameCtx.GetMapTiles();
-    observation["map_tiles"] =
-        py::array_t<int>(mapTiles.size(), mapTiles.data());
+    observation["map_tiles"] = mapTiles;
     observation["bonus_time"] = gameCtx.GetBonusTime();
     observation["life_remains"] = gameCtx.GetRemainingLife();
     return observation;
@@ -250,9 +243,10 @@ void draw() {
         textHeightOffset += gameCtx.debugText->rect.h + TileSize;
     }
     // 绘制排行榜
-    auto text = ctx.GenerateTextTexture(RankingList::GetInstance().ToString());
+    gameCtx.UpdateRankingListText();
 
-    renderer.DrawTextTexture(*text, TileSize * MapWidth + TipsWidth, 0);
+    renderer.DrawTextTexture(*gameCtx.rankingListText,
+                             TileSize * MapWidth + TipsWidth, 0);
     //  绘制彩蛋
     for (auto& easterEgg : gameCtx.easterEggInfo) {
         if (easterEgg.show) {

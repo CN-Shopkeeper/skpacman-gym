@@ -19,6 +19,7 @@ class GameContext final : public Singlton<GameContext> {
     bool eatABean = false;
     std::unique_ptr<TextTexture> gameInfoText;
     std::unique_ptr<TextTexture> debugText;
+    std::unique_ptr<TextTexture> rankingListText;
     Texture* winImage;
     Texture* gameoverImage;
     // 游戏正常运行的时间
@@ -148,6 +149,11 @@ class GameContext final : public Singlton<GameContext> {
                         std::to_string(GetTimeBonus()) + "+" +
                         std::to_string(GetRemainingLifeBonus()))
                 .append("\n\nLifeRemaining")));
+    }
+
+    void UpdateRankingListText() {
+        rankingListText.reset(Context::GetInstance().GenerateTextTexture(
+            RankingList::GetInstance().ToString()));
     }
 
    private:
