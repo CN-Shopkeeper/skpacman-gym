@@ -265,15 +265,15 @@ void Ghost::Update() {
 }
 
 void Ghost::Debug() {
-    std::unique_ptr<SDL_Point[]> path_(new SDL_Point[path.size()]);
-    for (int i = 0; i < path.size(); i++) {
-        int randX = std::rand() % 3 - 1;
-        int randY = std::rand() % 3 - 1;
-        path_[i] = {
-            static_cast<int>(path[i].x * TileSize + TileSize / 2) + randX,
-            static_cast<int>(path[i].y * TileSize + TileSize / 2) + randY};
-    }
-    Context::GetInstance().GetRenderer().DrawPath(path_, color_, path.size());
+    // std::unique_ptr<SDL_Point[]> path_(new SDL_Point[path.size()]);
+    // for (int i = 0; i < path.size(); i++) {
+    //     int randX = std::rand() % 3 - 1;
+    //     int randY = std::rand() % 3 - 1;
+    //     path_[i] = {
+    //         static_cast<int>(path[i].x * TileSize + TileSize / 2) + randX,
+    //         static_cast<int>(path[i].y * TileSize + TileSize / 2) + randY};
+    // }
+    // Context::GetInstance().GetRenderer().DrawPath(path_, color_, path.size());
 }
 
 void Ghost::InitAiMap() {

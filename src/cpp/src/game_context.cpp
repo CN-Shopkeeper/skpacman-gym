@@ -119,18 +119,31 @@ void GameContext::Update() {
         }
 
         auto beanEaten = GetBeanEaten();
-        if (beanEaten > 30) {
-            // 吃掉超过30个豆子时，inky加入战斗
-            Ghost* inky = dynamic_cast<Ghost*>(monsters[3].get());
-            inky->joinChasing = true;
+        // skpacman_gym: debugm模式下ghost不出来
+        if (DebugMode) {
+            for (int i = 1; i < monsters.size(); i++) {
+                Ghost* ghost = dynamic_cast<Ghost*>(monsters[i].get());
+                ghost->joinChasing = false;
+            }
+        } else {
+            if (beanEaten > 30) {
+                // 吃掉超过30个豆子时，inky加入战斗
+                Ghost* inky = dynamic_cast<Ghost*>(monsters[3].get());
+                inky->joinChasing = true;
+            }
+            if (beanEaten > beanCount_ / 3) {
+                // 吃掉超过1/3豆子时，clyde加入战斗
+                Ghost* clyde = dynamic_cast<Ghost*>(monsters[4].get());
+                clyde->joinChasing = true;
+            }
         }
-        if (beanEaten > beanCount_ / 3) {
-            // 吃掉超过1/3豆子时，clyde加入战斗
-            Ghost* clyde = dynamic_cast<Ghost*>(monsters[4].get());
-            clyde->joinChasing = true;
-        }
-        for (auto& monster : monsters) {
-            monster->Update();
+        
+        pacman->Update();
+        if (!DebugMode) {
+            for (int i = 1; i < monsters.size(); i++) {
+                Ghost* ghost = dynamic_cast<Ghost*>(monsters[i].get());
+                ghost->Update();
+            }
         }
 
         for (auto& monster : monsters) {
@@ -201,7 +214,7 @@ int GameContext::tryCapture() {
         Ghost* ghost = dynamic_cast<Ghost*>(monsters[i].get());
         auto ghostRect = ghost->GetRect();
         if (pacmanRect.IsIntersect(ghostRect)) {
-            if (ghost->IsFrightened()) {
+            if (ghost->IsFrightened() && !DebugMode) {
                 // std::cout << ghost->name << " is catched" << std::endl;
                 ghost->Reset();
                 score_ += multiKillReward_;
