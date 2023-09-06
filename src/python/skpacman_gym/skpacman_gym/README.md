@@ -2,7 +2,7 @@
 
 |                   |                                                                                                                                                                                                            |
 | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Action Space      | `Discrete`(4)                                                                                                                                                                                              |
+| Action Space      | `Discrete(4)`                                                                                                                                                                                              |
 | Observation Space | `Dict('bonus_time': Discrete(36), 'ghosts': Tuple(Monster, Monster, Monster, Monster), 'life_remains': Discrete(3), 'map_tiles': Box(0, 4, (870,), int32), 'pacman': Monster , 'reach_tile': Discrete(2))` |
 | Import            | `gymnasium.make('shopkeeper/skpacman-v0')`                                                                                                                                                                 |
 
@@ -10,6 +10,12 @@ Monster 为
 
 ```python
 Dict('move_dir': Discrete(4), 'position': Box(0, [30 29], (2,), int32), 'speed': Discrete(20), 'status': Discrete(496))
+```
+
+可以指定`simple=True`以开启简单模式（无 Ghost）
+
+```python
+env = gym.make('shopkeeper/skpacman-v0', render_mode="human", simple=True)
 ```
 
 ## Actions Spaces
@@ -54,4 +60,4 @@ Dict('move_dir': Discrete(4), 'position': Box(0, [30 29], (2,), int32), 'speed':
 | Name                 | import                                                   | Explanation                                                                                                                                                                                                    |
 | -------------------- | -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | SKFlattenObservation | `from skpacman_gym.wrappers import SKFlattenObservation` | 将原先的字典形式的 Observation 拉成一维数组，拉伸的顺序是：`["reach_tile", "pacman", "ghosts", "map_tiles", "bonus_time","life_remains"]`；Monster 的拉伸顺序是：`["position", "status", "move_dir", "speed"]` |
-| GreedyObservation    | `from skpacman_gym.wrappers import GreedyObservation`    | 专门为不会强化学习的宝宝提供的贪心算法策略，使用了强大的 Shopkeeper 的远见函数。Observation 修改为`["reach_tile", "Right Weight", "Down Weight", "Left Weight", "Up Weight"]`，选最大的就完事了                |
+| GreedyObservation    | `from skpacman_gym.wrappers import GreedyObservation`    | (simple 模式下)专门为不会强化学习的宝宝提供的贪心算法策略，使用了强大的 Shopkeeper 的远见函数。Observation 修改为`["reach_tile", "Right Weight", "Down Weight", "Left Weight", "Up Weight"]`，选最大的就完事了 |
