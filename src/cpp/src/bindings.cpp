@@ -123,12 +123,18 @@ std::tuple<int, bool> Update(int intentionCode) {
     if (!gameCtx.DebugMode) {
         reward += gameCtx.captureResult;
     }
+    if (gameCtx.eatABean) {
+        reward += 10;
+    }
     if (gameCtx.Won) {
         // 应该只触发一次
         gameCtx.Won = false;
         gameCtx.CalculateScore();
         reward += gameCtx.GetTimeBonus();
-        reward += gameCtx.GetRemainingLifeBonus();
+        if (!gameCtx.DebugMode) {
+            // debug(simple) 模式下不给剩余生命的奖励分了
+            reward += gameCtx.GetRemainingLifeBonus();
+        }
         terminated = true;
         std::cout << "Your Score Is " << gameCtx.GetScore() << std::endl;
         RankingList::GetInstance().add("skpacman_rl", gameCtx.GetScore());
