@@ -11,7 +11,7 @@
 namespace py = pybind11;
 
 using MonsterDict = std::unordered_map<
-    std::string, std::variant<std::array<float, 2>, int, std::array<float, 1>>>;
+    std::string, std::variant<std::array<int, 2>, int>>;
 
 using ObservationDict = std::unordered_map<
     std::string,
@@ -19,7 +19,8 @@ using ObservationDict = std::unordered_map<
                  std::tuple<MonsterDict, MonsterDict, MonsterDict, MonsterDict>,
                  std::array<int, MapWidth * MapHeight>, int>>;
 
-std::unordered_map<std::string,int> Init(const std::string& baseDir,bool debug=false);
+std::unordered_map<std::string, int> Init(const std::string& baseDir,
+                                          bool debug = false);
 
 void Quit();
 

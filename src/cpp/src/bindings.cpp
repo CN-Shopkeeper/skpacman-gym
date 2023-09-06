@@ -42,85 +42,87 @@ void Reset(std::optional<int> randomSeed) {
 
 std::tuple<int, bool> Update(int intentionCode) {
     auto& gameCtx = GameContext::GetInstance();
-    if (intentionCode != 0) {
-        SDL_Event event;
-        switch (intentionCode) {
-            case 1:
-                // 模拟按下键盘上的 'D' 键
-                event.type = SDL_KEYDOWN;
-                event.key.keysym.sym = SDLK_d;
-                event.key.keysym.scancode = SDL_SCANCODE_D;
-                SDL_PushEvent(&event);
-
-                // 模拟释放键盘上的 'D' 键
-                event.type = SDL_KEYUP;
-                event.key.keysym.sym = SDLK_d;
-                event.key.keysym.scancode = SDL_SCANCODE_D;
-                SDL_PushEvent(&event);
-                break;
-
-            case 2:
-                // 模拟按下键盘上的 'S' 键
-                event.type = SDL_KEYDOWN;
-                event.key.keysym.sym = SDLK_s;
-                event.key.keysym.scancode = SDL_SCANCODE_S;
-                SDL_PushEvent(&event);
-
-                // 模拟释放键盘上的 'S' 键
-                event.type = SDL_KEYUP;
-                event.key.keysym.sym = SDLK_s;
-                event.key.keysym.scancode = SDL_SCANCODE_S;
-                SDL_PushEvent(&event);
-                break;
-            case 3:
-                // 模拟按下键盘上的 'A' 键
-                event.type = SDL_KEYDOWN;
-                event.key.keysym.sym = SDLK_a;
-                event.key.keysym.scancode = SDL_SCANCODE_A;
-                SDL_PushEvent(&event);
-
-                // 模拟释放键盘上的 'A' 键
-                event.type = SDL_KEYUP;
-                event.key.keysym.sym = SDLK_a;
-                event.key.keysym.scancode = SDL_SCANCODE_A;
-                SDL_PushEvent(&event);
-                break;
-            case 4:
-                // 模拟按下键盘上的 'W' 键
-                event.type = SDL_KEYDOWN;
-                event.key.keysym.sym = SDLK_w;
-                event.key.keysym.scancode = SDL_SCANCODE_W;
-                SDL_PushEvent(&event);
-
-                // 模拟释放键盘上的 'W' 键
-                event.type = SDL_KEYUP;
-                event.key.keysym.sym = SDLK_w;
-                event.key.keysym.scancode = SDL_SCANCODE_W;
-                SDL_PushEvent(&event);
-                break;
-
-            default:
-                break;
-        }
-    }
-
     auto& event = gameCtx.GetEvent();
-    while (SDL_PollEvent(&event)) {
-        if (event.type == SDL_QUIT) {
+    switch (intentionCode) {
+        case 0:
+            // 模拟按下键盘上的 'D' 键
+            event.type = SDL_KEYDOWN;
+            event.key.keysym.sym = SDLK_d;
+            event.key.keysym.scancode = SDL_SCANCODE_D;
+
+            // // 模拟释放键盘上的 'D' 键
+            // event.type = SDL_KEYUP;
+            // event.key.keysym.sym = SDLK_d;
+            // event.key.keysym.scancode = SDL_SCANCODE_D;
+            break;
+
+        case 1:
+            // 模拟按下键盘上的 'S' 键
+            event.type = SDL_KEYDOWN;
+            event.key.keysym.sym = SDLK_s;
+            event.key.keysym.scancode = SDL_SCANCODE_S;
+
+            // // 模拟释放键盘上的 'S' 键
+            // event.type = SDL_KEYUP;
+            // event.key.keysym.sym = SDLK_s;
+            // event.key.keysym.scancode = SDL_SCANCODE_S;
+            break;
+        case 2:
+            // 模拟按下键盘上的 'A' 键
+            event.type = SDL_KEYDOWN;
+            event.key.keysym.sym = SDLK_a;
+            event.key.keysym.scancode = SDL_SCANCODE_A;
+
+            // // 模拟释放键盘上的 'A' 键
+            // event.type = SDL_KEYUP;
+            // event.key.keysym.sym = SDLK_a;
+            // event.key.keysym.scancode = SDL_SCANCODE_A;
+            break;
+        case 3:
+            // 模拟按下键盘上的 'W' 键
+            event.type = SDL_KEYDOWN;
+            event.key.keysym.sym = SDLK_w;
+            event.key.keysym.scancode = SDL_SCANCODE_W;
+
+            // // 模拟释放键盘上的 'W' 键
+            // event.type = SDL_KEYUP;
+            // event.key.keysym.sym = SDLK_w;
+            // event.key.keysym.scancode = SDL_SCANCODE_W;
+            break;
+
+        default:
+            break;
+    }
+    gameCtx.HandleEvent();
+
+    SDL_Event outEvent;
+    while (SDL_PollEvent(&outEvent)) {
+        if (outEvent.type == SDL_QUIT) {
             gameCtx.Exit();
             Quit();
         }
-        gameCtx.HandleEvent();
+        if (outEvent.type == SDL_KEYDOWN) {
+            auto key = outEvent.key.keysym.scancode;
+            if (SDL_SCANCODE_P == key) {
+                if (gameCtx.state == GameContext::GameState::Paused) {
+                    gameCtx.state = GameContext::GameState::Gaming;
+                    std::cout << "Gaming" << std::endl;
+                } else if (gameCtx.state == GameContext::GameState::Gaming) {
+                    gameCtx.state = GameContext::GameState::Paused;
+                    std::cout << "Paused" << std::endl;
+                }
+            }
+        }
     }
+
     gameCtx.Update();
 
     int reward = 0;
     bool terminated = false;
 
-    if (gameCtx.eatABean) {
-        reward += 10;
+    if (!gameCtx.DebugMode) {
+        reward += gameCtx.captureResult;
     }
-    reward += gameCtx.captureResult;
     if (gameCtx.Won) {
         // 应该只触发一次
         gameCtx.Won = false;
@@ -147,23 +149,24 @@ ObservationDict GetObservation() {
     auto& gameCtx = GameContext::GetInstance();
     auto pacman = dynamic_cast<Pacman*>(gameCtx.monsters[0].get());
     MonsterDict pacman_;
-    auto& position =
-        std::array<float, 2>{pacman->GetPosition().x, pacman->GetPosition().y};
+    auto& position = std::array<int, 2>{pacman->GetMapCorrdinate().x,
+                                        pacman->GetMapCorrdinate().y};
     pacman_["position"] = position;
     pacman_["status"] = pacman->invincibleFrame;
-    pacman_["move_dir"] = static_cast<int>(pacman->movingDir) + 1;
-    pacman_["speed"] = std::array<float, 1>{pacman->speed};
+    pacman_["move_dir"] = static_cast<int>(pacman->movingDir);
+    pacman_["speed"] = static_cast<int>(pacman->speed);
     observation["pacman"] = pacman_;
+
     std::tuple<MonsterDict, MonsterDict, MonsterDict, MonsterDict> ghosts;
     for (int i = 1; i < gameCtx.monsters.size(); i++) {
         auto ghost = dynamic_cast<Ghost*>(gameCtx.monsters[i].get());
         MonsterDict ghost_;
-        auto& position = std::array<float, 2>{ghost->GetPosition().x,
-                                              ghost->GetPosition().y};
+        auto& position = std::array<int, 2>{ghost->GetMapCorrdinate().x,
+                                            ghost->GetMapCorrdinate().y};
         ghost_["position"] = position;
         ghost_["status"] = ghost->frightenedFrame;
-        ghost_["move_dir"] = static_cast<int>(ghost->movingDir) + 1;
-        ghost_["speed"] = std::array<float, 1>{ghost->speed};
+        ghost_["move_dir"] = static_cast<int>(ghost->movingDir);
+        ghost_["speed"] = static_cast<int>(ghost->speed);
         switch (i - 1) {
             case 0:
                 std::get<0>(ghosts) = ghost_;
@@ -186,6 +189,7 @@ ObservationDict GetObservation() {
     observation["map_tiles"] = mapTiles;
     observation["bonus_time"] = gameCtx.GetBonusTime();
     observation["life_remains"] = gameCtx.GetRemainingLife();
+    observation["reach_tile"] = pacman->ReachTheTile(0.6f, 0.4f) ? 1 : 0;
     return observation;
 }
 
@@ -275,7 +279,7 @@ PYBIND11_MODULE(Pacman, m) {
     m.doc() = "pybind11 example plugin";  // optional module docstring
 
     m.def("init", &Init, "Init SDL, Context and GameContext",
-          py::arg("base_dir"), py::arg("debug"));
+          py::arg("base_dir") = ".", py::arg("debug") = false);
     m.def("quit", &Quit, "Quit");
     m.def("reset", &Reset, "Reset with seed", py::arg("seed") = std::nullopt);
     m.def("update", &Update, "Update");

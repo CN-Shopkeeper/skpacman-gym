@@ -41,27 +41,6 @@ class GameContext final : public Singlton<GameContext> {
         if (SDL_KEYDOWN == event_.type) {
             auto key = event_.key.keysym.scancode;
             scancodeQueue_.push(key);
-            if (SDL_SCANCODE_R == key) {
-                NewGame();
-            }
-            if (SDL_SCANCODE_G == key) {
-                // ! 移除Debug模式
-                // DebugMode = !DebugMode;
-            }
-            if (SDL_SCANCODE_M == key) {
-                if (DebugMode) {
-                    modeCount_++;
-                    auto nowMode = static_cast<Ghost::Mode>(modeCount_ % 3);
-                    std::cout << nowMode << std::endl;
-                    for (int i = 1; i < monsters.size(); i++) {
-                        auto monster = monsters[i].get();
-                        dynamic_cast<Ghost*>(monster)->ChangeMode(nowMode);
-                    }
-                }
-            }
-            if (SDL_SCANCODE_P == key) {
-                state = static_cast<GameState>(1 - static_cast<int>(state));
-            }
             if (GameState::Gaming == state) {
                 controller->HandleEvent(event_);
             }
