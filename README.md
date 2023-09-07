@@ -31,7 +31,7 @@
 
 1. 游戏 skpacman-sym 的工程，修改自 pacman-SDL2。编译这个工程可以得到.pyd 动态链接库，是第二个子工程的依赖
 2. skpacman_gym 的类 gym 环境，（应该完全）兼容 OpenAI 的 gym 的接口。通过 setuptools 打包这个项目得到 python 依赖 skpacman_gym，可以在第三个子工程中当作强化学习的环境
-3. ~~强化学习的网络与训练环境搭建。我准备暂时就用一个全连接的 DQN。~~太难哩，先跑个没有 ghost 的贪心算法。
+3. ~~强化学习的网络与训练环境搭建。我准备暂时就用一个全连接的 DQN。~~ 太难哩，先跑个没有 ghost 的贪心算法。
 
 ## skpacman-gym VS. pacman-SDL2
 
@@ -149,8 +149,7 @@ import Pacman as ctx
 
 ## 使用 skpacman-gym 进行强化学习训练
 
-暂时还没开始做，目前放了一个使用 skpacman-gym 的例子，该例子中每一帧 pacman 都选取随机的一个 action 进行操作。见`src/python/skpacman_rl/test.py`。
-确保你完成上一步 skpacman_gym 的类 gym 环境的安装。
+太难了，强化不了一点。
 
 ## todo
 
