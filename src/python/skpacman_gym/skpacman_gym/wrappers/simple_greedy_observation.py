@@ -6,7 +6,7 @@ from gymnasium import ObservationWrapper
 from gymnasium.spaces import Box
 
 
-class GreedyObservation(ObservationWrapper):
+class SimpleGreedyObservation(ObservationWrapper):
     def __init__(self, env, simple=False):
         super().__init__(env)
         self.dir_to_coor = [[1, 0], [0, 1], [-1, 0], [0, -1]]
