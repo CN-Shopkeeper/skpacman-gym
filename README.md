@@ -5,6 +5,8 @@
 
 [skpacman_gym 的类 gym 环境文档](./src/python/skpacman_gym/skpacman_gym/README.md)
 
+本项目的配套视频[《关于我为了尝试强化学习而做了一个游戏出来这件事》](https://www.bilibili.com/video/BV1pj41117uj/?share_source=copy_web&vd_source=d98dc4bde6b0d1be9d9fc62c4779fed0)
+
 ## 项目结构说明
 
 ```
