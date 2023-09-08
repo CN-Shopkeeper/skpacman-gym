@@ -1,9 +1,9 @@
 import gymnasium as gym
 import skpacman_gym
-from skpacman_gym.wrappers import SKFlattenObservation, GreedyObservation
+from skpacman_gym.wrappers import SKFlattenObservation, SimpleGreedyObservation
 
 env = gym.make('shopkeeper/skpacman-v0', render_mode="human", simple=True)
-env = GreedyObservation(env)
+env = SimpleGreedyObservation(env)
 print(env.observation_space)
 
 try:
