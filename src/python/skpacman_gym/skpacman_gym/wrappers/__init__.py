@@ -1,2 +1,3 @@
 from .sk_flatten_observation import SKFlattenObservation
-from .greedy_observation import GreedyObservation
+from .simple_greedy_observation import SimpleGreedyObservation
+from .simple_observation import SimpleObservation
