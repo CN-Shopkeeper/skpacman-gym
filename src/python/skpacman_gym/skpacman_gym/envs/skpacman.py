@@ -59,7 +59,7 @@ class SKPacmanEnv(gym.Env):
     ):
         super().reset(seed=seed)
 
-        binder.reset()
+        binder.reset(seed)
 
         if self.render_mode == "human":
             self._render_frame()
