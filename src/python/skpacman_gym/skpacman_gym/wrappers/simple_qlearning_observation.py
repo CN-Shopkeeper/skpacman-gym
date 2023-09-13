@@ -5,8 +5,13 @@ import queue
 
 
 class SimpleQLearningObservation(ObservationWrapper):
-    def __init__(self, env):
+    def __init__(self, env, performance=False):
+        '''
+        :param env: 环境
+        :param performance: performance为性能模式，默认为False，开启后当且仅当reach_tile == 1时进行实际的observation转换
+        '''
         super().__init__(env)
+        self.performance = performance
         self.dir_to_coor = [[1, 0], [0, 1], [-1, 0], [0, -1]]
         self.game_ctx_info = env.get_wrapper_attr('game_context_info')
         self.map_width = self.game_ctx_info["map_width"]
@@ -54,8 +59,10 @@ class SimpleQLearningObservation(ObservationWrapper):
                                      dtype=np.int32)
 
     def observation(self, obs):
-        obs_ = []
-        obs_.append(obs["reach_tile"])
+        reach_tile = obs["reach_tile"]
+        if self.performance and reach_tile == 0:
+            return np.array([0] * self.length, dtype=np.int32)
+        obs_ = [reach_tile]
 
         pacman = obs["pacman"]
         pac_x, pac_y = pacman["position"]
@@ -67,60 +74,56 @@ class SimpleQLearningObservation(ObservationWrapper):
         map_tiles = [3 if x == 4 else x for x in map_tiles]
         map_width = self.game_ctx_info["map_width"]
 
+        # power_bean
+        power_bean_info = None
         power_beans = [index for index, value in enumerate(map_tiles) if value == 2]
-        if len(power_beans) > 0:
-            step = 999
-            dir = 0
-            for power_bean in power_beans:
-                p_x_ = power_bean % map_width
-                p_y_ = power_bean // map_width
-                step_, dir_ = self._shortest_path((p_x_, p_y_), (pac_x, pac_y), map_tiles)
-                dir_ = (dir_ + 2) % 4
-                if step_ < step:
-                    step = step_
-                    dir = dir_
-            frame_to_go = (self.game_ctx_info["tile_size"] * step) / pacman["speed"]
-            if frame_to_go >= status:
-                obs_.append(dir + 1)
-            else:
-                obs_.append(-(dir + 1))
-        else:
-            # 没有能量豆了，直接返回0
-            obs_.append(0)
-
-        for dir in range(4):
-            dir_x, dir_y = self.dir_to_coor[dir]
-            obs_.append(map_tiles[pac_x + dir_x + (pac_y + dir_y) * map_width])
+        if len(power_beans) == 0:
+            power_bean_info = 0
 
         # deus ex machina
-
         pacman_pos = pacman["position"]
         deus_ex_machina_arr = [0] * 4
-        max_step = 999
+        deus_ex_machina_max_step = 999
 
         list_ = []
         index = 0
         visited: set = set()
         visited.add((pacman_pos[0], pacman_pos[1]))
-        for dir in range(4):
-            coor = self.dir_to_coor[dir]
+        for direction in range(4):
+            coor = self.dir_to_coor[direction]
             tile_type = map_tiles[pacman_pos[0] + coor[0] + (pacman_pos[1] + coor[1]) * map_width]
             if tile_type < 3:
-                list_.append((pacman_pos[0] + coor[0], pacman_pos[1] + coor[1], -1, 0, dir))
+                list_.append((pacman_pos[0] + coor[0], pacman_pos[1] + coor[1], -1, 0, direction))
 
         while index < len(list_):
             x, y, pre, step, _ = list_[index]
-            # 超过最大步长，直接返回
-            if step > max_step:
+            # 能量豆只检查十步以内的
+            if step > 10 and power_bean_info is None:
+                power_bean_info = 0
+            # 超过机械降神最大步长，且找到最近能量豆的信息，直接返回
+            if step > deus_ex_machina_max_step and power_bean_info is not None:
                 break
             visited.add((x, y))
             tile_type = map_tiles[x + y * map_width]
+            # deus ex machina
             if tile_type in [1, 2]:
-                max_step = step
+                if deus_ex_machina_max_step > step:
+                    deus_ex_machina_max_step = step
+                    trace_back = list_[index]
+                    while trace_back[2] != -1:
+                        trace_back = list_[trace_back[2]]
+                    deus_ex_machina_arr[trace_back[4]] = 1
+            # power bean info
+            if tile_type == 2 and power_bean_info is None:
                 trace_back = list_[index]
                 while trace_back[2] != -1:
                     trace_back = list_[trace_back[2]]
-                deus_ex_machina_arr[trace_back[4]] = 1
+                power_bean_dir = trace_back[4]
+                frame_to_go = (self.game_ctx_info["tile_size"] * step) / pacman["speed"]
+                if frame_to_go >= status:
+                    power_bean_info = power_bean_dir + 1
+                else:
+                    power_bean_info = -(power_bean_dir + 1)
 
             for dir_ in range(4):
                 coor_ = self.dir_to_coor[dir_]
@@ -132,6 +135,16 @@ class SimpleQLearningObservation(ObservationWrapper):
                         list_.append((dx, dy, index, step + 1, dir_))
 
             index += 1
+
+        if power_bean_info is None:
+            # 手动清除reach_tile==0时没吃到能量豆的情形
+            power_bean_info = 0
+        obs_.append(power_bean_info)
+
+        # surroundings
+        for direction in range(4):
+            dir_x, dir_y = self.dir_to_coor[direction]
+            obs_.append(map_tiles[pac_x + dir_x + (pac_y + dir_y) * map_width])
 
         obs_.extend(deus_ex_machina_arr)
 

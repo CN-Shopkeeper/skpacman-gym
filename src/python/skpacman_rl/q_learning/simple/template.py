@@ -3,7 +3,7 @@ import skpacman_gym
 from skpacman_gym.wrappers import SimpleQLearningObservation
 
 env = gym.make('shopkeeper/skpacman-v0', render_mode="human", simple=True)
-env = SimpleQLearningObservation(env)
+env = SimpleQLearningObservation(env, performance=True)
 print(env.observation_space)
 
 try:

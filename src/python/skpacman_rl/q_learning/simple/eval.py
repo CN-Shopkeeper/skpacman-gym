@@ -6,7 +6,7 @@ from brain import QLearningTable
 
 env = gym.make('shopkeeper/skpacman-v0', render_mode="human", simple=True)
 # env = gym.make('shopkeeper/skpacman-v0', simple=True)
-env = SimpleQLearningObservation(env)
+env = SimpleQLearningObservation(env,performance=True)
 print(env.observation_space)
 
 try:
@@ -23,6 +23,7 @@ try:
 
                 action = rl.choose_action(str(observation[1:]))
                 print(action)
+                print("\n")
 
                 last_chosen = step
 
@@ -35,7 +36,7 @@ try:
 
 
     rl_ = QLearningTable(actions=[0, 1, 2, 3],e_greedy=1.0)
-    rl_.load("q_table_33.csv")
+    rl_.load("q_table.csv")
     eval(rl_)
 
 finally:
