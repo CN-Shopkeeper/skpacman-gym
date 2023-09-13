@@ -1,3 +1,4 @@
 from .sk_flatten_observation import SKFlattenObservation
 from .simple_greedy_observation import SimpleGreedyObservation
 from .simple_observation import SimpleObservation
+from .simple_qlearning_observation import SimpleQLearningObservation

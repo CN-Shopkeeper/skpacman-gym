@@ -1,9 +1,9 @@
 import gymnasium as gym
 import skpacman_gym
-from skpacman_gym.wrappers import SimpleObservation
+from skpacman_gym.wrappers import SimpleQLearningObservation
 
 env = gym.make('shopkeeper/skpacman-v0', render_mode="human", simple=True)
-env = SimpleObservation(env, size=(3, 3))
+env = SimpleQLearningObservation(env)
 print(env.observation_space)
 
 try:
